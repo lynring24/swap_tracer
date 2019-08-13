@@ -24,7 +24,6 @@ def is_nearby(mark, spos):
 def print_line(time, mark, spos):
     pos = int (spos/ABSTRACT)
     blank ="%"+str(pos)+"s"
-    time.year = curr_year
 
     if mark == 'R':
 	plots[READ].write("%s %s \n"%(str(time), spos))
@@ -34,7 +33,7 @@ def print_line(time, mark, spos):
 	plots[SWAP].write("%s %s \n"%(str(time), spos))
 
 
-date_pattern = "%b %d %H:%M:%S"
+date_pattern = "%Y %b %d %H:%M:%S"
 def print_mean_state():
     if len(group)==0:
 	return 
@@ -69,7 +68,7 @@ def get_info_of(line):
    time = matched.group(2)
 
 # compare with exectime
-   time = datetime.strptime(date+time, date_pattern)
+   time = datetime.strptime(str(exectime.year)+" "+date+time, date_pattern)
    if time < exectime:
       return None
 
@@ -115,7 +114,7 @@ def get_position_of(line):
 
 
 if len(sys.argv) < 2 or len(sys.argv) > 5:          
-  print "usage : swptrace.py [-m] [log file] <datetime(%b %d %H:%M:%S)> <command>"
+  print "usage : swptrace.py [-m] [log file] <datetime(%Y %b %d %H:%M:%S)> <command>"
   exit(1)
 
 
@@ -123,7 +122,6 @@ option = None
 fname = "/var/log/messages"
 command = sys.argv[-1][:15]
 exectime = datetime.strptime(sys.argv[-2], date_pattern)
-curr_year = datetime.now().year
 
 if len(sys.argv) == 4:
   if sys.argv[1] == "-m":
