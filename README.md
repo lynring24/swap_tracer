@@ -6,8 +6,8 @@ Swap Tracer is an effective tool to visualize the change in memory and analyze i
 ## Environment/Requirement
 + os : centos 7 ( linux series are available. )
 + kernel : 5.1.14 ( older versions are available also.)  
-+ [lazybox](https://github.com/sjp38/lazybox) : work of @sjp38, needed for the limited memory usage.
-+ [gnuplot]() : a visualization tool
++ [lazybox](https://github.com/sjp38/lazybox) : work of @sjp38, if needed for the limited memory usage(optional).
++ [gnuplot]() : a visualization tool (optional).
 
 ## [Kernel Patch](https://github.com/lynring24/swap_tracer/blob/master/tracer_kernel.patch)
 > patch -p0 < tracer_kernel.patch   
@@ -17,17 +17,18 @@ In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/m
 ## How To Use
 Since there might be a data locality, trace could be done in more abstracted mode with option [-m].
 
-> $ sudo  sh   DIR/swaptracer/run_swap_tracer.sh -m   MEM_LIMIT COMMAND     
+> $ sudo  sh   DIR/swaptracer/run_swap_tracer.sh \[-m\]  \[MEM_LIMIT\] COMMAND     
+> ex) sudo  sh run_swap_tracer.sh "python cnn.py"       
 > ex) sudo  sh  run_swap_tracer.sh   524   "python cnn.py"  
 > ex) sudo  sh  run_swap_tracer.sh  -m   256 "python cnn.py"
 
 **sudo**  Tracer reads log file which needs the permission of root.
 
-**mem limit in MiB** limits the usage of memory.
+**-m** option for simpler version, output of the statistical mean value(optional).
+
+**mem limit in MiB** limits the usage of memory. (optional)
 
 **command** programs to be run.
-
-**-m** option for simpler version, output of the statistical mean value(optional).
 
 
 ## Result
