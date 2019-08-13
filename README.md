@@ -18,7 +18,7 @@ In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/m
 Since there might be a data locality, trace could be done in more abstracted mode with option [-m].
 
 > $ sudo  sh   DIR/swaptracer/run_swap_tracer.sh \[-m\]  \[MEM_LIMIT\] COMMAND     
-> ex) sudo  sh run_swap_tracer.sh "python cnn.py"       
+> ex) sudo  sh run_swap_tracer.sh "python cnn.py"  
 > ex) sudo  sh  run_swap_tracer.sh   524   "python cnn.py"  
 > ex) sudo  sh  run_swap_tracer.sh  -m   256 "python cnn.py"
 

@@ -24,6 +24,7 @@ def is_nearby(mark, spos):
 def print_line(time, mark, spos):
     pos = int (spos/ABSTRACT)
     blank ="%"+str(pos)+"s"
+    time.year = curr_year
 
     if mark == 'R':
 	plots[READ].write("%s %s \n"%(str(time), spos))
@@ -122,6 +123,7 @@ option = None
 fname = "/var/log/messages"
 command = sys.argv[-1][:15]
 exectime = datetime.strptime(sys.argv[-2], date_pattern)
+curr_year = datetime.now().year
 
 if len(sys.argv) == 4:
   if sys.argv[1] == "-m":
