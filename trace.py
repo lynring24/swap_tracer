@@ -141,7 +141,7 @@ ftype = ["read","write","swap"]
 plots =[]
 
 for idx in range(3):
-   temp = open ("swaptracer/plot/"+exectime.strftime('%H%M%S')+"-"+ftype[idx]+".plot", 'w')
+   temp = open ("plot/"+exectime.strftime('%H%M%S')+"-"+ftype[idx]+".plot", 'w')
    temp.write("# Trace : %s \n"%command)
    plots.append(temp)
 
