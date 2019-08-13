@@ -39,8 +39,8 @@ echo "trace down $comm"
 IFS=' ' read -ra path <<< $comm
 fname=${path[0]##*/}
 
-mkdir -p swaptracer/plot
-mkdir -p swaptracer/log
+mkdir -p plot
+mkdir -p graph
 
 if [ "$option" = true ]; then
 sudo python trace.py -m "$exectime" "$comm" 
