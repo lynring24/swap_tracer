@@ -13,7 +13,7 @@ def isNumber(s):
 ABSTRACT = 500 
 group = []
 #count swap
-#num = -1
+num = -1
 
 def is_nearby(mark, spos):
    recent_pos = group[-1][2] 
@@ -24,6 +24,7 @@ def is_nearby(mark, spos):
 def print_line(time, mark, spos):
     pos = int (spos/ABSTRACT)
     blank ="%"+str(pos)+"s"
+    time.year = curr_year
 
     if mark == 'R':
 	plots[READ].write("%s %s \n"%(str(time), spos))
@@ -32,8 +33,6 @@ def print_line(time, mark, spos):
     else:
 	plots[SWAP].write("%s %s \n"%(str(time), spos))
 
-#    num += 1
-#    print "%10s |"%str(time), "%7s |"%spos , blank%(mark)
 
 date_pattern = "%b %d %H:%M:%S"
 def print_mean_state():
@@ -90,7 +89,7 @@ def get_position_of(line):
    spos = info[2]
 
 #  if needed to count swap 
-#   global num 
+   global num 
  
    if exct == "read":
       mark = 'R'
@@ -99,7 +98,7 @@ def get_position_of(line):
       mark = 'W'
       pos = int(spos)
    else: 
- #     num += 1
+      num += 1
       mark = 'X'
       pos = int(spos[11:spos.find(',')])
       upos = spos[spos.find(',')+1:-2]  
@@ -124,6 +123,7 @@ option = None
 fname = "/var/log/messages"
 command = sys.argv[-1][:15]
 exectime = datetime.strptime(sys.argv[-2], date_pattern)
+curr_year = datetime.now().year
 
 if len(sys.argv) == 4:
   if sys.argv[1] == "-m":

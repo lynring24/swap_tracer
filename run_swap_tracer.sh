@@ -21,7 +21,7 @@ comm="$2"
 fi
 
 
-sudo sh swaptracer/lazybox/scripts/run_memcg_lim.sh $limit "$comm"
+sudo sh lazybox/scripts/run_memcg_lim.sh $limit "$comm"
 echo "trace down $comm"
 IFS=' ' read -ra path <<< $comm
 fname=${path[0]##*/}
@@ -30,7 +30,7 @@ mkdir -p swaptracer/plot
 mkdir -p swaptracer/log
 
 if [ "$option" = true ]; then
-sudo python swaptracer/trace.py -m "$exectime" "$comm" 
+sudo python trace.py -m "$exectime" "$comm" 
 else
-sudo python swaptracer/trace.py "$exectime" "$comm"
+sudo python trace.py "$exectime" "$comm"
 fi
