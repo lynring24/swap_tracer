@@ -3,18 +3,18 @@
 
 Swap Tracer is an effective tool to visualize the change in memory and analyze it after executing the program.
 
-### Environment/Requirement
+## Environment/Requirement
 + os : centos 7 ( linux series are available. )
 + kernel : 5.1.14 ( older versions are available also.)  
 + [lazybox](https://github.com/sjp38/lazybox) : work of @sjp38, needed for the limited memory usage.
 
 
-### [Kernel Patch](https://github.com/lynring24/swap_tracer/blob/master/tracer_kernel.patch)
+## [Kernel Patch](https://github.com/lynring24/swap_tracer/blob/master/tracer_kernel.patch)
 > patch -p0 < tracer_kernel.patch   
 
 In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/memory.c.
 
-### How To Use
+## How To Use
 Since there might be a data locality, trace could be done in more abstracted mode with option [-m].
 
 > $ sudo  sh   DIR/swaptracer/run_swap_tracer.sh -m   MEM_LIMIT COMMAND     
@@ -30,8 +30,8 @@ Since there might be a data locality, trace could be done in more abstracted mod
 **-m** option for simpler version, output of the statistical mean value(optional).
 
 
-### Result
-Three logs will be generated per execution of run_swap_tracer.sh, "read", "write" and "swap", which will be in a form of array vector to plot to Gnuplot. Comparison of the three logs contains the data pattern of program's memory usage.
+## Result
+Three logs will be generated per execution of run_swap_tracer.sh, **read**, **write** and **do_swap**, which will be in a form of array vector to plot to Gnuplot. Comparison of the three logs contains the data pattern of program's memory usage.
 
 #### plot
 After the execution, Tracer generates three files in the form **HHMMSS-[read|write|swap].plot**. These files contain rows of [date, time, address]. 
@@ -39,9 +39,12 @@ After the execution, Tracer generates three files in the form **HHMMSS-[read|wri
 #### graph
 With a gnuplot, Tracer visualizes memory access pattern. X-axis is a timeline of minute and second, while y-axis is a memory address. Additional script for gnuplot will be provided latter.
 
-#### Experiment
-+ with CNN model
+
+## Experiment
+### with CNN model
 > conv-->max_pooling-->conv-->maxpooling-->dropout-->dropout
 
+### print read, write, do_swap at once
 ![cnn_256](./graph/cnn_256/256.png)
 
+### print swap only
