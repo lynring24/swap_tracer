@@ -1,7 +1,7 @@
 # Swap Tracer
 ![swaptracer](./icon.png)
 
-Swap Tracer is an effective tool to visualize the change in memory and analyze it after executing the program.
+Swap Tracer is an effective tool to visualize the change(swap) in memory and analyze it after executing the program. Currently, swap in/out and do_swap has been marked. 
 
 ## Environment/Requirement
 + os : centos 7 ( linux series are available. )
@@ -32,15 +32,17 @@ Since there might be a data locality, trace could be done in more abstracted mod
 
 
 ## Result
-Three logs will be generated per execution of run_swap_tracer.sh, **read**, **write** and **do_swap**, which will be in a form of array vector to plot to Gnuplot. Comparison of the three logs contains the data pattern of program's memory usage.
+Three logs will be generated per execution of run_swap_tracer.sh, **swap in**, **swap out** and **do_swap**, which will be in a form of array vector to plot to Gnuplot. Comparison of the three logs contains the data pattern of program's memory usage.
 
-#### plot
-After the execution, Tracer generates three files in the form **HHMMSS-[read|write|swap].plot**. These files contain rows of [date, time, address].
+### plot
+After the execution, Tracer generates three files in the form **HHMMSS-[read|write|swap].plot**. These files contain rows of [date, time, address]. 
+> (swap in, swap out, do_swap) --> (read, write, swap)
 
-#### graph
+### graph
 With a gnuplot, Tracer visualizes memory access pattern. X-axis is a timeline of minute and second, while y-axis is a memory address. To use a gnuplot scripts will be as below:
 ```
 load 'DIR/swap_tracer/gnuplot_script'
+
 //data format=yyyy-mm-dd hh:mm:ss
 plot 'DIR/swap_tracer/plot/input_data' using 1:3, ['DIR/swap_tracer/plot/file_data' using 1:3]
 
