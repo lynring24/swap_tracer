@@ -36,7 +36,7 @@ set format z "% h"
 set format cb "% h" 
 set format r "% h" 
 set ttics format "% h"
-set timefmt "%H:%M:%S"
+set timefmt "%Y-%m-%d %H:%M:%S"
 set angles radians
 set tics back
 unset grid
