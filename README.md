@@ -42,17 +42,19 @@ After the execution, Tracer generates three files in the form **HHMMSS-[read|wri
 > do_swap : swap  
 
 ### graph
-With a gnuplot, Tracer visualizes memory access pattern. X-axis is a timeline(minute:second), while y-axis is a memory address. To use a gnuplot scripts will be as below:
+With a gnuplot, Tracer visualizes memory access pattern. X-axis is a timeline (hour:minute), while y-axis is a memory address. To use a gnuplot scripts will be as below:
 ```
 load 'DIR/swap_tracer/gnuplot_script'
 
-//data format=yyyy-mm-dd hh:mm:ss
-plot 'DIR/swap_tracer/plot/input_data' using 1:3, ['DIR/swap_tracer/plot/file_data' using 1:3]
+//data format = hh:mm:ss
+
+//display the plot 
+plot 'DIR/swap_tracer/plot/input_data' using 1:2 [, 'DIR/swap_tracer/plot/file_data' using 1:2]
 
 //if needed for png files
 set term png
 set ouput 'filenme'
-plot 'DIR/swap_tracer/plot/input_data' using 1:3, ['DIR/swap_tracer/plot/file_data' using 1:3]
+plot 'DIR/swap_tracer/plot/input_data' using 1:2 [, 'DIR/swap_tracer/plot/file_data' using 1:2]
 replot
 ```
 
