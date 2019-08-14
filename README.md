@@ -36,7 +36,7 @@ Since there might be a data locality, trace could be done in more abstracted mod
 Three logs will be generated per execution of run_swap_tracer.sh, **swap in**, **swap out** and **do_swap**, which will be in a form of array vector to plot to Gnuplot. Comparison of the three logs contains the data pattern of program's memory usage.
 
 ### plot
-After the execution, Tracer generates three files in the form **HHMMSS-[read|write|swap].plot**. These files contain rows of [date, time, address].
+After the execution, Tracer generates three files in the form **HHMMSS-[read|write|swap].plot**. These files contain rows of [duration, address].
 > swap in : read    
 > swap out : write   
 > do_swap : swap  
