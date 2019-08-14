@@ -1,1 +1,0 @@
-# Trace : python linear.p 
