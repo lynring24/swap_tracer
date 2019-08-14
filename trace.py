@@ -40,12 +40,12 @@ def print_mean_state():
     delta_t = timedelta(0) 
     sum_p = 0
     
-    for unit in group:
-       delta_t += unit[0] - group[0][0]
-       sum_p += unit[2]
+    for row in group:
+       delta_t += row[0] - group[0][0]
+       sum_p += row[2]
 
     delta_t = delta_t / len(group)
-    mtime = (delta_t + group[0][0]).strftime('%Y-%m-%d %H:%M:%S')
+    mtime = delta_t + group[0][0]
     mpos = sum_p / len(group)   
      
     print_line(mtime, group[0][1], mpos) 
@@ -69,12 +69,13 @@ def get_info_of(line):
 
 # compare with exectime
    time = datetime.strptime(str(exectime.year)+" "+date+time, date_pattern)
-   if time < exectime:
+   delta_t = time - exectime
+   if delta_t < timedelta(0):
       return None
 
    exct = matched.group(4)
    spos = matched.group(5)
-   return [time, exct, spos]
+   return [delta_t, exct, spos]
 
 
 
