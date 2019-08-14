@@ -28,7 +28,7 @@ set style rectangle back fc  bgnd fillstyle   solid 1.00 border lt -1
 set style circle radius graph 0.02 
 set style ellipse size graph 0.05, 0.03 angle 0 units xy
 set dummy x, y
-set format x "%M:%S" timedate
+set format x "%H:%M" timedate
 set format y "% h" 
 set format x2 "% h" 
 set format y2 "% h" 
@@ -36,7 +36,7 @@ set format z "% h"
 set format cb "% h" 
 set format r "% h" 
 set ttics format "% h"
-set timefmt "%Y-%m-%d %H:%M:%S"
+set timefmt "%H:%M:%S"
 set angles radians
 set tics back
 unset grid
@@ -121,13 +121,13 @@ set timestamp  font "" textcolor lt -1 norotate
 set trange [ * : * ] noreverse nowriteback
 set urange [ * : * ] noreverse nowriteback
 set vrange [ * : * ] noreverse nowriteback
-set xlabel "Time (min:sec)" 
+set xlabel "Time (H:M)" 
 set xlabel  font "" textcolor lt -1 norotate
 set x2label "" 
 set x2label  font "" textcolor lt -1 norotate
 set xrange [ * : * ] noreverse nowriteback
 set x2range [ * : * ] noreverse nowriteback
-set ylabel "Memory Address" 
+set ylabel "" 
 set ylabel  font "" textcolor lt -1 rotate
 set y2label "" 
 set y2label  font "" textcolor lt -1 rotate
