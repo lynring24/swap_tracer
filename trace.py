@@ -159,10 +159,10 @@ try:
    if option is True:
         print_mean_state()
 
+   plots[SWAP].write( "# Number of Swap = %s"%str(num));
+
 except:
-   sys.exit("unsuitable platform, must be linux")
-   
-plots[SWAP].write( "# Number of Swap = %s"%str(num));
+   sys.exit("unsuitable platform, must be linux")   
 
 for plot in plots:
  plot.close()
