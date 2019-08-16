@@ -36,8 +36,8 @@ else
 fi
 
 echo "trace down $comm"
-IFS=' ' read -ra path <<< $comm
-fname=${path[0]##*/}
+#IFS=' ' read -ra path <<< $comm
+#fname=${path[0]##*/}
 
 mkdir -p plot
 mkdir -p graph
