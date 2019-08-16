@@ -1,4 +1,4 @@
-import sys
+import sys, platform
 import re
 from datetime import datetime, timedelta
 
@@ -120,7 +120,13 @@ if len(sys.argv) < 2 or len(sys.argv) > 5:
 
 
 option = None
-fname = "/var/log/messages"
+
+if platform.dist()[0] == "Ubuntu":
+   fname = "/var/log/syslog"
+else:
+   fname = "/var/log/messages"
+
+
 command = sys.argv[-1][:15]
 exectime = datetime.strptime(sys.argv[-2], date_pattern)
 
@@ -143,14 +149,19 @@ for idx in range(3):
    temp = open ("plot/"+exectime.strftime('%H%M%S')+"-"+ftype[idx]+".plot", 'w')
    temp.write("# Trace : %s \n"%command)
    plots.append(temp)
+print "fname: ", fname 
+try:
+   with open(fname, 'r') as log:
+       for line in log:
+   	  get_position_of(line)
 
-with open(fname, 'r') as log:
-   for line in log:
-      get_position_of(line)
 # if option is used, release last group state
-if option is True:
-   print_mean_state()
+   if option is True:
+        print_mean_state()
 
+except:
+   sys.exit("unsuitable platform, must be linux")
+   
 plots[SWAP].write( "# Number of Swap = %s"%str(num));
 
 for plot in plots:
