@@ -144,9 +144,13 @@ for idx in range(3):
    temp.write("# Trace : %s \n"%command)
    plots.append(temp)
 
-with open(fname, 'r') as log:
-   for line in log:
-      get_position_of(line)
+try:
+   log = open(fname, 'r')
+except:
+   log = open("var/log/syslog", 'r')
+
+for line in log:
+   get_position_of(line)
 # if option is used, release last group state
 if option is True:
    print_mean_state()
