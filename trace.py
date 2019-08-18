@@ -149,7 +149,7 @@ for idx in range(3):
    temp = open ("plot/"+exectime.strftime('%H%M%S')+"-"+ftype[idx]+".plot", 'w')
    temp.write("# Trace : %s \n"%command)
    plots.append(temp)
-print "fname: ", fname 
+
 try:
    with open(fname, 'r') as log:
        for line in log:
