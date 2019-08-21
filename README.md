@@ -53,7 +53,7 @@ plot 'DIR/swap_tracer/plot/input_data' using 1:2 [, 'DIR/swap_tracer/plot/file_d
 
 //if needed for png files
 set term png
-set ouput 'filenme'
+set output 'filenme'
 plot 'DIR/swap_tracer/plot/input_data' using 1:2 [, 'DIR/swap_tracer/plot/file_data' using 1:2]
 replot
 ```
