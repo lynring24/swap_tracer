@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# awk -F, '{gsub(/[-:]/," ",$2);gsub(/[-:]/," ",$3);d2=mktime($3);d1=mktime($2);print $1","d2-d1,"secs";}' /var/log/messages > awk_log
-# awk  '{ TIME=2019FS$1FS$2FS$3; print TIME;}' /var/log/messages 
-awk  '{  month="01"; switch($1) {
+exectime="Sep 1 16:00:00"
+start="2019 08 20 16:00:00"
+#start=$(date "+%Y %m %d %H:%M:%S") 
+
+
+awk -v start="$start" 'BEGIN{ gsub(/:/, " ", start); print start, mktime(start); }{  month="01"; switch($1) {
  case  "Feb" : month="02"; break;
  case  "Mar" : month="03"; break;
  case  "Apr" : month="04"; break;
@@ -16,5 +19,8 @@ awk  '{  month="01"; switch($1) {
  case  "Dec" : month="12"; break;
  default:  break;
  }
-print month;
-TIME=2019" "month" "$2" "$3; gsub(/:/," ",TIME); print TIME mktime(TIME);}' /var/log/messages 
+TIME=2019" "month" "$2" "$3; gsub(/:/," ",TIME); 
+  if (mktime(start) < mktime(TIME) ) 
+    print "start <  time by " mktime(start) " to " mktime(TIME);
+   else 
+    print "start > time by "  mktime(start) " to " mktime(TIME);}' /var/log/messages 
