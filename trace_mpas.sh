@@ -57,12 +57,8 @@ else
 {next}
 }' /var/log/messages > mpas_log
  
-
-
-# sudo awk  '/swptrace\(python\)/ {if(NF==8){print $1FS$2FS$3FS$7FS$8} else {print$1FS$2FS$3FS$7FS$9} }' /var/log/messages > input_log
-
 #if [ "$option" = true ]; then
-#sudo python trace.py -m input_log "$exectime" "$comm" 
+#sudo python trace.py -m mpas_log "$exectime" "$comm" 
 #else
-#sudo python trace.py input_log "$exectime" "$comm"
+#sudo python trace.py mpas_log "$exectime" "$comm"
 #fi
