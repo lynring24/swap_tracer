@@ -43,11 +43,12 @@ echo "trace down $comm"
 mkdir -p plot
 mkdir -p graph
 
-sudo awk -v exectime="$exectime1" 'BEGIN { print exectimeFSyear;
+sudo awk -v exectime="$exectime" 'BEGIN { print exectimeFSyear;
  year="date -r /var/log/messages +%Y"  }
 /swptrace\(python\)/
  {target=$yearFS$1FS$2FS$3;
- if (exectime < target) {
+ compare=$(($(date +%s)-$(date -d target +%s)))
+ if (compare <= 0) {
 	if(NF==8) {
           print $1FS$2FS$3FS$7FS$8} 
 	else { 

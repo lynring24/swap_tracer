@@ -100,8 +100,9 @@ def get_position_of(line):
    else: 
       num += 1
       mark = 'X'
-      pos = int(spos[11:spos.find(',')])
-      upos = spos[spos.find(',')+1:-2]  
+      pos = int(spos[spos.rfind(':'):spos.find(')')])
+      print pos
+       
    
    global group
    if option is None:
