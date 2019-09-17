@@ -11,7 +11,7 @@ void main() {
 
 	while(1) {
 		gettimeofday(&tv, NULL);
-		current_data = ( char*) malloc(MEGABYTE);
+		current_data = ( char*) malloc( 1024 * MEGABYTE );
 		sprintf( current_data, "%d", tv.tv_usec);
 		sleep(1);
 	}
