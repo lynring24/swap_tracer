@@ -22,7 +22,7 @@ if __name__ == "__main__" :
 
           address=matched.group(1).strip()
           if len(address)!=flag: 
-             # print unit
+              print unit
               unit=init_range()
               flag=len(address)
 
