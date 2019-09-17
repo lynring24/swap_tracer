@@ -13,6 +13,7 @@ void main() {
 		gettimeofday(&tv, NULL);
 		current_data = ( char*) malloc( 1024 * MEGABYTE );
 		sprintf( current_data, "%d", tv.tv_usec);
+		printf("%d\n",current_data);
 		sleep(1);
 	}
 	exit(0);

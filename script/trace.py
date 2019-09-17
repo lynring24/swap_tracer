@@ -1,4 +1,4 @@
-import sys, platform
+import sys, platform, os
 import re
 from datetime import datetime, timedelta
 
@@ -32,7 +32,8 @@ def print_line(time, mark, spos):
     else:
 	plots[SWAP].write("%s %s \n"%(str(time), spos))
 
-date_pattern = "%Y %b %d %H:%M:%S"
+date_pattern = "%Y-%m-%dT%H:%M:%S.%f"
+#date_pattern = "%Y-%m-%dT%H:%M:%S.%f%z"
 def print_mean_state():
     if len(group)==0:
 	return 
@@ -51,28 +52,27 @@ def print_mean_state():
 
 def get_info_of(line):
 # if matches pattern, name and generated after(time)
-    pattern =  "(.+)(\d{2}:\d{2}:\d{2}).+swptrace\((.+)\).*(read|map|write) (.+)" 
+    pattern =  "(.*)+.* swptrace\((.+)\).*(read|map|write) (.+)" 
     regex = re.compile(pattern)
     matched = regex.search(line)
    
     if matched is None:
        return None
 # log for atmosphere_model 
-    comm = matched.group(3).strip()
+    comm = matched.group(2).strip()
     if comm not in command:
        return None
  
 # if line is generated after wards 
     date = matched.group(1)
-    time = matched.group(2)
 # compare with exectime
-    time = datetime.strptime(str(exectime.year)+" "+date+time, date_pattern)
+    time = datetime.strptime(date, date_pattern)
     delta_t = time - exectime
     if delta_t < timedelta(0):
        return None
 
-    exct = matched.group(4)
-    spos = matched.group(5)
+    exct = matched.group(3)
+    spos = matched.group(4)
     return [delta_t, exct, spos]
 
 
@@ -112,7 +112,7 @@ def get_position_of(line):
 
 if __name__ == '__main__':
   if len(sys.argv) < 2 or len(sys.argv) > 5:          
-     print "usage : swptrace.py [-m] [log file] <datetime(%Y %b %d %H:%M:%S)> <command>"
+     print "usage : swptrace.py [-m] [log file] <datetime(+%Y-%m-%dT%H:%M:%S.%6N)> <command>"
      exit(1)
 
 
@@ -158,6 +158,7 @@ if __name__ == '__main__':
     for plot in plots:
         plot.close()
   except:
+    traceback.print_exc()
     for idx in range(3):
         if os.path.exists("../plot/"+exectime.strftime('%H%M%S')+'-'+ftype[idx]+".csv", 'w'):
             os.remove("../plot/"+exectime.strftime('%H%M%S')+'-'+ftype[idx]+".csv")

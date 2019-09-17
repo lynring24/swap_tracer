@@ -8,7 +8,7 @@ if [ $# -lt 1 ] && [ $# -gt 3 ]; then
 	exit 1
 fi 
 
-exectime=$(LANG=en_us_88591; date +"%Y %b %d %T")
+exectime=$(LANG=en_us_88591; date +"+%FT%T.%6N")
 
 if [ $# -eq 1 ]; then 
 option=false
