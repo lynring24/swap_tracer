@@ -12,7 +12,7 @@ if __name__ == "__main__" :
    high=init_range()
 
    flag=0
-   pattern=".+:.+:\d{2}(.+)"
+   pattern=".+:.+:\d{2}\.\d{6} (.+)"
    with open(sys.argv[1], "r") as csv:
       for line in csv:
           matched= re.compile(pattern).search(line)
@@ -22,6 +22,7 @@ if __name__ == "__main__" :
 
           address=matched.group(1).strip()
           if len(address)!=flag: 
+	      print line
               print unit
               unit=init_range()
               flag=len(address)
