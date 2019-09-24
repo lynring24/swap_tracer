@@ -13,15 +13,15 @@ PAGE_SIZE= 4096
 
 def check_and_flush(address):
     global line_count, block_id, line_block
-    if abs(previousAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > PAGE_SIZE:
+    if line_count > BLOCK:
+    #if abs(previousAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > PAGE_SIZE:
        filepath = "../log/"+filename+"/block_"+str(block_id)+".csv"
-       for line in line_block:
-           with open(filepath, 'w') as dump:
+       with open(filepath, 'w') as dump:
+       	    for line in line_block:
        	        dump.write(line)
        line_block = []
        block_id += 1
        line_count = 0
-       print address
 
 
 if __name__ == "__main__" :
