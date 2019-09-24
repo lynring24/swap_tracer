@@ -18,7 +18,7 @@ def check_and_flush(address):
        filepath = "../log/"+filename+"/block_"+str(block_id)+".csv"
        with open(filepath, 'w') as dump:
        	    for line in line_block:
-       	        dump.write(line)
+       	        dump.write(line+"\n")
        line_block = []
        block_id += 1
        line_count = 0
