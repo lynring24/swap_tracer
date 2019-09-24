@@ -123,7 +123,7 @@ if __name__ == '__main__':
      fname = "/var/log/messages"
 
   command = sys.argv[-1]
-  exectime = datetime.strptime(sys.argv[-2], date_pattern)
+  exectime = datetime.strptime(sys.argv[-2][1:], date_pattern)
 
   if len(sys.argv) == 4:
     if sys.argv[1] == "-m":
