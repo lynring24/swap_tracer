@@ -1,0 +1,10 @@
+2019-09-17T21:00:10.741334+09:00 sdc-node14 kernel: swptrace(python): map (swpentry: 54802, uaddr: 139687066193920)
+2019-09-17T21:00:10.741358+09:00 sdc-node14 kernel: swptrace(python): read 54800 
+2019-09-17T21:00:10.741380+09:00 sdc-node14 kernel: swptrace(python): read 54802 
+2019-09-17T21:00:10.741402+09:00 sdc-node14 kernel: swptrace(python): map (swpentry: 54802, uaddr: 139687066193920)
+2019-09-17T21:00:10.741423+09:00 sdc-node14 kernel: swptrace(python): map (swpentry: 31809, uaddr: 139686985170944)
+2019-09-17T21:00:10.741445+09:00 sdc-node14 kernel: swptrace(python): map (swpentry: 31810, uaddr: 139686985175040)
+2019-09-17T21:00:10.741467+09:00 sdc-node14 kernel: swptrace(python): map (swpentry: 67963, uaddr: 139687140139008)
+2019-09-17T21:00:10.741488+09:00 sdc-node14 kernel: swptrace(python): map (swpentry: 67964, uaddr: 139687140143104)
+2019-09-17T21:00:10.741510+09:00 sdc-node14 kernel: swptrace(python): read 67964 
+2019-09-17T21:00:10.741532+09:00 sdc-node14 kernel: swptrace(python): read 67965 
