@@ -15,8 +15,9 @@ def check_and_flush(address):
     global line_count, block_id, line_block
     if abs(previousAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > PAGE_SIZE:
        filepath = "../log/"+filename+"/block_"+str(block_id)+".csv"
-       dump_file = open(filepath, 'w') 
-       dump_file.write(json.dumps(line_block))
+       for line in line_block:
+           with open(filepath, 'w') as dump:
+       	        dump.write(line)
        line_block = []
        block_id += 1
        line_count = 0
