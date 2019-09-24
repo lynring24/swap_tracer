@@ -46,7 +46,6 @@ def get_info_of(line):
     pattern =  "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})\+\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))" 
     regex = re.compile(pattern)
     matched = regex.search(line)
-    print matched
     if matched is None:
        return None
     comm = matched.group(2).strip()
@@ -120,5 +119,5 @@ if __name__ == '__main__':
        log.close()
    except:
       traceback.print_exc()
-      if os.path.exists("../log/"+exectime.strftime('%b%d%H%M%S')+".csv", 'w'):
+      if os.path.exists("../log/"+exectime.strftime('%b%d%H%M%S')+".csv"):
          os.remove("../log/"+exectime.strftime('%b%d%H%M%S')+".csv")
