@@ -13,8 +13,7 @@ PAGE_SIZE= 4096
 
 def check_and_flush(address):
     global line_count, block_id, line_block
-    if line_count > BLOCK:
-    #if abs(previousAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > PAGE_SIZE:
+    if abs(previousAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE:
        filepath = "../log/"+filename+"/block_"+str(block_id)+".csv"
        with open(filepath, 'w') as dump:
        	    for line in line_block:
@@ -30,6 +29,10 @@ if __name__ == "__main__" :
    global filename
    filename = sys.argv[1].split("/")[-1].split(".")[0]
    
+   if len(sys.argv) < 1 or len(sys.argv) > 2:
+      print "usage : python get_chopped_of.py [FILE TO CHOP]"
+      exit(1)
+
    try : 
         line_count = 0
 	block_id = 0
