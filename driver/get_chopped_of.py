@@ -13,7 +13,7 @@ PAGE_SIZE= 4096
 
 def check_and_flush(address):
     global line_count, block_id, line_block
-    if abs(previousAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE:
+    if abs(preDIGIT - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE:
        filepath = "../log/"+filename+"/block_"+str(block_id)+".csv"
        with open(filepath, 'w') as dump:
        	    for line in line_block:
@@ -23,9 +23,9 @@ def check_and_flush(address):
        line_count = 0
 
 
-if __name__ == "__main__" :
-   global previousAt
-   previousAt  = 0
+if __name__ == "__main__": 
+   global preDIGIT
+   preDIGIT  = 0
    global filename
    filename = sys.argv[1].split("/")[-1].split(".")[0]
    
@@ -49,7 +49,7 @@ if __name__ == "__main__" :
                  address = int(matched.group(2).strip())
 		 check_and_flush(address)
 		 line_block.append(matched.group(1)+" "+str(int(address /PAGE_SIZE)))
-		 previousAt = address
+		 preDIGIT = address
 		 line_count+=1
 
    except Exception as ex: 
