@@ -15,7 +15,7 @@ DIGIT_THRESHOLD = 12
 
 def check_and_flush(address):
     global line_count, block_id, line_block
-    if abs(prevAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE:
+    if abs(prevAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > BLOCK:
        filepath = "../log/"+FILENAME+"/block_"+str(block_id)+".csv"
        with open(filepath, 'w') as dump:
        	    for line in line_block:
