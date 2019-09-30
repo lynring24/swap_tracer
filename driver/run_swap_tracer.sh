@@ -3,49 +3,37 @@
 
 set -e 
 
-if [ $# -lt 1 ] && [ $# -gt 3 ]; then
-	echo "Usage : $0 [-abstract] [mem limit in MiB] <command>"
+if [ $# -lt 2 ] || [ $# -gt 4 ]; then
+	echo "Usage : $0 [--abstract] [--only-stackheap] <mem limit in MiB> <command>"
 	exit 1
 fi 
 
 exectime=$(LANG=en_us_88591; date +"%FT%T.%6N")
 
-if [ $# -eq 1 ]; then 
-option=false
-limit=-1
-comm="$1"
-else 
-	if [ $1 = "-m" ]; then 
-		option=true
-		limit=$2
-		comm="$3"
-	else
-		option=false
-		limit=$1
-		comm="$2"
-	fi
-fi
+ONLY_STACKHEAP=false
+limit=${@: -2:1}
+comm=${@: -1}
+instruction="sudo python trace.py"
 
-# there are memory limitation needed use lazybox
-# else run command 
+for var in "$@"
+do
+	case "$var" in
+        --abstract)
+	   instruction="${instruction} --abstract";;
+	--only-stackheap)
+	   instruction="${instruction} --only-stackheap";;
+        esac
+done;
 
-if [ $limit -ne -1 ]; then 
-	sudo sh exec_mem_lim.sh $limit "$comm"
-else
-	eval $comm
-fi
-
-echo "trace down $comm"
+sudo sh exec_mem_lim.sh $limit "$comm"
 
 SWAPTRACER_LOG="../demo/log"
-
 mkdir -p $SWAPTRACER_LOG
 
-if [ "$option" = true ]; then
-sudo python trace.py -m "$exectime" "$comm" 
-else
-sudo python trace.py "$exectime" "$comm"
-fi
+instruction="${instruction} \"$exectime\" \"$comm\""
+echo "$ ${instruction}"
+eval "${instruction}"
 
 generated_file=$(date -d "$exectime" +'%b%d%H%M%S')
-python get_chopped_of.py  --noise-cancel ${SWAPTRACER_LOG}/${generated_file}.csv
+
+python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${generated_file}.csv
