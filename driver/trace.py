@@ -59,9 +59,10 @@ def get_info_of(line):
     delta_t = time - exectime
     if delta_t < timedelta(0):
        return None
+    ustime = delta_t.total_seconds() * 1000000
     spos = matched.group(3)
-    print delta_t, spos
-    return [delta_t, spos]
+    //print ustime, spos
+    return [ustime, spos]
 
 
 def get_position_of(line):
