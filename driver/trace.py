@@ -61,7 +61,6 @@ def get_info_of(line):
        return None
     ustime = delta_t.total_seconds() * 1000000
     spos = matched.group(3)
-    //print ustime, spos
     return [ustime, spos]
 
 
