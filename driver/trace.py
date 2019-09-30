@@ -11,37 +11,37 @@ def isNumber(s):
     return False
 
 
-ABSTRACT = 500 
-group = []
-
-def is_nearby(spos):
-   recent_pos = group[-1][2] 
-   return abs ( recent_pos - spos) < ABSTRACT 
+def is_nearby(vma):
+   recent_vma = tracked[-1][1] 
+   return abs ( recent_vma - vma) < BLOCK 
 
 
-def print_line(time, spos):
-    pos = int (spos/ABSTRACT)
-    blank ="%"+str(pos)+"s"
-    log.write("%s %s \n"%(str(time), spos))
+def print_line(time, vma):
+    vma = int (vma/BLOCK)
+    blank ="%"+str(vma)+"s"
+    outfile.write("%s %s \n"%(str(time), vma))
 
 
 def print_mean_state():
-    if len(group)==0:
+    global tracked 
+    if len(tracked)==0:
 	return 
-    delta_t = timedelta(0) 
+    delta_t = 0 
     sum_p = 0
     
-    for row in group:
-       delta_t += row[0] - group[0][0]
-       sum_p += row[2]
+    for row in tracked:
+       delta_t += row[0] - tracked[0][0]
+       sum_p += row[1]
 
-    delta_t = delta_t / len(group)
-    mtime = delta_t + group[0][0]
-    mpos = sum_p / len(group)   
+    delta_t = delta_t / len(tracked)
+    mtime = delta_t + tracked[0][0]
+    mvma = sum_p / len(tracked)
+    print_line(mtime, mvma)
+    tracked= []
 
 
 
-def get_info_of(line):
+def parse(line):
 # if matches pattern, name and generated after(time)
     pattern =  "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})\+\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))" 
     regex = re.compile(pattern)
@@ -52,72 +52,77 @@ def get_info_of(line):
     if comm not in command:
        return None
  
+    vma = matched.group(3)
+    vma =  vma[ vma.rfind(':')+1 : vma.find(')')].strip()
+    if ONLY_SH and DIGIT_THRESHOLD > len(vma):
+       return 
+    vma = int(vma)/PAGE_SIZE
 # if line is generated after wards 
     date = matched.group(1)
-# compare with exectime
     time = datetime.strptime(date, DATE_PATTERN)
-    delta_t = time - exectime
+    delta_t = time - start_time
     if delta_t < timedelta(0):
        return None
     ustime = delta_t.total_seconds() * 1000000
-    spos = matched.group(3)
-    return [ustime, spos]
 
-
-def get_position_of(line):
-    info = get_info_of(line)
-    if info is None:
-       return   
-    time = info[0]
-    spos = info[1]
-
-    pos = int(spos[ spos.rfind(':')+1 :spos.find(')')].strip())
-    global group
-    if option is None:
-       print_line(time, pos)
+    if ISABSTRACT == False:
+       print_line(ustime, vma)
     else:
-       if len(group) != 0 and is_nearby(pos) is False:
+       if len(tracked) != 0 and is_nearby(vma) is False:
          print_mean_state()
-	 group= []
-    group.append([time, pos])
+    tracked.append([ustime, vma])
+
+
+
+def setup():
+    if len(sys.argv) < 2 or len(sys.argv) > 6:          
+       raise SystemExit
+
+    global infile, command, start_time, ISABSTRACT, ONLY_SH, outfile, tracked
+    
+    if platform.dist()[0] == "Ubuntu":
+       infile = "/var/log/syslog"
+    else:
+       infile = "/var/log/messages"
+
+    command = sys.argv[-1]
+    start_time = datetime.strptime(sys.argv[-2], DATE_PATTERN)
+
+    ISABSTRACT = False
+    ONLY_SH= False
+
+    OUTPUTFILENAME = LOG_DIR_PATH + start_time.strftime(CSV_PATTERN)
+    for idx in range(1, len(sys.argv)-2):
+        if sys.argv[idx] == '--abstract': 
+           ISABSTRACT=True
+           OUTPUTFILENAME=OUTPUTFILENAME+'_abs'
+        elif sys.argv[idx] == '--only-stackheap':
+           ONLY_SH=True
+           OUTPUTFILENAME=OUTPUTFILENAME+'_osh'
+        else : 
+           infile = sys.argv[idx]
+
+
+    outfile = open (OUTPUTFILENAME+".csv", 'w')
+    outfile.write("# Trace : %s \n"%command)
+    tracked=[]
+
+
 
 
 if __name__ == '__main__':
-   if len(sys.argv) < 2 or len(sys.argv) > 5:          
-      print "usage : trace.py [-m] [log file] <datetime(+%Y-%m-%dT%H:%M:%S.%6N)> <command>"
-      exit(1)
-
-   option = None
-   if platform.dist()[0] == "Ubuntu":
-      fname = "/var/log/syslog"
-   else:
-      fname = "/var/log/messages"
-
-   command = sys.argv[-1]
-   exectime = datetime.strptime(sys.argv[-2], DATE_PATTERN)
-
-   if len(sys.argv) == 4:
-      if sys.argv[1] == "-m":
-         option = True
-      else:
-         fname = sys.argv[1]
-   elif len(sys.argv) == 5:
-      option = True
-      fname = sys.argv[2]
-
    try:
-       log = open (LOG_DIR_PATH + exectime.strftime(CSV_PATTERN)+".csv", 'w')
-       log.write("# Trace : %s \n"%command)
-
-       with open(fname, 'r') as src:
+       setup()
+       with open(infile, 'r') as src:
             for line in src:
-                get_position_of(line)
-    # if option is used, release last group state
-       if option is True:
+                parse(line)
+    # if ISABSTRACT is used, release last tracked state
+       if ISABSTRACT == True:
           print_mean_state()
-
-       log.close()
+       outfile.close()
+   except BaseException:
+       print "usage : python trace.py [--abstract] [--only-stackheap] [src file path]  <datetime(+%Y-%m-%dT%H:%M:%S.%6N)> <command>"
    except:
       traceback.print_exc()
-      if os.path.exists(LOG_DIR_PATH+exectime.strftime(CSV_PATTERN)+".csv"):
-         os.remove(LOG_DIR_PATH+exectime.strftime(CSV_PATTERN)+".csv")
+      if os.path.exists(LOG_DIR_PATH+start_time.strftime(CSV_PATTERN)+".csv"):
+         os.remove(LOG_DIR_PATH+start_time.strftime(CSV_PATTERN)+".csv")
