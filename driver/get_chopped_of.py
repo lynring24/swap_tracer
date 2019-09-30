@@ -5,18 +5,18 @@ import math
 import traceback
 import json
 import shutil
-from pattern import *  
+from configure import *  
 
 BLOCK = 1024
 PAGE_SIZE= 4096
-DIGIT_THRESHOLD = 12
+DIGIT_THRESHOLD = 8
 
 
 
 def check_and_flush(address):
     global line_count, block_id, line_block
     if abs(prevAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > BLOCK:
-       filepath = "../log/"+FILENAME+"/block_"+str(block_id)+".csv"
+       filepath = LOG_DIR_PATH + FILENAME+"/block_"+str(block_id)+".csv"
        with open(filepath, 'w') as dump:
        	    for line in line_block:
        	        dump.write(line+"\n")
@@ -43,13 +43,15 @@ if __name__ == "__main__":
       NOISE_CANCEL = True
 
    FILENAME = file.split("/")[-1].split(".")[0] 
+   if NOISE_CANCEL:
+      FILENAME=FILENAME+'_nc'
  
    try : 
         line_count = 0
 	block_id = 0
 	line_block = []
 	
-        os.system('sudo mkdir -p ../log/'+FILENAME)
+        os.system('sudo mkdir -p ' + LOG_DIR_PATH + FILENAME)
 
    	with open(file, "r") as csv:
       	     for line in csv:
@@ -67,5 +69,5 @@ if __name__ == "__main__":
 
    except Exception as ex: 
          print ex
-         if os.path.exists("../log/"+FILENAME):
-	    shutil.rmtree("../log/"+FILENAME, ignore_errors=True)
+         if os.path.exists(LOG_DIR_PATH+FILENAME):
+	    shutil.rmtree(LOG_DIR_PATH+FILENAME, ignore_errors=True)

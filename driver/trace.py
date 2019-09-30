@@ -1,6 +1,7 @@
 import sys, platform, os
 import re, traceback
 from datetime import datetime, timedelta
+from configure import *
 
 def isNumber(s):
   try:
@@ -24,7 +25,6 @@ def print_line(time, spos):
     log.write("%s %s \n"%(str(time), spos))
 
 
-date_pattern = "%Y-%m-%dT%H:%M:%S.%f"
 def print_mean_state():
     if len(group)==0:
 	return 
@@ -55,7 +55,7 @@ def get_info_of(line):
 # if line is generated after wards 
     date = matched.group(1)
 # compare with exectime
-    time = datetime.strptime(date, date_pattern)
+    time = datetime.strptime(date, DATE_PATTERN)
     delta_t = time - exectime
     if delta_t < timedelta(0):
        return None
@@ -94,7 +94,7 @@ if __name__ == '__main__':
       fname = "/var/log/messages"
 
    command = sys.argv[-1]
-   exectime = datetime.strptime(sys.argv[-2], date_pattern)
+   exectime = datetime.strptime(sys.argv[-2], DATE_PATTERN)
 
    if len(sys.argv) == 4:
       if sys.argv[1] == "-m":
@@ -106,7 +106,7 @@ if __name__ == '__main__':
       fname = sys.argv[2]
 
    try:
-       log = open ("../log/"+exectime.strftime('%b%d%H%M%S')+".csv", 'w')
+       log = open (LOG_DIR_PATH + exectime.strftime(CSV_PATTERN)+".csv", 'w')
        log.write("# Trace : %s \n"%command)
 
        with open(fname, 'r') as src:
@@ -119,5 +119,5 @@ if __name__ == '__main__':
        log.close()
    except:
       traceback.print_exc()
-      if os.path.exists("../log/"+exectime.strftime('%b%d%H%M%S')+".csv"):
-         os.remove("../log/"+exectime.strftime('%b%d%H%M%S')+".csv")
+      if os.path.exists(LOG_DIR_PATH+exectime.strftime(CSV_PATTERN)+".csv"):
+         os.remove(LOG_DIR_PATH+exectime.strftime(CSV_PATTERN)+".csv")

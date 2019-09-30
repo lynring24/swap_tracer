@@ -37,10 +37,15 @@ fi
 
 echo "trace down $comm"
 
-mkdir -p ../log
+SWAPTRACER_LOG="../log"
+
+mkdir -p $SWAPTRACER_LOG
 
 if [ "$option" = true ]; then
 sudo python trace.py -m "$exectime" "$comm" 
 else
 sudo python trace.py "$exectime" "$comm"
 fi
+
+generated_file=$(date -d "$exectime" +'%b%d%H%M%S')
+python get_chopped_of.py  --noise-cancel ${SWAPTRACER_LOG}/${generated_file}.csv
