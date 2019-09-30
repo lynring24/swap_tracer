@@ -15,58 +15,56 @@ Swap Tracer is an effective tool to visualize the change(swap) in memory and ana
 
 In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/memory.c.
 
+## To Setup
+Before using this swap tracer, configure the directory of log files from:
+
+```
+LOG_DIR_PATH="../log/" 
+```
++ SWAPTRACER_PATH/driver/configure.py   # line no : 6 
++ SWAPTRACER_PATH/driver/run\_swap\_tracer.sh  # line no : 40
+
+
 ## How To Use
+### run_swap_tracer.sh
 Since there might be a data locality, trace could be done in more abstracted mode with option [-m].
 
-> $ sudo  sh   DIR/swaptracer/run_swap_tracer.sh \[-m\]  \[MEM_LIMIT\] COMMAND     
-> ex) sudo  sh run_swap_tracer.sh "python cnn.py"  
-> ex) sudo  sh  run_swap_tracer.sh   524   "python cnn.py"  
-> ex) sudo  sh  run_swap_tracer.sh  -m   256 "python cnn.py"
+> $ sudo  sh   SWAPTRACER_PATH/swaptracer/run_swap_tracer.sh \[-m\]  \[MEM LIMIT\] COMMAND        
+ex) sudo  sh run_swap_tracer.sh "python cnn.py"  
+ex) sudo  sh  run_swap_tracer.sh   524   "python cnn.py"  
+ex) sudo  sh  run_swap_tracer.sh  -m   256 "python cnn.py"
 
+<pre>
 **sudo**  Tracer reads log file which needs the permission of root.
-
 **-m** option for simpler version, output of the statistical mean value(optional).
-
 **mem limit in MiB** limits the usage of memory. (optional)
-
 **command** programs to be run.
+</pre>
+
+#### Result
+run_swap_tracer.sh will generate a **LOG_DIR_PATH/DATETIME.csv** and **LOG_DIR_PATH/DATETIME_nc** which is a directory with split csv. 
 
 
-## Result
-Three logs will be generated per execution of run_swap_tracer.sh, **swap in**, **swap out** and **do_swap**, which will be in a form of array vector to plot to Gnuplot. Comparison of the three logs contains the data pattern of program's memory usage.
+## Directory 
++ kernel_patch
++ driver 
++ demo
 
-### plot
-After the execution, Tracer generates three files in the form **HHMMSS-[read|write|swap].plot**. These files contain rows of [duration, address].
-> swap in : read    
-> swap out : write   
-> do_swap : swap  
 
-### graph
-With a gnuplot, Tracer visualizes memory access pattern. X-axis is a timeline (hour:minute), while y-axis is a memory address. To use a gnuplot scripts will be as below:
-```
-load 'DIR/swap_tracer/gnuplot_script'
+### driver/trace.py
+parse the input file and generate a LOG_DIR_PATH/DATETIME.csv containing lines of \[microsecond, virtual memory address\]
 
-//data format = hh:mm:ss
+> $ python trace.py   [input file]   <"datetime(+%Y-%m-%dT%H:%M:%S.%6N")>  command   
+ex) python trace.py   "2019-09-30T18:26:52.000000"   "./atmosphere_model"
 
-//display the plot 
-plot 'DIR/swap_tracer/plot/input_data' using 1:2 [, 'DIR/swap_tracer/plot/file_data' using 1:2]
+### driver/get_chopped.py
+splits the csv into block of data by the address and time
 
-//if needed for png files
-set term png
-set output 'filenme'
-plot 'DIR/swap_tracer/plot/input_data' using 1:2 [, 'DIR/swap_tracer/plot/file_data' using 1:2]
-replot
-```
-
-## Experiment
-### with CNN model
-> conv-->max_pooling-->conv-->maxpooling-->dropout-->dropout
-
-### print read, write, do_swap at once
-![cnn_256](./graph/cnn_256/256.png)
-
-### print read, write, do_swap at once with '-m' option
-![cnn_256](./graph/cnn_256/256_m.png)
-
-### print swap only
-![cnn_256_swap](./graph/cnn_256/256_swap.png)
+> $ python     get_chopped.py     \[--noise-cancel \]   FILENAME             
+ex) python     get_chopped_of.py     --noise-cancel   log/Sep30182652.csv
+ 
+<pre>
+ generated folder = LOG_DIR_PATH/DATETIME or LOG_DIR_PATH/DATETIME_nc
+ noise-cancel option ignores swap near virtual memory address 0 (가상 메모리의 entry 0번 때 페이지들을 제외하고 데이터를 추출함) 
+ without --noise-cancel generates LOG_DIR_PATH/DATETIME 
+</pre>
