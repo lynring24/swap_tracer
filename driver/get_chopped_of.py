@@ -7,11 +7,6 @@ import json
 import shutil
 from configure import *  
 
-BLOCK = 1024
-PAGE_SIZE= 4096
-DIGIT_THRESHOLD = 8
-
-
 
 def check_and_flush(address):
     global line_count, block_id, line_block
@@ -30,21 +25,21 @@ if __name__ == "__main__":
    prevAt  = 0
    
    if len(sys.argv) < 2 or len(sys.argv) > 4:
-      print "usage : python get_chopped_of.py --noise-cancel [FILE TO CHOP]"
+      print "usage : python get_chopped_of.py --only-stackheap [FILE TO CHOP]"
       exit(1)
 
-   global FILENAME, NOISE_CANCEL
+   global FILENAME, ONLY_STACK_HEAP
 
    if len(sys.argv) is  2:
       file = sys.argv[1]
-      NOISE_CANCEL = False
+      ONLY_STACK_HEAP = False
    else :
       file = sys.argv[2]
-      NOISE_CANCEL = True
+      ONLY_STACK_HEAP = True
 
    FILENAME = file.split("/")[-1].split(".")[0] 
-   if NOISE_CANCEL:
-      FILENAME=FILENAME+'_nc'
+   if ONLY_STACK_HEAP:
+      FILENAME=FILENAME+'_osh'
  
    try : 
         line_count = 0
@@ -59,13 +54,13 @@ if __name__ == "__main__":
 	         if matched is not None:
                     address = matched.group(2).strip()
 		
-		    if NOISE_CANCEL and DIGIT_THRESHOLD > len(address):
+		    if ONLY_STACK_HEAP and DIGIT_THRESHOLD > len(address):
 		       continue
                     address = int(address)
 		    check_and_flush(address)
-		    line_block.append(matched.group(1)+" "+str(int(address /PAGE_SIZE)))
-		    prevAt = address
-		    line_count+=1
+		    line_block.append(matched.group(1)+" "+str(address))
+	    	    prevAt = address
+	   	    line_count+=1
 
    except Exception as ex: 
          print ex

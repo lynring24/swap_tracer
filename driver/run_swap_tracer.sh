@@ -4,7 +4,7 @@
 set -e 
 
 if [ $# -lt 1 ] && [ $# -gt 3 ]; then
-	echo "Usage : $0 [-m] [mem limit in MiB] <command>"
+	echo "Usage : $0 [-abstract] [mem limit in MiB] <command>"
 	exit 1
 fi 
 
@@ -37,7 +37,7 @@ fi
 
 echo "trace down $comm"
 
-SWAPTRACER_LOG="../log"
+SWAPTRACER_LOG="../demo/log"
 
 mkdir -p $SWAPTRACER_LOG
 

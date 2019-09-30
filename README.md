@@ -44,7 +44,7 @@ ex) sudo  sh  run_swap_tracer.sh  --only-stackheap   256 "python cnn.py"
 </pre>
 
 #### Result
-run_swap_tracer.sh will generate a **LOG_DIR_PATH/DATETIME.csv** and **LOG_DIR_PATH/DATETIME_nc** which is a directory with split csv. 
+run_swap_tracer.sh will generate a **LOG_DIR_PATH/DATETIME\[_osh\|_abs\].csv** and **LOG_DIR_PATH/DATETIME[_osh]** which is a directory with split csv. 
 
 
 ## Directory 
@@ -66,7 +66,7 @@ splits the csv into block of data by the address and time
 ex) python     get_chopped_of.py     --only-stackheap   log/Sep30182652.csv
  
 <pre>
- generated folder = LOG_DIR_PATH/DATETIME or LOG_DIR_PATH/DATETIME_nc
+ generated folder = LOG_DIR_PATH/DATETIME or LOG_DIR_PATH/DATETIME_osh
  noise-cancel option ignores swap near virtual memory address 0 (가상 메모리의 entry 0번 때 페이지들을 제외하고 데이터를 추출함) 
  without --noise-cancel generates LOG_DIR_PATH/DATETIME 
 </pre>

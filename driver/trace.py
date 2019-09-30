@@ -54,7 +54,7 @@ def parse(line):
  
     vma = matched.group(3)
     vma =  vma[ vma.rfind(':')+1 : vma.find(')')].strip()
-    if ONLY_SH and DIGIT_THRESHOLD > len(vma):
+    if ONLY_STACK_HEAP and DIGIT_THRESHOLD > len(vma):
        return 
     vma = int(vma)/PAGE_SIZE
 # if line is generated after wards 
@@ -78,7 +78,7 @@ def setup():
     if len(sys.argv) < 2 or len(sys.argv) > 6:          
        raise SystemExit
 
-    global infile, command, start_time, ISABSTRACT, ONLY_SH, outfile, tracked
+    global infile, command, start_time, ISABSTRACT, ONLY_STACK_HEAP, outfile, tracked
     
     if platform.dist()[0] == "Ubuntu":
        infile = "/var/log/syslog"
@@ -89,7 +89,7 @@ def setup():
     start_time = datetime.strptime(sys.argv[-2], DATE_PATTERN)
 
     ISABSTRACT = False
-    ONLY_SH= False
+    ONLY_STACK_HEAP= False
 
     OUTPUTFILENAME = LOG_DIR_PATH + start_time.strftime(CSV_PATTERN)
     for idx in range(1, len(sys.argv)-2):
@@ -97,7 +97,7 @@ def setup():
            ISABSTRACT=True
            OUTPUTFILENAME=OUTPUTFILENAME+'_abs'
         elif sys.argv[idx] == '--only-stackheap':
-           ONLY_SH=True
+           ONLY_STACK_HEAP=True
            OUTPUTFILENAME=OUTPUTFILENAME+'_osh'
         else : 
            infile = sys.argv[idx]
