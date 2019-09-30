@@ -21,6 +21,7 @@ do
         --abstract)
 	   instruction="${instruction} --abstract";;
 	--only-stackheap)
+	   ONLY_STACKHEAP=true
 	   instruction="${instruction} --only-stackheap";;
         esac
 done;
@@ -36,4 +37,9 @@ eval "${instruction}"
 
 generated_file=$(date -d "$exectime" +'%b%d%H%M%S')
 
+if [ ${ONLY_STACKHEAP} = true]; then
+python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${generated_file_osh}.csv
+else
 python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${generated_file}.csv
+fi
+
