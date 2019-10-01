@@ -37,7 +37,7 @@ eval "${instruction}"
 
 output=$(date -d "$exectime" +'%b%d%H%M%S')
 instruction="python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${output}"
-if [ "${ONLY_STACKHEAP}" = true ]; then
+if $ONLY_STACKHEAP; then
 instruction="${instruction}_osh"
 fi
 instruction="${instruction}.csv"

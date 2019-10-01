@@ -21,8 +21,8 @@ Before using this swap tracer, configure the directory of log files from:
 ```
 LOG_DIR_PATH="../log/" 
 ```
-+ SWAPTRACER_PATH/driver/configure.py   # line no : 6 
-+ SWAPTRACER_PATH/driver/run\_swap\_tracer.sh  # line no : 40
++ SWAPTRACER_PATH/driver/configure.py    
++ SWAPTRACER_PATH/driver/run\_swap\_tracer.sh  
 
 
 ## How To Use
