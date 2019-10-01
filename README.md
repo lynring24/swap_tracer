@@ -67,6 +67,16 @@ ex) python     get_chopped_of.py     --only-stackheap   log/Sep30182652.csv
  
 <pre>
  generated folder = LOG_DIR_PATH/DATETIME or LOG_DIR_PATH/DATETIME_osh
- noise-cancel option ignores swap near virtual memory address 0 (가상 메모리의 entry 0번 때 페이지들을 제외하고 데이터를 추출함) 
+ --only-stackheap option ignores swap near virtual memory address 0 (가상 메모리의 entry 0번 때 페이지들을 제외하고 데이터를 추출함) 
  without --noise-cancel generates LOG_DIR_PATH/DATETIME 
 </pre>
+
+## Output : generated files 
+Files are generated under the log directory based on **LOG_DIR_PATH** above. A main csv file is named after a start time  and partial csv are stored under a folder with a same of a main file.  
+```
+LOG
+|_ Oct01234506.csv
+|_ Oct01234506 
+          |_ block_#.csv
+          |_ block_#.csv
+```
