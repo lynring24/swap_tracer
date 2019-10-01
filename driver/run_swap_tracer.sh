@@ -35,11 +35,13 @@ instruction="${instruction} \"$exectime\" \"$comm\""
 echo "$ ${instruction}"
 eval "${instruction}"
 
-generated_file=$(date -d "$exectime" +'%b%d%H%M%S')
-
-if [ ${ONLY_STACKHEAP} = true]; then
-python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${generated_file_osh}.csv
-else
-python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${generated_file}.csv
+output=$(date -d "$exectime" +'%b%d%H%M%S')
+instruction="python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${output}"
+if [ "${ONLY_STACKHEAP}" = true ]; then
+instruction="${instruction}_osh"
 fi
+instruction="${instruction}.csv"
+
+echo "$ ${instruction}"
+eval "${instruction}"
 
