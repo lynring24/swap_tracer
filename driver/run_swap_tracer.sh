@@ -36,11 +36,12 @@ echo "$ ${instruction}"
 eval "${instruction}"
 
 output=$(date -d "$exectime" +'%b%d%H%M%S')
-instruction="python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${output}"
+
 if $ONLY_STACKHEAP; then
-instruction="${instruction}_osh"
+instruction="python get_chopped_of.py ${SWAPTRACER_LOG}/${output}_osh.csv"
+else
+instruction="python get_chopped_of.py --only-stackheap ${SWAPTRACER_LOG}/${output}.csv"
 fi
-instruction="${instruction}.csv"
 
 echo "$ ${instruction}"
 eval "${instruction}"
