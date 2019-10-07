@@ -20,7 +20,6 @@ def print_line(time, vma):
     vma = int (vma/BLOCK)
     blank ="%"+str(vma)+"s"
     time = time/US_TO_SEC
-    print time
     outfile.write("%s %s \n"%(str(time), vma))
 
 
