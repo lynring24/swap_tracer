@@ -56,15 +56,18 @@ run_swap_tracer.sh will generate a **LOG_DIR_PATH/DATETIME\[_osh\|_abs\].csv** a
 ### driver/trace.py
 parse the input file and generate a **LOG_DIR_PATH/DATETIME.csv** containing lines of \[second, virtual page number\]
 
-> $ python trace.py  \[--abstract\] \[--only-stackheap\] \[src file path\]  "datetime(+%Y-%m-%dT%H:%M:%S.%6N")"  "COMMAND"   
+```
+ $ python trace.py  \[--abstract\] \[--only-stackheap\] \[src file path\]  "datetime(+%Y-%m-%dT%H:%M:%S.%6N")"  "COMMAND"   
 ex) python trace.py   "2019-09-30T18:26:52.000000"   "./atmosphere_model"
+```
 
 ### driver/get_chopped.py
 splits the csv into block of data by the address and time
 
-> $ python   get_chopped.py   \[--only-stackheap \]   FILENAME             
+```
+$ python   get_chopped.py   \[--only-stackheap \]   FILENAME  
 ex) python   get_chopped_of.py   --only-stackheap  log/Sep30182652.csv
- 
+``` 
 
 ## OUTPUT : generated files 
 Files are generated under the log directory based on **LOG_DIR_PATH** above. A main csv file is named after a start time  and partial csv are stored under a folder with a same of a main file.  
