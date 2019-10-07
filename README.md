@@ -29,19 +29,19 @@ LOG_DIR_PATH="../log/"
 ### run_swap_tracer.sh
 Since there might be a data locality, trace could be done in more abstracted mode with option [-m].
 
-> $ sudo  sh   SWAPTRACER_PATH/swaptracer/run_swap_tracer.sh  \[--abstract\] \[--only-stackheap\]  MEMLIMIT "COMMAND"        
-ex) sudo  sh run_swap_tracer.sh "python cnn.py"  
-ex) sudo  sh  run_swap_tracer.sh   524   "python cnn.py"  
-ex) sudo  sh  run_swap_tracer.sh  --abstract   256 "python cnn.py"
+```
+* if you are using centos as OS try **sh** else try **bash
+$ sudo  [sh/bash]  SWAPTRACER_PATH/swaptracer/run_swap_tracer.sh  \[--abstract\] \[--only-stackheap\]  MEMLIMIT "COMMAND"        
 ex) sudo  sh  run_swap_tracer.sh  --only-stackheap   256 "python cnn.py"
 
-<pre>
-**sudo**  Tracer reads log file which needs the permission of root.
-**--abstract** option for simpler version, output of the statistical mean value(optional).
-**--only-stackheap** track memory only around stack and heap
-**mem limit in MiB** limits the usage of memory. (optional)
+```
+
+**sudo** Tracer reads log file which needs the permission of root.
+**--abstract**  for simpler version, output of the statistical mean value(optional)
+**--only-stackheap** track memory only around stack and heap (optional)
+**mem limit in MiB** limits the usage of memory (optional)
 **command** programs to be run.
-</pre>
+
 
 #### Result
 run_swap_tracer.sh will generate a **LOG_DIR_PATH/DATETIME\[_osh\|_abs\].csv** and **LOG_DIR_PATH/DATETIME[_osh]** which is a directory with split csv. 
@@ -54,7 +54,7 @@ run_swap_tracer.sh will generate a **LOG_DIR_PATH/DATETIME\[_osh\|_abs\].csv** a
 
 
 ### driver/trace.py
-parse the input file and generate a LOG_DIR_PATH/DATETIME.csv containing lines of \[microsecond, virtual memory address\]
+parse the input file and generate a **LOG_DIR_PATH/DATETIME.csv** containing lines of \[second, virtual page number\]
 
 > $ python trace.py  \[--abstract\] \[--only-stackheap\] \[src file path\]  "datetime(+%Y-%m-%dT%H:%M:%S.%6N")"  "COMMAND"   
 ex) python trace.py   "2019-09-30T18:26:52.000000"   "./atmosphere_model"
@@ -62,17 +62,13 @@ ex) python trace.py   "2019-09-30T18:26:52.000000"   "./atmosphere_model"
 ### driver/get_chopped.py
 splits the csv into block of data by the address and time
 
-> $ python     get_chopped.py     \[--only-stackheap \]   FILENAME             
-ex) python     get_chopped_of.py     --only-stackheap   log/Sep30182652.csv
+> $ python   get_chopped.py   \[--only-stackheap \]   FILENAME             
+ex) python   get_chopped_of.py   --only-stackheap  log/Sep30182652.csv
  
-<pre>
- generated folder = LOG_DIR_PATH/DATETIME or LOG_DIR_PATH/DATETIME_osh
- --only-stackheap option ignores swap near virtual memory address 0 (가상 메모리의 entry 0번 때 페이지들을 제외하고 데이터를 추출함) 
- without --noise-cancel generates LOG_DIR_PATH/DATETIME 
-</pre>
 
 ## Output : generated files 
 Files are generated under the log directory based on **LOG_DIR_PATH** above. A main csv file is named after a start time  and partial csv are stored under a folder with a same of a main file.  
+
 ```
 LOG
 |_ Oct01234506.csv
