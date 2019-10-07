@@ -27,23 +27,23 @@ LOG_DIR_PATH="../log/"
 
 ## How To Use
 ### run_swap_tracer.sh
-Since there might be a data locality, trace could be done in more abstracted mode with option [-m].
-
-```
-* if you are using centos as OS try **sh** else try **bash
-$ sudo  [sh/bash]  SWAPTRACER_PATH/swaptracer/run_swap_tracer.sh  \[--abstract\] \[--only-stackheap\]  MEMLIMIT "COMMAND"        
+if you are using centos as OS try **sh** else try **bash
+```$ sudo  [sh/bash]  SWAPTRACER_PATH/swaptracer/run_swap_tracer.sh  \[--abstract\] \[--only-stackheap\]  MEMLIMIT "COMMAND"        
 ex) sudo  sh  run_swap_tracer.sh  --only-stackheap   256 "python cnn.py"
-
 ```
 
-**sudo** Tracer reads log file which needs the permission of root.
-**--abstract**  for simpler version, output of the statistical mean value(optional)
+**sudo** Tracer reads log file which needs the permission of root. 
+
+**--abstract**  for simpler version, output of the statistical mean value (optional)
+
 **--only-stackheap** track memory only around stack and heap (optional)
+
 **mem limit in MiB** limits the usage of memory (optional)
+
 **command** programs to be run.
 
 
-#### Result
+#### OUTPUT
 run_swap_tracer.sh will generate a **LOG_DIR_PATH/DATETIME\[_osh\|_abs\].csv** and **LOG_DIR_PATH/DATETIME[_osh]** which is a directory with split csv. 
 
 
@@ -66,7 +66,7 @@ splits the csv into block of data by the address and time
 ex) python   get_chopped_of.py   --only-stackheap  log/Sep30182652.csv
  
 
-## Output : generated files 
+## OUTPUT : generated files 
 Files are generated under the log directory based on **LOG_DIR_PATH** above. A main csv file is named after a start time  and partial csv are stored under a folder with a same of a main file.  
 
 ```
