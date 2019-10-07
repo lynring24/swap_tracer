@@ -15,10 +15,12 @@ def is_nearby(vma):
    recent_vma = tracked[-1][1] 
    return abs ( recent_vma - vma) < BLOCK 
 
-
+US_TO_SEC = 1000000
 def print_line(time, vma):
     vma = int (vma/BLOCK)
     blank ="%"+str(vma)+"s"
+    time = time/US_TO_SEC
+    print time
     outfile.write("%s %s \n"%(str(time), vma))
 
 

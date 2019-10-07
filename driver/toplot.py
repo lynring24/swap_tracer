@@ -19,6 +19,7 @@ plt.scatter(x, y)
 # Put the y-axis on a logarithmic scale 
 
 plt.yscale('log')
+plt.autoscale(True, 'y', None)
 #Strings
 xlab = 'Time (us)'
 ylab = 'Virtual Memory Address'
