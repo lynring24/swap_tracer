@@ -1,6 +1,6 @@
-CHECKTIMEFORMAT=$(cat /etc/rsyslog.conf | egrep ActionFileDefaultTemplate)
+#!/bin/sh
 
-echo ${CHECKTIMEFORMAT}
+CHECKTIMEFORMAT=$(cat /etc/rsyslog.conf | egrep ActionFileDefaultTemplate)
 
 if [[ $CHECKTIMEFORMAT == *"#"* ]]; then 
    echo "rsyslog timestamping in RFC 3339 format"
