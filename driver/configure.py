@@ -11,7 +11,7 @@ BLOCK_PATTERN = "(\d+.0) (.+)"
 
 BLOCK=1024
 PAGE_SIZE=4096
-DIGIT_THRESHOLD = 10
+DIGIT_THRESHOLD = 13
 
 
 def is_valid_ms(line):
