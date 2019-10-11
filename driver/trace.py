@@ -20,7 +20,7 @@ def print_line(time, vma):
     vma = int (vma/BLOCK)
     blank ="%"+str(vma)+"s"
     time = time/US_TO_SEC
-    outfile.write("%s %s \n"%(str(time), vma))
+    outfile.write("%s, %s \n"%(str(time), vma))
 
 
 def print_mean_state():
@@ -107,7 +107,7 @@ def setup():
 
 
     outfile = open (OUTPUTFILENAME+".csv", 'w')
-    outfile.write("# Trace : %s \n"%command)
+    #outfile.write("# Trace : %s \n"%command)
     tracked=[]
 
 
