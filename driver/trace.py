@@ -94,7 +94,7 @@ def setup():
     ISABSTRACT = False
     ISTHRESHOLD= False
 
-    OUTPUTFILENAME = LOG_DIR_PATH + start_time.strftime(CSV_PATTERN)
+    OUTPUTFILENAME = LOG_DIR_PATH + "/" + sys.argv[-2] + "/parse_log"
     for idx in range(1, len(sys.argv)-2):
         if sys.argv[idx] == '--abstract': 
            ISABSTRACT=True

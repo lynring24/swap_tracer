@@ -8,16 +8,17 @@ if [ $# -lt 2 ] || [ $# -gt 4 ]; then
 	exit 1
 fi 
 
-sh setup.sh
+bash setup.sh
 
 exectime=$(LANG=en_us_88591; date +"%FT%T.%6N")
 
 ONLY_STACKHEAP=false
 limit=${@: -2:1}
 comm=${@: -1}
-instruction="sudo python trace.py"
+
 
 SWAPTRACER_LOG="../demo/log"
+CURRENT_LOG=${SWAPTRACER_LOG}/${exectime}
 mkdir -p $SWAPTRACER_LOG
 
 sudo sh exec_mem_lim.sh $limit "$comm"
@@ -25,6 +26,12 @@ sudo sh exec_mem_lim.sh $limit "$comm"
 # run command and get the pid 
 #sudo sh exec_mem_lim.sh $limit "$comm" & PID=$(ps | grep python | awk '{print $1}')
 #cat /proc/${PID}/smaps > smaps
+
+mkdir -p ${CURRENT_LOG}
+
+cat /var/log/syslog |  awk -v date="${exectime}" -F, '/swptrace\(.*\)/ {if($1>date){print $1}}' > ${CURRENT_LOG}/log
+
+instruction="sudo python trace.py "
 
 for var in "$@"
 do
@@ -37,16 +44,16 @@ do
         esac
 done;
 
-instruction="${instruction} \"$exectime\" \"$comm\""
+instruction="${instruction}  ${CURRENT_LOG}/log  \"$exectime\" \"$comm\""
 echo "$ ${instruction}"
 eval "${instruction}"
 
 output=$(date -d "$exectime" +'%b%d%H%M%S')
 
 if $ONLY_STACKHEAP; then
-instruction="python split_by_block.py ${SWAPTRACER_LOG}/${output}_th.csv"
+instruction="python split_by_block.py ${CURRENT_LOG}/parse_log_th.csv"
 else
-instruction="python split_by_block.py --threshold ${SWAPTRACER_LOG}/${output}.csv"
+instruction="python split_by_block.py --threshold ${CURRENT_LOG}/parse_log.csv"
 fi
 
 echo "$ ${instruction}"

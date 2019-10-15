@@ -7,7 +7,7 @@ y = []
 
 with open(sys.argv[1]) as csvfile:
      next(csvfile)
-     plots = csv.reader(csvfile, delimiter=' ')
+     plots = csv.reader(csvfile, delimiter=',')
      for row in plots:
 	 x.append(row[0])
 	 y.append(int(row[1]))

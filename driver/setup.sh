@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CHECKTIMEFORMAT=$(cat /etc/rsyslog.conf | egrep ActionFileDefaultTemplate)
 
