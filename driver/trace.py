@@ -80,21 +80,20 @@ def __parse(line):
 def setup():
     if len(sys.argv) < 2 or len(sys.argv) > 6:          
        raise SystemExit
-
+    
     global infile, command, start_time, ISABSTRACT, ISTHRESHOLD, outfile, tracked
     
     if platform.dist()[0] == "Ubuntu":
        infile = "/var/log/syslog"
     else:
        infile = "/var/log/messages"
-
-    command = sys.argv[-1]
-    start_time = datetime.strptime(sys.argv[-2], DATE_PATTERN)
-
+    
+    command = sys.argv[-1].strip()
+    start_time = datetime.strptime(sys.argv[-2].strip(), DATE_PATTERN)
     ISABSTRACT = False
     ISTHRESHOLD= False
-
-    OUTPUTFILENAME = LOG_DIR_PATH + "/" + sys.argv[-2] + "/parse_log"
+    print get_current_log_path()
+    OUTPUTFILENAME = get_current_log_path() + "/extracted"
     for idx in range(1, len(sys.argv)-2):
         if sys.argv[idx] == '--abstract': 
            ISABSTRACT=True
@@ -104,7 +103,6 @@ def setup():
            OUTPUTFILENAME=OUTPUTFILENAME+'_th'
         else : 
            infile = sys.argv[idx]
-
 
     outfile = open (OUTPUTFILENAME+".csv", 'w')
     #outfile.write("# Trace : %s \n"%command)
@@ -123,9 +121,14 @@ if __name__ == '__main__':
        if ISABSTRACT == True:
           print_mean_state()
        outfile.close()
-   except BaseException:
+   except BaseException as ex:
+       print ex
        print "usage : python trace.py [--abstract] [--threshold] [src file path]  <datetime(+%Y-%m-%dT%H:%M:%S.%6N)> <command>"
    except:
       traceback.print_exc()
-      if os.path.exists(LOG_DIR_PATH+start_time.strftime(CSV_PATTERN)+".csv"):
-         os.remove(LOG_DIR_PATH+start_time.strftime(CSV_PATTERN)+".csv")
+      if os.path.exists(LOG_DIR_PATH+"/extracted.csv"):
+         os.remove(LOG_DIR_PATH+extraced+"/extracted.csv")
+      else: 
+	 if os.path.exists(LOG_DIR_PATH+'/extracted_th.csv'):
+            os.remove(LOG_DIR_PATH+'/extracted_th.csv')
+

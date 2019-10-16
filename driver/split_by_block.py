@@ -37,7 +37,7 @@ def get_valid_range(lines):
 def check_and_flush(address):
     global line_count, block_id, line_block
     if abs(prevAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > BLOCK:
-       filepath = LOG_DIR_PATH + FILENAME+"/block_"+str(block_id)+".csv"
+       filepath = get_current_log_path() + FILENAME+"/block_"+str(block_id)+".csv"
        with open(filepath, 'w') as dump:
        	    for line in line_block:
        	        dump.write(line+"\n")
@@ -57,13 +57,13 @@ if __name__ == "__main__":
    global FILENAME, ISTHRESHOLD
 
    if len(sys.argv) is 2:
-      file = sys.argv[1]
+      file = sys.argv[1].strip()
       ISTHRESHOLD = False
    else :
-      file = sys.argv[2]
+      file = sys.argv[2].strip()
       ISTHRESHOLD = True
 
-   FILENAME = file.split("/")[-1].split(".")[0] 
+   FILENAME = "/" + file.split("/")[-1].split(".")[0] 
    if ISTHRESHOLD:
       FILENAME=FILENAME+'_th'
  
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 	block_id = 0
 	line_block = []
 	
-        os.system('sudo mkdir -p ' + LOG_DIR_PATH + FILENAME)
+        os.system('sudo mkdir -p ' + get_current_log_path() + FILENAME)
 
    	with open(file, "r") as csv:
       	     for line in csv:
@@ -90,6 +90,6 @@ if __name__ == "__main__":
 
    except Exception as ex: 
          print ex
-         if os.path.exists(LOG_DIR_PATH+FILENAME):
-	    shutil.rmtree(LOG_DIR_PATH+FILENAME, ignore_errors=True)
+         if os.path.exists(get_current_log_path()+FILENAME):
+	    shutil.rmtree(get_current_log_path()+FILENAME, ignore_errors=True)
 
