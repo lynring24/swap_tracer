@@ -20,9 +20,9 @@ def is_valid_ms(line):
 
 def get_current_log_path():
     LOG_DIR_PATH = None
-    try : 
+    try :
+         print "hellpo"
          LOG_DIR_PATH=os.environ.get('CURRENT_LOG')
-         print LOG_DIR_PATH
     except KeyError:
          print "environment setting failure"
 	 sys.exit(1)

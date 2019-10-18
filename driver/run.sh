@@ -44,6 +44,10 @@ sudo sh exec_mem_lim.sh $limit "$comm"
 
 #cat /var/log/syslog |  awk -v date="${exectime}" -F, '/swptrace\(.*\)/ {if($1>date){print $1}}' > ${CURRENT_LOG}/log
 
+
+echo "${CURRENT_LOG}"
+
+
 instruction="sudo python trace.py "
 
 for var in "$@"

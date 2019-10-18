@@ -1,5 +1,4 @@
 import math
-import traceback
 import json
 import shutil
 from configure import *  
@@ -8,6 +7,8 @@ class Block:
        def __init__ (self):
            self.min = UNIT*UNIT
 	   self.max = 0
+
+
 
 BLOCK_THRESHOLD = DIGIT_THRESHOLD - 6
 def is_high_block(address):
@@ -34,6 +35,9 @@ def get_valid_range(lines):
           high_lines.append(address)
    return high_lines
 
+
+
+
 def check_and_flush(address):
     global line_count, block_id, line_block
     if abs(prevAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > BLOCK:
@@ -46,7 +50,7 @@ def check_and_flush(address):
        line_count = 0
 
 
-if __name__ == "__main__": 
+def  
    global prevAt
    prevAt  = 0
    
@@ -54,25 +58,11 @@ if __name__ == "__main__":
       print "usage : python split_by_block.py --threshold [FILE TO CHOP]"
       exit(1)
 
-   global FILENAME, ISTHRESHOLD
-
-   if len(sys.argv) is 2:
-      file = sys.argv[1].strip()
-      ISTHRESHOLD = False
-   else :
-      file = sys.argv[2].strip()
-      ISTHRESHOLD = True
-
-   FILENAME = "/" + file.split("/")[-1].split(".")[0] 
-   if ISTHRESHOLD:
-      FILENAME=FILENAME+'_th'
- 
    try : 
         line_count = 0
 	block_id = 0
 	line_block = []
 	
-        os.system('sudo mkdir -p ' + get_current_log_path() + FILENAME)
 
    	with open(file, "r") as csv:
       	     for line in csv:
