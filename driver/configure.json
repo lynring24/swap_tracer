@@ -1,15 +1,16 @@
 {
-        "MEM_LIMIT":1,
+        "MEM_LIMIT":512,
 	"COMMAND": "python ../demo/code/cnn.py",
-	"SRC":"Default",
+	"LOG_ROOT":"../demo/log",
         "ABSTRACT": true,
         "THRESHOLD":-1,
-
-        "CSV":"%b%d%H%M%S",
-        "DATE":"%Y-%m-%dT%H:%M:%S.%f",
-        "MICROSEC":"(\d+:\d{2}:\d{2}\.\d{6}) (.+)",
-        "BLOCK":"(\d+.\d{6}) (.+)",
-        "BLOCK_SIZE":1024,
-        "PAGE_SIZE":4096,
-	"LOG_ROOT":"../demo/log"
+        "PATTERN": {
+       		"DATE":"%Y-%m-%dT%H:%M:%S.%f",
+       		"BLOCK":"(/\d+./\d{6}) (.+)",
+        	"MICROSEC":"(/\d+:/\d{2}:/\d{2}/\./\d{6}) (.+)"
+	},
+	"SIZE" : {
+        	"BLOCK":1024,
+        	"PAGE":4096
+	}
 }

@@ -1,7 +1,7 @@
 import math
 import json
 import shutil
-from configure import *  
+from common import *  
 
 class Block:
        def __init__ (self):
@@ -9,18 +9,16 @@ class Block:
 	   self.max = 0
 
 
-
-BLOCK_THRESHOLD = DIGIT_THRESHOLD - 6
-def is_high_block(address):
-    if len(address) < BLOCK_THRESHOLD:
+def is_high_block(vpn):
+    if len(vpn) < get_threshold('pvn'):
        return False
 
-    address = int(address)
-    if address > high.max:
-       high.max = address
+    vpn = int(vpn)
+    if vpn > high.max:
+       high.max = vpn
 
-    if address < high.min:
-       high.min = address
+    if vpn < high.min:
+       high.min = vpn
     
     return True
   
@@ -30,18 +28,21 @@ def get_valid_range(lines):
    high_lines = [] 
    for line in lines :
 
-       address = matched.group(2).strip()
-       if is_high_block(address) :
-          high_lines.append(address)
+       vpn = matched.group(2).strip()
+       if is_high_block(vpn) :
+          high_lines.append(vpn)
    return high_lines
 
 
 
 
-def check_and_flush(address):
+def check_and_flush(vpn):
     global line_count, block_id, line_block
-    if abs(prevAt - address) > BLOCK * PAGE_SIZE * PAGE_SIZE * PAGE_SIZE or line_count > BLOCK:
-       filepath = get_current_log_path() + FILENAME+"/block_"+str(block_id)+".csv"
+    page_size = get_size('PAGE')
+    block_size = get_size('BLOCK')
+    interval = page_size * page_size * page_size * block_size
+    if abs(prevAt - vpn) > interval or line_count > block_size:
+       filepath = get_path('block')+str(block_id)+".csv"
        with open(filepath, 'w') as dump:
        	    for line in line_block:
        	        dump.write(line+"\n")
@@ -50,13 +51,9 @@ def check_and_flush(address):
        line_count = 0
 
 
-def  
+def split():
    global prevAt
    prevAt  = 0
-   
-   if len(sys.argv) < 2 or len(sys.argv) > 4:
-      print "usage : python split_by_block.py --threshold [FILE TO CHOP]"
-      exit(1)
 
    try : 
         line_count = 0
@@ -64,22 +61,22 @@ def
 	line_block = []
 	
 
-   	with open(file, "r") as csv:
+   	with open(get_path('extracted'), 'r') as csv:
       	     for line in csv:
 	         matched = is_valid_ms(line)
 	         if matched is not None:
-                    address = matched.group(2).strip()
-		
-		    if ISTHRESHOLD and BLOCK_THRESHOLD > len(address):
+                    vpn = matched.group(2).strip()
+	            # threshold is enable and block_treshold > len(vpn)	
+		    if do_threshold() and get_threshold() > len(vpn):
 		       continue
-                    address = int(address)
-		    check_and_flush(address)
-		    line_block.append(matched.group(1)+" "+str(address))
-	    	    prevAt = address
+                    vpn = int(vpn)
+		    check_and_flush(vpn)
+		    line_block.append(matched.group(1)+" "+str(vpn))
+	    	    prevAt = vpn
 	   	    line_count+=1
 
    except Exception as ex: 
          print ex
-         if os.path.exists(get_current_log_path()+FILENAME):
-	    shutil.rmtree(get_current_log_path()+FILENAME, ignore_errors=True)
+         if os.path.exists(get_path('block')):
+	    shutil.rmtree(get_path('block'), ignore_errors=True)
 

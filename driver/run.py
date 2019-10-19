@@ -1,23 +1,8 @@
-import os, sys, platform
 import json
 from pprint import pprint 
-from configure import * 
-
-
-
-def _init_() :         
-    with open ('configure.json') as configurefile:
-         configure = json.load(configurefile)
-    if configure["SRC"] = "Default":
-	 if platform.dist()[0] == "Ubuntu":
-            configure['SRC'] = "/var/log/syslog"
-         else:
-	    configure['SRC'] = "/var/log/messages"
- 
-    start = datetime.now().strftime(DATE_PATTERN)
-    os.system('mkdir -p ' + configure["LOG_ROOT"])
-    os.system('mkdir -p ' + configure["LOG_ROOT"]+'/'+start)
-    os.system('mkdir -p ' + configure["LOG_ROOT"]+'/'+start+'/block/')
+from common import * 
+from extract import extract
+from split import split
 
 
 def execute():
@@ -29,27 +14,23 @@ def execute():
         os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
         os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
 
-    os.system('sudo sh exec_mem_lim.sh'+configure['MEM_LIMIT']+"\""+configure['COMMAND']+"\"")
+    exe_instr='sudo sh exec_mem_lim.sh'+ get_mem_limit() +'\"'+ get_command() + '\"'
+    os.system(exe_instr)
 
-
-def extract():
-    with open(configure["SRC"], 'r') as src:
-         for line in src:
-	      __parse(line)
-	      # if ISABSTRACT is used, release last tracked state
-         if configure["ABSTRACT"] == True: 
-	    print_mean_state()
-            outfile.close()
-
-
-def split_by_block(): 
-
+def awk_log():
+    # awk parts from log only after the execution
+    awk_part = 'cat '+ get_path('rsyslog') + ' | '+'awk -v date='+ get_start_time() +' -F, \'/swptrace\(.*\)/ {if($1>date){print $1}}\' > '+ get_path('log')
+    print exe_instr
+    print awk_part
+    os.system(awk_part)
 
 
 if __name__ == '__main__':
-   __init__()
+   set_up_json()
    execute()
+   set_up_path()
+   awk_log()
    extract()
-   split_by_block()
+   split()
 
 

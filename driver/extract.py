@@ -1,7 +1,4 @@
-import sys, platform, os
-import re, traceback
-from datetime import datetime, timedelta
-from configure import *
+from common import *
 
 def isNumber(s):
   try:
@@ -13,11 +10,13 @@ def isNumber(s):
 
 def is_nearby(vma):
    recent_vma = tracked[-1][1] 
-   return abs ( recent_vma - vma) < BLOCK 
+   return abs ( recent_vma - vma) < get_block_size()
+
 
 US_TO_SEC = 1000000
 def print_line(time, vma):
-    vma = int (vma/BLOCK)
+    global outfile 
+    vma = int (vma/get_block_size())
     blank ="%"+str(vma)+"s"
     time = time/US_TO_SEC
     outfile.write("%s, %s \n"%(str(time), vma))
@@ -41,7 +40,6 @@ def print_mean_state():
     tracked= []
 
 
-
 def __parse(line):
 # if matches pattern, name and generated after(time)
     pattern =  "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})\+\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))" 
@@ -50,21 +48,25 @@ def __parse(line):
     if matched is None:
        return None
     comm = matched.group(2).strip()
-    if comm not in configure["COMMAND"]:
+    if comm not in get_command():
        return None
  
     vma = matched.group(3)
     vma =  vma[ vma.rfind(':')+1 : vma.find(')')].strip()
+    vma = int(vma)/get_page_size()
  
-    
-    if configure['THRESHOLD']!=-1 and DIGIT_THRESHOLD > len(vma):
+    #  if it is enable, mush be over threshold 
+    if do_threshold() and get_threshold() > len(vma):
        return 
-    vma = int(vma)/PAGE_SIZE
 # if line is generated after wards 
+    date = matched.group(1)
+    time = datetime.strptime(date, get_pattern("DATE"))
+    delta_t = time - get_start_time()
+    if delta_t < timedelta(0):
        return None
-    ustime = delta_t.total_seconds() * 1000000
+    ustime = delta_t.total_seconds() * US_TO_SEC
 
-    if ISABSTRACT == False:
+    if do_abstract() == False:
        print_line(ustime, vma)
     else:
        if len(tracked) != 0 and is_nearby(vma) is False:
@@ -72,14 +74,14 @@ def __parse(line):
     tracked.append([ustime, vma])
 
 
-
-def setup():
-    if len(sys.argv) < 2 or len(sys.argv) > 6:          
-       raise SystemExit
- 
-    global configure["SRC"], configure["COMMAND"], configure['START'], ISABSTRACT, outfile, tracked
-    
-    OUTPUTFILENAME = configure["LOG_ROOT"]+"/"+configure["START"] + "/extracted.csv"
-    outfile = open (OUTPUTFILENAME, 'w')
+def extract():
+    outfile = open (get_extracted_file(), 'w')
     tracked=[]
+    with open(get_log_file(), 'r') as src:
+	 for line in src:
+             __parse(line)
+       # if ISABSTRACT is used, release last tracked state
+         if do_abstract():
+            print_mean_state()
+    outfile.close()
 
