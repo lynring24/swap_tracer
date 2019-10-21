@@ -1,6 +1,7 @@
-./driver/*.pyc
-./driver/createHTML.py 
-./driver/install_chrome.sh
-./driver/toploy.py
-./driver/get_smaps.sh
-./driver/*.html
+
+driver/*.pyc
+driver/graphic/createHTML.py 
+driver/graphic/install_chrome.sh
+driver/graphic/toploy.py
+driver/graphic/get_smaps.sh
+driver/graphic/*.html

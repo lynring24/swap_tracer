@@ -15,8 +15,7 @@ def set_up_json() :
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
        configure['PATH']['rsyslog'] = "/var/log/messages"
-   # configure["START"] = datetime.now().strftime(configure["PATTERN"]["DATE"])
-    configure["START"] = "2019-10-21T13:26:52.447862"
+    configure["START"] = datetime.now().strftime(configure["PATTERN"]["DATE"])
 
 
 def set_up_path():

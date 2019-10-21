@@ -15,7 +15,6 @@ def extract():
     with open(get_path('awk'), 'r') as src:
 	 for line in src:
              __parse(line)
-	     print line
        # if ISABSTRACT is used, release last tracked state
          if do_abstract():
             print_mean_state()
@@ -29,11 +28,12 @@ def __parse(line):
     pattern =  "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})\+\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))" 
     regex = re.compile(pattern)
     matched = regex.search(line)
+    print matched
     if matched is None:
        return None
-    
-    comm = matched.group(2).strip()
     print comm
+    comm = matched.group(2).strip()
+   
     if comm not in get_command():
        return None
  

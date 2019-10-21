@@ -13,10 +13,8 @@ def printProgress (iteration, total, prefix = '', suffix = '', decimals = 1, bar
 
 
 
-
-
-
-
-for i in range(0, 1000000):
-       printProgress(i, 1000000, 'Progress:', 'Complete', 1, 50)
+UNIT=1000
+total=0
+for i in range(0, UNIT*UNIT):
+      printProgress(i, UNIT*UNIT, 'Progress:', 'Complete', 1, 50)
 
