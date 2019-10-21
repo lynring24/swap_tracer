@@ -74,9 +74,8 @@ def split():
 		    line_block.append(matched.group(1)+" "+str(vpn))
 	    	    prevAt = vpn
 	   	    line_count+=1
-
+        if is_false_generated(get_path('block')) == True:
+	   raise BaseException
    except Exception as ex: 
-         print ex
-         if os.path.exists(get_path('block')):
-	    shutil.rmtree(get_path('block'), ignore_errors=True)
+         clean_up_and_exit(ex, get_path('block'), 'split')
 

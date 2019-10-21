@@ -15,24 +15,40 @@ def execute():
 	    os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
 
 	exe_instr='sudo sh exec_mem_lim.sh '+ str(get_mem_limit()) +' \"'+ get_command() + '\"'
-	print "$"+ exe_instr
+	print "\n$"+ exe_instr
 	os.system(exe_instr)
-    except:
+    except OSError:
         print '[Debug] execution failed.'
 	sys.exit(1)
+
+
+
+def __awk_log(head, error): 
+    	awk_part = head + ' | '+'awk -v start='+ get_time("rsyslog") +' -F, \'/swptrace\(.*\)/ {if($1>start){print $1}}\' > '+ get_path('awk')
+    	print "\n$ "+ awk_part
+    	os.system(awk_part)
+	if is_false_generated(get_path('awk')):
+		raise error
+
 
 
 def awk_log():
     # awk parts from log only after the execution
     try:
-    	awk_part = 'cat '+ get_path('rsyslog') + ' | '+'awk -v date='+ get_start_time() +' -F, \'/swptrace\(.*\)/ {if($1>date){print $1}}\' > '+ get_path('awk')
-    	print "$ "+ awk_part
-    	os.system(awk_part)
-	if os.path.isfile(get_path('awk')) == False:
-		raise IOError
+	__awk_log('cat '+get_path('rsyslog'),IOError)
     except IOError:
-        print "[Debug] Awk for "+ get_command()+ " failed."
-	sys.exit(1)
+        print "rsyslog miss message, try dmesg"
+	clean_up(get_path('rsyslog'))
+	uptime =get_time('dmesg')
+	set_time('rsyslog', uptime)
+        __awk_log('dmesg', BaseException)
+	set_path('rsyslog', 'dmesg')
+	date_pattern= '\d+\.\d{6}'
+	parse_pattern = '\[('+date_pattern+')\] swptrace\\((.+)\\): map (\\(swpentry: \\d+, uaddr: \\d+\\))'
+	set_pattern('DATE', date_pattern)
+	set_pattern('LOG', parse_pattern)
+    except BaseException as ex:
+	clean_up_and_exit(ex, get_path('awk'), 'awk_log')
 
 
 if __name__ == '__main__':

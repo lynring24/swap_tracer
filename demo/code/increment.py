@@ -15,6 +15,6 @@ def printProgress (iteration, total, prefix = '', suffix = '', decimals = 1, bar
 
 UNIT=1000
 total=0
-for i in range(0, UNIT*UNIT):
-      printProgress(i, UNIT*UNIT, 'Progress:', 'Complete', 1, 50)
-
+for i in range(0, 10*UNIT*UNIT):
+      printProgress(i, 10*UNIT*UNIT, 'Progress:', 'Complete', 1, 50)
+print "\n[End]"

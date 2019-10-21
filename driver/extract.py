@@ -9,29 +9,35 @@ def isNumber(s):
 
 
 def extract():
-    global tracked, outfile 
-    outfile = open (get_path('extracted'), 'w')
-    tracked=[]
-    with open(get_path('awk'), 'r') as src:
-	 for line in src:
-             __parse(line)
+    global tracked, outfile
+    try:
+    	outfile = open (get_path('extracted'), 'w')
+    	tracked=[]
+    	with open(get_path('awk'), 'r') as src:
+	     for line in src:
+                  parse(line)
        # if ISABSTRACT is used, release last tracked state
-         if do_abstract():
-            print_mean_state()
-    outfile.close()
+             if do_abstract():
+               print_mean_state()
+    	outfile.close()
+	if is_false_generated(get_path('extracted')) == True:
+	   raise BaseException
+    except BaseException as ex:
+           clean_up_and_exit(ex, get_path('extracted'), 'extract')
+
+
+
 
 
 
 US_TO_SEC = 1000000
-def __parse(line):
+def parse(line):
 # if matches pattern, name and generated after(time)
-    pattern =  "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})\+\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))" 
-    regex = re.compile(pattern)
+    regex = re.compile(get_pattern('LOG'))
     matched = regex.search(line)
-    print matched
+
     if matched is None:
        return None
-    print comm
     comm = matched.group(2).strip()
    
     if comm not in get_command():
@@ -46,8 +52,8 @@ def __parse(line):
        return 
 # if line is generated after wards 
     date = matched.group(1)
-    time = datetime.strptime(date, get_pattern("DATE"))
-    delta_t = time - get_start_time()
+    time = string_to_date(date, get_pattern("DATE"))
+    delta_t = time - get_time('rsyslog')
     if delta_t < timedelta(0):
        return None
 #    ustime = delta_t.total_seconds() * US_TO_SEC
@@ -59,7 +65,6 @@ def __parse(line):
        if len(tracked) != 0 and is_nearby(vma) is False:
          print_mean_state()
     tracked.append([ustime, vma])
-
 
 
 def is_nearby(vma):

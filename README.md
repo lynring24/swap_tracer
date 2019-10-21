@@ -7,8 +7,6 @@ Swap Tracer is an effective tool to visualize the change(swap) in memory and ana
 + os : centos 7 ( linux series are available. )
 + kernel : 5.1.14 ( older versions are available also.)  
 + python : 2.7.5
-+ [lazybox](https://github.com/sjp38/lazybox) : work of @sjp38, if needed for the limited memory usage(optional).
-+ [gnuplot](http://www.gnuplot.info/) : a visualization tool (optional).
 
 ## [Kernel Patch](https://github.com/lynring24/swap_tracer/blob/master/tracer_kernel.patch)
 > patch -p0 < tracer_kernel.patch   

@@ -2,6 +2,8 @@
 #
 # Run a command with memory cgroup that has specific memory limit
 
+set -e
+
 if [ $# -ne 2 ]
 then
 	echo "Usage: $0 <mem limit in MiB> <command>"

@@ -1,6 +1,8 @@
 import os, sys, platform
 import re, traceback
 import time, calendar
+import shutil
+from uptime import uptime
 from datetime import datetime, timedelta
 import json
 
@@ -15,11 +17,12 @@ def set_up_json() :
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
        configure['PATH']['rsyslog'] = "/var/log/messages"
-    configure["START"] = datetime.now().strftime(configure["PATTERN"]["DATE"])
+    configure["TIME"] = {'rsyslog' : datetime.now().strftime(configure["PATTERN"]["DATE"]),
+                        'dmesg':str(uptime())}
 
 
 def set_up_path():
-    EXE_LOG = configure['PATH']["LOG_ROOT"]+'/'+configure["START"]
+    EXE_LOG = configure['PATH']["LOG_ROOT"]+'/'+configure["TIME"]['rsyslog']
     configure['PATH']['awk'] = EXE_LOG +'/awk.log'
     configure['PATH']['extracted'] = EXE_LOG +'/extracted.log'
     configure['PATH']['block'] = EXE_LOG+'/block/'
@@ -28,13 +31,25 @@ def set_up_path():
     os.system('mkdir -p ' + EXE_LOG +'/block/')
 
 
+def set_path(path, value):
+    configure['PATH'][path] = value
+    
+
+def set_pattern(key, value):
+    configure['PATTERN'][key] = value
+
+
+def set_time(key, value):
+    configure["TIME"]['rsyslog'] = value
+
+
 def is_valid_ms(line):
     matched= re.compile(configure["PATTERN"].get("BLOCK")).search(line)
     return matched
 
 
-def get_start_time():
-    return configure['START']
+def get_time(key):
+    return configure["TIME"].get(key)
 
 
 def get_path(x):
@@ -74,3 +89,20 @@ def get_pattern(x):
     return configure['PATTERN'].get(x)
  
 
+def is_false_generated(x):
+    return (os.path.isfile(x) == False or os.stat(x).st_size == 0)
+ 
+
+def string_to_date(timestamp, pattern):
+    return datetime.strptime(timestamp, pattern)
+
+ 
+def clean_up(path):
+    print "clean up %s"%path
+    if os.path.exists(path):
+       shutil.rmtree(path, ignore_errors=True)
+
+def clean_up_and_exit(ex, path, func):
+    print "[DEBUG] Failure in %s()"%func
+    clean_up(path)
+    sys.exit(1)
