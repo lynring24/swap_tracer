@@ -1,13 +1,15 @@
 {
         "MEM_LIMIT":512,
 	"COMMAND": "python ../demo/code/cnn.py",
-	"LOG_ROOT":"../demo/log",
+	"PATH": {
+		"LOG_ROOT":"../demo/log"
+	},
         "ABSTRACT": true,
         "THRESHOLD":-1,
         "PATTERN": {
        		"DATE":"%Y-%m-%dT%H:%M:%S.%f",
-       		"BLOCK":"(/\d+./\d{6}) (.+)",
-        	"MICROSEC":"(/\d+:/\d{2}:/\d{2}/\./\d{6}) (.+)"
+       		"BLOCK":"(\\d+.\\d{6}) (.+)",
+        	"MICROSEC":"(\\d+:\\d{2}:\\d{2}\\.\\d{6}) (.+)"
 	},
 	"SIZE" : {
         	"BLOCK":1024,

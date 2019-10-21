@@ -8,38 +8,22 @@ def isNumber(s):
     return False
 
 
-def is_nearby(vma):
-   recent_vma = tracked[-1][1] 
-   return abs ( recent_vma - vma) < get_block_size()
+def extract():
+    global tracked, outfile 
+    outfile = open (get_path('extracted'), 'w')
+    tracked=[]
+    with open(get_path('awk'), 'r') as src:
+	 for line in src:
+             __parse(line)
+	     print line
+       # if ISABSTRACT is used, release last tracked state
+         if do_abstract():
+            print_mean_state()
+    outfile.close()
+
 
 
 US_TO_SEC = 1000000
-def print_line(time, vma):
-    global outfile 
-    vma = int (vma/get_block_size())
-    blank ="%"+str(vma)+"s"
-    time = time/US_TO_SEC
-    outfile.write("%s, %s \n"%(str(time), vma))
-
-
-def print_mean_state():
-    global tracked 
-    if len(tracked)==0:
-	return 
-    delta_t = 0 
-    sum_p = 0
-    
-    for row in tracked:
-       delta_t += row[0] - tracked[0][0]
-       sum_p += row[1]
-
-    delta_t = delta_t / len(tracked)
-    mtime = delta_t + tracked[0][0]
-    mvma = sum_p / len(tracked)
-    print_line(mtime, mvma)
-    tracked= []
-
-
 def __parse(line):
 # if matches pattern, name and generated after(time)
     pattern =  "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})\+\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))" 
@@ -47,7 +31,9 @@ def __parse(line):
     matched = regex.search(line)
     if matched is None:
        return None
+    
     comm = matched.group(2).strip()
+    print comm
     if comm not in get_command():
        return None
  
@@ -64,7 +50,8 @@ def __parse(line):
     delta_t = time - get_start_time()
     if delta_t < timedelta(0):
        return None
-    ustime = delta_t.total_seconds() * US_TO_SEC
+#    ustime = delta_t.total_seconds() * US_TO_SEC
+    ustime = delta_t.total_seconds()
 
     if do_abstract() == False:
        print_line(ustime, vma)
@@ -74,14 +61,34 @@ def __parse(line):
     tracked.append([ustime, vma])
 
 
-def extract():
-    outfile = open (get_extracted_file(), 'w')
-    tracked=[]
-    with open(get_log_file(), 'r') as src:
-	 for line in src:
-             __parse(line)
-       # if ISABSTRACT is used, release last tracked state
-         if do_abstract():
-            print_mean_state()
-    outfile.close()
+
+def is_nearby(vma):
+   recent_vma = tracked[-1][1] 
+   return abs ( recent_vma - vma) < get_block_size()
+
+
+def print_line(time, vma):
+    vma = int (vma/get_block_size())
+    blank ="%"+str(vma)+"s"
+    #time = time/US_TO_SEC
+    outfile.write("%s, %s \n"%(str(time), vma))
+
+
+def print_mean_state():
+    global tracked
+    if len(tracked)==0:
+	return 
+    delta_t = 0 
+    sum_p = 0
+    
+    for row in tracked:
+       delta_t += row[0] - tracked[0][0]
+       sum_p += row[1]
+
+    delta_t = delta_t / len(tracked)
+    mtime = delta_t + tracked[0][0]
+    mvma = sum_p / len(tracked)
+    print_line(mtime, mvma)
+    tracked= []
+
 

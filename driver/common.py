@@ -1,28 +1,30 @@
 import os, sys, platform
 import re, traceback
 import time, calendar
-import json
 from datetime import datetime, timedelta
+import json
 
 
 def set_up_json() :
     global configure
     with open ('configure.json') as file:
+    # JSON can't unescape the so replace with the actual character 
           configure = json.load(file)
-    
-    if platform.dist()[0] == "Ubuntu":
+
+    if platform.dist()[0] == 'Ubuntu':
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
        configure['PATH']['rsyslog'] = "/var/log/messages"
-    configure["START"] = datetime.now().strftime(configure["DATE"])
+   # configure["START"] = datetime.now().strftime(configure["PATTERN"]["DATE"])
+    configure["START"] = "2019-10-21T13:26:52.447862"
 
 
 def set_up_path():
-    EXE_LOG = configure["LOG_ROOT"]+'/'+configure["START"]
+    EXE_LOG = configure['PATH']["LOG_ROOT"]+'/'+configure["START"]
     configure['PATH']['awk'] = EXE_LOG +'/awk.log'
     configure['PATH']['extracted'] = EXE_LOG +'/extracted.log'
     configure['PATH']['block'] = EXE_LOG+'/block/'
-    os.system('mkdir -p ' + configure["LOG_ROOT"])
+    os.system('mkdir -p ' + configure['PATH']["LOG_ROOT"] )
     os.system('mkdir -p ' + EXE_LOG)
     os.system('mkdir -p ' + EXE_LOG +'/block/')
 
@@ -32,11 +34,11 @@ def is_valid_ms(line):
     return matched
 
 
-def get_start_time(x):
+def get_start_time():
     return configure['START']
 
 
-def get_path():
+def get_path(x):
     return configure['PATH'].get(x)
 
 
