@@ -55,27 +55,26 @@ def split():
    global prevAt
    prevAt  = 0
 
-   try : 
-        line_count = 0
-	block_id = 0
-	line_block = []
-	
+#  try : 
+   line_count = 0
+   block_id = 0
+   line_block = []
 
-   	with open(get_path('extracted'), 'r') as csv:
-      	     for line in csv:
-	         matched = is_valid_ms(line)
-	         if matched is not None:
-                    vpn = matched.group(2).strip()
-	            # threshold is enable and block_treshold > len(vpn)	
-		    if do_threshold() and get_threshold() > len(vpn):
-		       continue
-                    vpn = int(vpn)
-		    check_and_flush(vpn)
-		    line_block.append(matched.group(1)+" "+str(vpn))
-	    	    prevAt = vpn
-	   	    line_count+=1
-        if is_false_generated(get_path('block')) == True:
-	   raise BaseException
-   except Exception as ex: 
-         clean_up_and_exit(ex, get_path('block'), 'split')
+   with open(get_path('extracted'), 'r') as csv:
+       for line in csv:
+         matched = is_valid_ms(line)
+         if matched is not None:
+            vpn = matched.group(2).strip()
+            # threshold is enable and block_treshold > len(vpn)	
+	    if do_threshold() and get_threshold() > len(vpn):
+	       continue
+            vpn = int(vpn)
+	    check_and_flush(vpn)
+	    line_block.append(matched.group(1)+" "+str(vpn))
+    	    prevAt = vpn
+   	    line_count+=1
+#   if is_false_generated(get_path('block')) == True:
+#   raise BaseException
+#   except Exception as ex: 
+ #        clean_up_and_exit(ex, get_path('block'), 'split')
 

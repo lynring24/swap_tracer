@@ -54,10 +54,10 @@ def awk_log():
 
 if __name__ == '__main__':
    set_up_json()
-   #execute()
+   execute()
    set_up_path()
    awk_log()
    extract()
-   split()
+#   split()
 
 

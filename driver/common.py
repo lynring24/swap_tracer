@@ -17,9 +17,7 @@ def set_up_json() :
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
        configure['PATH']['rsyslog'] = "/var/log/messages"
-#   configure["TIME"] = datetime.now().strftime(configure["PATTERN"]["DATE"])
-#   configure["TIME"] = datetime.now()
-    configure["TIME"] = string_to_date('2019-10-23T20:47:42.850120', "%Y-%m-%dT%H:%M:%S.%f")
+    configure["TIME"] = datetime.now()
 
 
 def set_up_path():
@@ -29,7 +27,7 @@ def set_up_path():
     configure['PATH']['block'] = EXE_LOG+'/block/'
     os.system('mkdir -p ' + configure['PATH']["LOG_ROOT"] )
     os.system('mkdir -p ' + EXE_LOG)
-    os.system('mkdir -p ' + EXE_LOG +'/block/')
+#    os.system('mkdir -p ' + EXE_LOG +'/block/')
 
 
 def set_path(path, value):
