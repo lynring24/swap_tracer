@@ -17,12 +17,13 @@ def set_up_json() :
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
        configure['PATH']['rsyslog'] = "/var/log/messages"
-    configure["TIME"] = {'rsyslog' : datetime.now().strftime(configure["PATTERN"]["DATE"]),
-                        'dmesg':str(uptime())}
+#   configure["TIME"] = datetime.now().strftime(configure["PATTERN"]["DATE"])
+#   configure["TIME"] = datetime.now()
+    configure["TIME"] = string_to_date('2019-10-23T20:47:42.850120', "%Y-%m-%dT%H:%M:%S.%f")
 
 
 def set_up_path():
-    EXE_LOG = configure['PATH']["LOG_ROOT"]+'/'+configure["TIME"]['rsyslog']
+    EXE_LOG = configure['PATH']["LOG_ROOT"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['awk'] = EXE_LOG +'/awk.log'
     configure['PATH']['extracted'] = EXE_LOG +'/extracted.log'
     configure['PATH']['block'] = EXE_LOG+'/block/'
@@ -39,8 +40,8 @@ def set_pattern(key, value):
     configure['PATTERN'][key] = value
 
 
-def set_time(key, value):
-    configure["TIME"]['rsyslog'] = value
+def set_time():
+    configure["TIME"]
 
 
 def is_valid_ms(line):
@@ -48,13 +49,19 @@ def is_valid_ms(line):
     return matched
 
 
-def get_time(key):
-    return configure["TIME"].get(key)
+def get_time():
+    return configure["TIME"]
+
+
+def datetime_to_string(x):
+    return x.strftime(configure["PATTERN"]["DATE"])
 
 
 def get_path(x):
     return configure['PATH'].get(x)
 
+def get_page_size():
+    return configure['SIZE']["PAGE"]
 
 def get_command():
     return configure["COMMAND"]

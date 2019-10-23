@@ -1,5 +1,5 @@
 {
-        "MEM_LIMIT": 512,
+        "MEM_LIMIT": 100,
 	"COMMAND": "python ../demo/code/increment.py",
 	"PATH": {
 		"LOG_ROOT":"../demo/log"
