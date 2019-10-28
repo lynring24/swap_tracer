@@ -24,7 +24,7 @@ def execute():
 
 
 def __awk_log(head, error): 
-    	awk_part = head + ' | '+'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace\(.*\)/ {if($1>start){print $1}}\' > '+ get_path('awk')
+    	awk_part = head + ' | '+'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace\(.*\)/ {if($1>start){print $0}}\' > '+ get_path('awk')
     	print "\n$ "+ awk_part+'\n'
     	os.system(awk_part)
 	if is_false_generated(get_path('awk')):
