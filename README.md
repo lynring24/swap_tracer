@@ -1,7 +1,7 @@
-# Swap Tracer
-![swaptracer](./icon.png)
+# swptracer
+![ swptracer](./icon.png)
 
-Swap Tracer is an effective tool to visualize the change(swap) in memory and analyze it after executing the program. Currently, swap in/out and do_swap has been marked.
+ **swptracer** is an effective tool to visualize the change(swap) in memory and analyze it after executing the program. Currently, swap in/out and do_swap has been marked.
 
 ## Environment/Requirement
 + os : centos 7 ( linux series are available. )
