@@ -46,7 +46,7 @@ python driver/run.py
 ###  visualize
 
 ```
-python driver/graphic/plot.py
+python driver/graphic/plot.py LOG_ROOT/YYYY-MM-DDTHH:MM:SS.msec/extract.log
 ```
 
 ## OUTPUT
