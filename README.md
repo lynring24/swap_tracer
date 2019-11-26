@@ -57,6 +57,10 @@ LOG_ROOT
           |  awk.log  
           |  extract.log
 ```
+### plot
+
+![plot](./demo/plot/plot.png)
+
 
 ## Directory 
 + swptracer.patch
@@ -64,4 +68,5 @@ LOG_ROOT
 + driver/graphic
 + demo/log
 + demo/code
++ demo/plot
 
