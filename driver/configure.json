@@ -2,7 +2,7 @@
         "MEM_LIMIT": 512,
 	"COMMAND": "python ../demo/code/cnn.py",
 	"PATH": {
-		"LOG_ROOT":"../demo/log"
+		"LOG_ROOT":"./swp_log"
 	},
         "ABSTRACT": true,
         "THRESHOLD":-1,

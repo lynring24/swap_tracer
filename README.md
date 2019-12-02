@@ -16,8 +16,18 @@ In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/m
 
 ## How To Use
 ### Setup
-Before using this swap tracer, modify **driver/configure.json**
 ```
+sh setup.sh
+```
+### run  
+
+```
+python $SWPTRACE/exec.py [<Mib> <command>]
+# <MiB> and <command> is a quick option for setup. 
+```
+[optional] 
+Before using this swap tracer, modify **driver/configure.json** if needed.
+This will be a default setting.``
 {
         "MEM_LIMIT": memory limit in MiB,
 	"COMMAND": command to run,
@@ -37,14 +47,8 @@ Before using this swap tracer, modify **driver/configure.json**
         	"PAGE": size of vm page (default 4096) 
 	}
 }
-
 ```
-### run  
-```
-python driver/run.py
-```
-###  visualize
-
+###  visualize 
 ```
 python driver/graphic/plot.py LOG_ROOT/YYYY-MM-DDTHH:MM:SS.msec/extract.log
 ```

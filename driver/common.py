@@ -9,7 +9,7 @@ import json
 
 def set_up_json() :
     global configure
-    with open ('configure.json') as file:
+    with open (os.environ['SWPTRACE']+'/configure.json') as file:
     # JSON can't unescape the so replace with the actual character 
           configure = json.load(file)
 
@@ -28,6 +28,15 @@ def set_up_path():
     os.system('mkdir -p ' + configure['PATH']["LOG_ROOT"] )
     os.system('mkdir -p ' + EXE_LOG)
 #    os.system('mkdir -p ' + EXE_LOG +'/block/')
+
+
+def set_command(value):
+    configure['COMMAND'] = value
+ 
+
+def set_mem_limit(value):
+    configure['MEM_LIMIT'] = value
+ 
 
 
 def set_path(path, value):
