@@ -27,7 +27,8 @@ python $SWPTRACE/exec.py [<Mib> <command>]
 ```
 [optional] 
 Before using this swap tracer, modify **driver/configure.json** if needed.
-This will be a default setting.``
+This will be a default setting.
+``1
 {
         "MEM_LIMIT": memory limit in MiB,
 	"COMMAND": command to run,
@@ -48,6 +49,7 @@ This will be a default setting.``
 	}
 }
 ```
+
 ###  visualize 
 ```
 python driver/graphic/plot.py LOG_ROOT/YYYY-MM-DDTHH:MM:SS.msec/extract.log
