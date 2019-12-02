@@ -25,8 +25,8 @@ def set_up_path():
     configure['PATH']['awk'] = EXE_LOG +'/awk.log'
     configure['PATH']['extracted'] = EXE_LOG +'/extracted.log'
     configure['PATH']['block'] = EXE_LOG+'/block/'
-    os.system('mkdir -p ' + configure['PATH']["LOG_ROOT"] )
-    os.system('mkdir -p ' + EXE_LOG)
+    os.system('sudo mkdir -p ' + configure['PATH']["LOG_ROOT"] )
+    os.system('sudo mkdir -p ' + EXE_LOG)
 #    os.system('mkdir -p ' + EXE_LOG +'/block/')
 
 
