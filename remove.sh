@@ -1,0 +1,2 @@
+unset $PYTHONPATH
+unset $SWPTRACE
