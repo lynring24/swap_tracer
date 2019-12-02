@@ -5,3 +5,4 @@ SWPTRACE=$(pwd)/driver
 echo "export SWPTRACE=${SWPTRACE}" >> ~/.bashrc
 echo "export PYTHONPATH=\$PYTHONPATH:${SWPTRACE}" >> ~/.bashrc
 source ~/.bashrc
+source ~/.bashrc
