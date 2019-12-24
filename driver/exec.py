@@ -48,11 +48,11 @@ def awk_log():
         print "rsyslog miss message, try dmesg"
 	clean_up(get_path('rsyslog'))
        #__awk_log('dmesg -T', BaseException)
-        instr ='dmesg -T | grep swptrace > '+get_path('awk')
+        instr ='dmesg --time-format iso | grep swptrace > '+get_path('awk')
         os.system(instr)
 	print "\n$ "+instr+"\n"
-	date_pattern= '%a %b %d %H:%M:%S %Y'
-	parse_pattern = '\[([a-zA-Z]{3} [a-zA-Z]{3} \d{2} \d{2}:\d{2}:\d{2} \d{4})\] swptrace\\((.+)\\): map (\\(swpentry: \\d+, uaddr: \\d+\\))'
+	date_pattern= '%Y-%m-%dT%H:%M:%S,%f+0900'
+	parse_pattern = '\d{4}-\d{w}-\d{2}T\d{2}:\d{2}:\d{2},\d{6}+\d{3} swptrace\\((.+)\\): map (\\(swpentry: \\d+, uaddr: \\d+\\))'
 	set_pattern('DATE', date_pattern)
 	set_pattern('LOG', parse_pattern)
     except BaseException as ex:
