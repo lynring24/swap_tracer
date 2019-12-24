@@ -52,12 +52,12 @@ def awk_log():
         os.system(instr)
 	print "\n$ "+instr+"\n"
 	date_pattern= '%Y-%m-%dT%H:%M:%S,%f+0900'
-	parse_pattern = '\d{4}-\d{w}-\d{2}T\d{2}:\d{2}:\d{2},\d{6}+\d{3} swptrace\\((.+)\\): map (\\(swpentry: \\d+, uaddr: \\d+\\))'
+	parse_pattern = '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2},\d{6}+\d{4} swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
 	set_pattern('DATE', date_pattern)
 	set_pattern('LOG', parse_pattern)
     except BaseException as ex:
         print ex
-	clean_up_and_exit(ex, get_path('awk'), 'awk_log')
+	clean_up_and_exit(get_path('awk'), 'awk_log')
 
 
 if __name__ == '__main__':

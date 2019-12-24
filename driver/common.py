@@ -21,13 +21,14 @@ def set_up_json() :
 
 
 def set_up_path():
-    EXE_LOG = configure['PATH']["LOG_ROOT"]+'/'+datetime_to_string(configure["TIME"])
-    configure['PATH']['awk'] = EXE_LOG +'/awk.log'
-    configure['PATH']['extracted'] = EXE_LOG +'/extracted.log'
-    configure['PATH']['block'] = EXE_LOG+'/block/'
+    EXEC_DIR = configure['PATH']["LOG_ROOT"]+'/'+datetime_to_string(configure["TIME"])
+    configure['PATH']['head'] = EXEC_DIR
+    configure['PATH']['awk'] = EXEC_DIR +'/awk.log'
+    configure['PATH']['extracted'] = EXEC_DIR +'/extracted.log'
+    configure['PATH']['block'] = EXEC_DIR+'/block/'
     os.system('sudo mkdir -p ' + configure['PATH']["LOG_ROOT"] )
-    os.system('sudo mkdir -p ' + EXE_LOG)
-#    os.system('mkdir -p ' + EXE_LOG +'/block/')
+    os.system('sudo mkdir -p ' + EXEC_DIR)
+   # os.system('mkdir -p ' + EXEC_DIR +'/block/')
 
 
 def set_command(value):
@@ -115,8 +116,14 @@ def clean_up(path):
     print "clean up %s"%path
     if os.path.exists(path):
        shutil.rmtree(path, ignore_errors=True)
+       #shutil.rmtree(configure['PATH']['head'], ignore_errors=True)
 
-def clean_up_and_exit(ex, path, func):
+def clean_up_and_exit(path, func, head=None):
     print "[DEBUG] Failure in %s()"%func
     clean_up(path)
+    if head is not None:
+       clean_up(configure['PATH']['head'])
     sys.exit(1)
+
+
+
