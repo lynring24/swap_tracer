@@ -24,7 +24,8 @@ def extract():
     	if is_false_generated(get_path('extracted')) == True:
  	   raise BaseException
     except BaseException as ex:
-           clean_up_and_exit(get_path('extracted'), 'extract')
+           clean_up_and_exit(get_path('extracted'), 'extract', True)
+           
 
 
 def parse(line):

@@ -59,7 +59,7 @@ def awk_log():
 	set_pattern('LOG', parse_pattern)
     except BaseException as ex:
         print ex
-	clean_up_and_exit(get_path('awk'), 'awk_log')
+	clean_up_and_exit(get_path('awk'), 'awk_log', True)
 
 
 if __name__ == '__main__':

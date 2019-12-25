@@ -52,8 +52,9 @@ This will be a default setting.
 
 ###  visualize 
 ```
-python $SWPTRACE/graphic/plot.py FILE_ABSOLUTE_PATH
-python $SWPTRACE/graphic/plot.py $(pwd)/extracted.log
+$ python $SWPTRACE/graphic/plot.py FILE_ABSOLUTE_PATH
+
+# python $SWPTRACE/graphic/plot.py $(pwd)/extracted.log
 ```
 
 ### OUTPUT
