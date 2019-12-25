@@ -52,7 +52,8 @@ This will be a default setting.
 
 ###  visualize 
 ```
-python driver/graphic/plot.py LOG_ROOT/YYYY-MM-DDTHH:MM:SS.msec/extract.log
+python $SWPTRACE/graphic/plot.py FILE_ABSOLUTE_PATH
+python $SWPTRACE/graphic/plot.py $(pwd)/extracted.log
 ```
 
 ### OUTPUT
@@ -61,7 +62,7 @@ LOG_ROOT
 |
 | YYYY-MM-DDTHH:MM:SS.msec
           |  awk.log  
-          |  extract.log
+          |  extracted.log
 ```
 ### plot
 

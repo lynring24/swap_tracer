@@ -22,5 +22,5 @@ try:
 
      fig.show()
 except:
-   print "usage : python plot.py filename"
+     print "usage : python plot.py filename"
 

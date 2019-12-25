@@ -11,7 +11,7 @@ def isNumber(s):
 def extract():
     global tracked, outfile
     try:
-        print "$ python $SWPTRACE/extract.py"
+        print "generate extracted.log"
         outfile = open (get_path('extracted'), 'w')
 	tracked=[]
 	with open(get_path('awk'), 'r') as src:
