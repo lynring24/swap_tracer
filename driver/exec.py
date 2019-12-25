@@ -51,8 +51,8 @@ def awk_log():
         instr ='dmesg --time-format iso | grep swptrace > '+get_path('awk')
         os.system(instr)
 	print "\n$ "+instr+"\n"
-	date_pattern= '%Y-%m-%dT%H:%M:%S,%f+0900'
-	parse_pattern = '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2},\d{6}+\d{4} swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
+	date_pattern= '%Y-%m-%dT%H:%M:%S,%f'
+	parse_pattern = '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\,\d{6})\+\d{4} swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
 	set_pattern('DATE', date_pattern)
 	set_pattern('LOG', parse_pattern)
     except BaseException as ex:
@@ -67,6 +67,6 @@ if __name__ == '__main__':
    set_up_path()
    awk_log()
    extract()
-#   split()
+#  split()
 
 

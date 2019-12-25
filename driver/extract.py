@@ -30,7 +30,7 @@ def parse(line):
 # if matches pattern, name and generated after(time)
     regex = re.compile(get_pattern('LOG'))
     matched = regex.search(line)
-    
+  
     if matched is None:
        return None
     comm = matched.group(2).strip()
