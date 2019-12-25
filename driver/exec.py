@@ -24,7 +24,9 @@ def exe_cmd():
 
 	exe_instr='sudo sh $SWPTRACE/exec_mem_lim.sh '+ str(get_mem_limit()) +' \"'+ get_command() + '\"'
 	print "\n$"+ exe_instr
-	os.system(exe_instr)
+	eval_result = os.system(exe_instr)
+        if eval_result != 0:
+           raise OSError
     except OSError:
         print '[Debug] execution failed.'
 	sys.exit(1)
