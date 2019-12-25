@@ -10,20 +10,21 @@ def isNumber(s):
 
 def extract():
     global tracked, outfile
-    #try:
-    outfile = open (get_path('extracted'), 'w')
-    tracked=[]
-    with open(get_path('awk'), 'r') as src:
-         for line in src:
-             parse(line)
-      # if ISABSTRACT is used, release last tracked state
-         if do_abstract():
-            print_mean_state()
-    outfile.close()
-    #	if is_false_generated(get_path('extracted')) == True:
- #	   raise BaseException
-    #except BaseException as ex:
-     #      clean_up_and_exit(get_path('extracted'), 'extract')
+    try:
+        print "$ python $SWPTRACE/extract.py"
+        outfile = open (get_path('extracted'), 'w')
+	tracked=[]
+	with open(get_path('awk'), 'r') as src:
+              for line in src:
+		  parse(line)
+	   # if ISABSTRACT is used, release last tracked state
+	      if do_abstract():
+		 print_mean_state()
+	      outfile.close()
+    	if is_false_generated(get_path('extracted')) == True:
+ 	   raise BaseException
+    except BaseException as ex:
+           clean_up_and_exit(get_path('extracted'), 'extract')
 
 
 def parse(line):

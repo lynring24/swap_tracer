@@ -1,6 +1,6 @@
 {
-        "MEM_LIMIT": 512,
-	"COMMAND": "python $SWPTRACE/../demo/code/cnn.py",
+        "MEM_LIMIT": 10,
+	"COMMAND": "python $SWPTRACE/../demo/code/increment.py",
 	"PATH": {
 		"LOG_ROOT":"./swp_log"
 	},
