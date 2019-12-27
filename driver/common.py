@@ -20,12 +20,18 @@ def set_up_json() :
     configure["TIME"] = datetime.now()
 
 
+
+area = ['total', 'code', 'sram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
+
+
 def set_up_path():
     EXEC_DIR = configure['PATH']["LOG_ROOT"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['head'] = EXEC_DIR
     configure['PATH']['awk'] = EXEC_DIR +'/awk.log'
-    configure['PATH']['extracted'] = EXEC_DIR +'/extracted.log'
-    configure['PATH']['block'] = EXEC_DIR+'/block/'
+    for side in area:
+        configure['PATH'][side] = EXEC_DIR + '/' + side + '.log'
+   #configure['PATH']['extracted'] = EXEC_DIR +'/extracted.log'
+   # configure['PATH']['block'] = EXEC_DIR+'/block/'
     os.system('sudo mkdir -p ' + configure['PATH']["LOG_ROOT"] )
     os.system('sudo mkdir -p ' + EXEC_DIR)
    # os.system('mkdir -p ' + EXEC_DIR +'/block/')
@@ -113,16 +119,17 @@ def string_to_date(timestamp, pattern):
 
  
 def clean_up(path):
-    print "clean up %s"%path
-    if os.path.exists(path):
-       shutil.rmtree(path, ignore_errors=True)
+    if os.path.exists(path): 
+       print "clean up %s"%path
+       if os.path.isfile(path):
+          os.remove(path)
+       else: 
+          shutil.rmtree(path, ignore_errors=True)
        #shutil.rmtree(configure['PATH']['head'], ignore_errors=True)
 
-def clean_up_and_exit(path, func, head=None):
+def clean_up_and_exit(path, func):
     print "[DEBUG] Failure in %s()"%func
     clean_up(path)
-    if head is not None:
-       clean_up(configure['PATH']['head'])
     sys.exit(1)
 
 

@@ -2,6 +2,7 @@ from pprint import pprint
 from common import * 
 from extract import extract
 from split import split
+from plot import plot
 
 
 
@@ -59,7 +60,7 @@ def awk_log():
 	set_pattern('LOG', parse_pattern)
     except BaseException as ex:
         print ex
-	clean_up_and_exit(get_path('awk'), 'awk_log', True)
+	clean_up_and_exit(get_path('head'), 'awk_log')
 
 
 if __name__ == '__main__':
@@ -69,6 +70,6 @@ if __name__ == '__main__':
    set_up_path()
    awk_log()
    extract()
-#  split()
+   plot()
 
 

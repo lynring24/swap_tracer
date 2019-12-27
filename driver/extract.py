@@ -9,24 +9,29 @@ def isNumber(s):
 
 
 def extract():
-    global tracked, outfile
+    global area_subs
     try:
-        print "generate extracted.log"
-        outfile = open (get_path('extracted'), 'w')
+	print "generate extracted logs"
+	area_subs = []
+	for side in area: 
+	    area_subs.append(open(get_path(side) , 'w'))
 	tracked=[]
 	with open(get_path('awk'), 'r') as src:
-              for line in src:
-		  parse(line)
-	   # if ISABSTRACT is used, release last tracked state
-	      if do_abstract():
-		 print_mean_state()
-	      outfile.close()
-    	if is_false_generated(get_path('extracted')) == True:
- 	   raise BaseException
+	      for line in src:
+		  extracted = parse(line)
+		  if extracted is not None:
+		     print_line(extracted[0], extracted[1])
+	#if ISABSTRACT is used, release last tracked state
+	for side in area:
+	    area_subs[area.index(side)].close()
+	    if is_false_generated(get_path(side)):
+	       clean_up(get_path(side))
+    	
+        if is_false_generated(get_path('total')) == True:
+	   raise BaseException
     except BaseException as ex:
-           clean_up_and_exit(get_path('extracted'), 'extract', True)
-           
-
+           clean_up_and_exit(get_path('head'), 'extract')
+          
 
 def parse(line):
 # if matches pattern, name and generated after(time)
@@ -53,13 +58,8 @@ def parse(line):
        return None
 #    ustime = delta_t.total_seconds() * US_TO_SEC
     ustime = delta_t.total_seconds()
+    return [ustime, vma]
 
-    if do_abstract() == False:
-       print_line(ustime, vma)
-    else:
-       if len(tracked) != 0 and is_nearby(vma) is False:
-         print_mean_state()
-    tracked.append([ustime, vma])
 
 
 def is_nearby(vma):
@@ -67,11 +67,16 @@ def is_nearby(vma):
    return abs ( recent_vma - vma) < get_size('BLOCK')
 
 
-def print_line(time, vma):
-    vma = int (vma/get_size('BLOCK'))
-    blank ="%"+str(vma)+"s"
-    #time = time/US_TO_SEC
-    outfile.write("%s, %s \n"%(str(time), vma))
+borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']
+def print_line(duration, vma):
+    vpn = int (vma/get_size('BLOCK'))
+    area_num = 1
+    for border in borders:
+        if vma < int(border, 16):
+           break
+        area_num+=1  
+    area_subs[area_num].write("%s, %s \n"%(str(duration), vpn))
+    area_subs[0].write("%s, %s \n"%(str(duration), vpn))
 
 
 def print_mean_state():
