@@ -53,5 +53,15 @@ def plot():
 #     if not os.path.exists(png_path):
 #        fig.write_image(png_path)
     
-    fig.update_layout( height=1000, width= 1500, title_text=get_command())
+    fig.update_layout( 
+               height=1000, width= 1500, 
+               title_text="swap timestamps of \n$"+get_mem_limit()+" "+ get_command(),
+               xaxis_title='VPN',
+               yaxis_title='Time',
+               font =  dict (
+                           family='Courier New, monospace',  
+                           size=18,
+                           color='#7f7f7f')
+               )
+
     fig.show()
