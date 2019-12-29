@@ -2,7 +2,8 @@ from pprint import pprint
 from common import * 
 from extract import extract
 from split import split
-from plot import plot
+from plot import to_browser
+#from matplotlib.py import to_pdf
 
 
 
@@ -70,6 +71,7 @@ if __name__ == '__main__':
    set_up_path()
    awk_log()
    extract()
-   plot()
+   to_browser()
+   #to_pdf()
 
 

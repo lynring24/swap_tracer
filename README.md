@@ -22,7 +22,7 @@ sh setup.sh
 ### run  
 
 ```
-python $SWPTRACE/exec.py [<Mib> <command>]
+python $SWPTRACE/exec.py [<Mib> <command>] 
 # <MiB> and <command> is a quick option for setup. 
 ```
 [optional] 
@@ -48,13 +48,6 @@ This will be a default setting.
         	"PAGE": size of vm page (default 4096) 
 	}
 }
-```
-
-###  visualize 
-```
-$ python $SWPTRACE/graphic/plot.py FILE_ABSOLUTE_PATH
-
-# python $SWPTRACE/graphic/plot.py $(pwd)/extracted.log
 ```
 
 ### OUTPUT

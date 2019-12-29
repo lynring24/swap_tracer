@@ -17,7 +17,7 @@ def get_grid_all():
 
 
 
-def plot():
+def to_browser():
     global logs
     logs = glob.glob(get_path('head')+'/*.log')
 
@@ -44,7 +44,7 @@ def plot():
                  fig.add_trace( 
                           go.Scatter(
                              x=sec, y=pvn,
-                             name=side,
+                             #name=side,
 	                     mode='markers'),
                              row = grid,
                              col = 1
@@ -54,10 +54,10 @@ def plot():
 #        fig.write_image(png_path)
     
     fig.update_layout( 
-               height=1000, width= 1500, 
-               title_text="swap timestamps of \n$"+get_mem_limit()+" "+ get_command(),
-               xaxis_title='VPN',
-               yaxis_title='Time',
+               height=1000, width= 1800, 
+               title_text="swap timestamps of $ %s %s"%(str(get_mem_limit()),  get_command()),
+               xaxis_title='Time',
+               yaxis_title='VPN (Virtual Page Number)',
                font =  dict (
                            family='Courier New, monospace',  
                            size=18,
