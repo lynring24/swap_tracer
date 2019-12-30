@@ -60,7 +60,7 @@ LOG_ROOT
 ```
 ### plot
 
-![plot](./demo/plot/127.0.0.1.pdf)
+![plot](./demo/plot/'127.0.0.1'.pdf)
 
 
 ## Directory 
