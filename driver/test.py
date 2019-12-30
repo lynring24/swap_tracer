@@ -62,19 +62,11 @@ def awk_log():
 
 
 def run_flask():
-    os.environ['SWPTRACE_LOG'] = get_path('head')
+    os.environ['SWPTRACE_LOG'] = '/home/leto/Downloads/deneb/swp_log/2019-12-30T17:59:06.55225'
     os.environ['FLASK_APP']='app.py'
-    #ip = get('https://api.ipify.org').text
+    ip = get('https://api.ipify.org').text
     os.system('cd $SWPTRACE ; flask run --host=0.0.0.0')
-    #subprocess.call(['flask', 'run', '--host=0.0.0.0'])
-
      
 
 if __name__ == '__main__':
-   set_up_json()
-   config_input()
-   exe_cmd()
-   set_up_path()
-   awk_log()
-   extract()
    run_flask() 
