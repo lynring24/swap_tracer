@@ -60,13 +60,13 @@ LOG_ROOT
 ```
 ### plot
 
-![plot](./demo/plot/127\.0\.0\.1.pdf)
+![plot](./demo/plot/plot.pdf)
 
 
 ## Directory 
 + swptracer.patch
 + driver 
-+ driver/graphic
++ driver/templates
 + demo/log
 + demo/code
 + demo/plot
