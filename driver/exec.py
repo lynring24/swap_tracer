@@ -20,7 +20,7 @@ def exe_cmd():
 	    print "rsyslog timestamp traditional file format "
 	    os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
 	    os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
-
+        print 'mem :%s'%str(get_mem_limit())
 	exe_instr='sudo sh $SWPTRACE/exec_mem_lim.sh '+ str(get_mem_limit()) +' \"'+ get_command() + '\"'
 	print "\n$"+ exe_instr
 	eval_result = os.system(exe_instr)

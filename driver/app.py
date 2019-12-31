@@ -8,7 +8,7 @@ import csv
 from common import *
 
 
-app = Flask(__name__, render_template='template')
+app = Flask(__name__)
 app.debug = True
 
 
@@ -27,6 +27,10 @@ def get_path_of(loc):
     head = os.environ['SWPTRACE_LOG']
     return head+'/'+loc+ '.log'
 
+def count_swap():
+    return sum(1 for line in open(get_path_of('total'))) 
+
+
 
 @app.route('/')
 def index():
@@ -35,25 +39,27 @@ def index():
     head = os.environ['SWPTRACE_LOG']
     logs = glob.glob(head+'/*.log')
 
-    data = []
-    idx=1
+    data=[]
     for side in reversed(area): 
          if side != 'total' and get_path_of(side) in logs:
 	    sec, vpn = read_csv(side) 
-            if idx == 1:
-               data.append(dict( x= sec, y=vpn, type='scatter')) 
-            else:
-               data.append(dict( x= sec, y=vpn, xaxis='x'+idx, yaxis= 'y'+idx, type='scatter')) 
-    layout=dict(grid=dict(rows=len(logs)-2, colums= 1, pattern='independent', roworder='top to bottom'))
+            data.append(dict( x= sec, y=vpn, type='scatter')) 
+
+    layout=dict(grid=dict(title='title', font=dict(size=18)))
     
-    fig = []
-    fig.append(data)
-    fig.append(layout)
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+ #   text = open('data.txt', 'w') 
+  #  json.dump(data, text)
+  #  text = open('layout.txt', 'w') 
+   # json.dump(layout, text)
+   
+    info = dict(count = count_swap())
+ 
+    chart = dict(data=data, layout=layout)
+    graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
   
     dirpath = os.path.dirname(os.path.abspath(__file__))
-    return render_template('index.html',
+    return render_template('index.html', info=info, 
                            graphJSON=graphJSON)
 
 if __name__ =='__main__':
-   app.run()
+   app.index()
