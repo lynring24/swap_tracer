@@ -47,11 +47,6 @@ def index():
 
     layout=dict(grid=dict(title='title', font=dict(size=18)))
     
- #   text = open('data.txt', 'w') 
-  #  json.dump(data, text)
-  #  text = open('layout.txt', 'w') 
-   # json.dump(layout, text)
-   
     info = dict(count = count_swap())
  
     chart = dict(data=data, layout=layout)
