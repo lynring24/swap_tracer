@@ -64,6 +64,7 @@ def awk_log():
 def run_flask():
     os.environ['SWPTRACE_LOG'] = get_path('head')
     os.environ['FLASK_APP']='app.py'
+    os.environ['SWPTRACE_CMD']='$ %s %s'%(str(get_mem_limit()), get_command())
     #ip = get('https://api.ipify.org').text
     os.system('cd $SWPTRACE ; flask run --host=0.0.0.0')
     #subprocess.call(['flask', 'run', '--host=0.0.0.0'])

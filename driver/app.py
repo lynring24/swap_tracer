@@ -30,7 +30,8 @@ def get_path_of(loc):
 def count_swap():
     return sum(1 for line in open(get_path_of('total'))) 
 
-
+def get_cmd():
+    return 'Swap Timestamps of %s'%os.environ['SWPTRACE_CMD']
 
 @app.route('/')
 def index():
@@ -43,12 +44,12 @@ def index():
     for side in reversed(area): 
          if side != 'total' and get_path_of(side) in logs:
 	    sec, vpn = read_csv(side) 
-            data.append(dict( x= sec, y=vpn, type='scatter')) 
+            data.append(dict( x= sec, y=vpn, mode='markers', type='scatter')) 
 
     layout=dict(grid=dict(title='title', font=dict(size=18)))
     
-    info = dict(count = count_swap())
- 
+    info = dict(count = count_swap(), command=get_cmd())
+      
     chart = dict(data=data, layout=layout)
     graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
   
