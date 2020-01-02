@@ -33,7 +33,7 @@ This will be a default setting.
         "MEM_LIMIT": memory limit in MiB,
 	"COMMAND": command to run,
 	"PATH": {
-		"LOG_ROOT": path for log directory 
+		"LOG_ROOT": path for log directory, MUST BE ABSOLUTE PATH 
 	},
         "ABSTRACT": option to abstract data using spatial locality (default true),
         "THRESHOLD": user-defined threshold for vma (default -1 if not used), 
