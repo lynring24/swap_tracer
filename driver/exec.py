@@ -52,7 +52,7 @@ def awk_log():
         os.system(instr)
 	print "\n$ "+instr+"\n"
 	date_pattern= '%Y-%m-%dT%H:%M:%S,%f'
-	parse_pattern = '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\,\d{6})\+\d{4} swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
+	parse_pattern = '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\,\d{6})[\+-]\d{4} swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
 	set_pattern('DATE', date_pattern)
 	set_pattern('LOG', parse_pattern)
     except BaseException as ex:
@@ -72,7 +72,7 @@ def run_flask():
      
 
 if __name__ == '__main__':
-   set_up_json()
+   set_up()
    config_input()
    exe_cmd()
    set_up_path()

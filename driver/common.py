@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import json
 
 
-def set_up_json() :
+def set_up() :
     global configure
     with open (os.environ['SWPTRACE']+'/configure.json') as file:
     # JSON can't unescape the so replace with the actual character 
@@ -18,8 +18,17 @@ def set_up_json() :
     else:
        configure['PATH']['rsyslog'] = "/var/log/messages"
     configure["TIME"] = datetime.now()
-
-
+    
+    configure['PATTERN'] = dict() 
+    configure['PATTERN']['LOG']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})[-\+]\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
+    configure['PATTERN']['DATE']='%Y-%m-%dT%H:%M:%S.%f'
+    configure['PATTERN']['BLOCK']='(\d+.\d{6}) (.+)'
+    configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}\.\d{6}) (.+)'
+    
+    configure['SIZE'] = dict()
+    configure['SIZE']['BLOCK'] = 1024
+    configure['SIZE']['PAGE'] = 4096
+    
 
 area = ['total', 'code', 'sram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
 

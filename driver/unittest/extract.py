@@ -10,21 +10,19 @@ def isNumber(s):
 
 def extract():
     global area_subs
-    print "generate extracted logs"
     area_subs = []
     for side in area: 
         area_subs.append(open(get_path(side) , 'w'))
-    tracked=[]
     with open(get_path('awk'), 'r') as src:
-         for line in src:
-	      extracted = parse(line)
-	      if extracted is not None:
-	         print_line(extracted[0], extracted[1])
-#if ISABSTRACT is used, release last tracked state
+	 for line in src:
+             extracted = parse(line)
+             if extracted is not None:
+		print_line(extracted[0], extracted[1])
+	#if ISABSTRACT is used, release last tracked state 
     for side in area:
-        area_subs[area.index(side)].close()
-        if is_false_generated(get_path(side)):
-           clean_up(get_path(side))
+	area_subs[area.index(side)].close()
+	if is_false_generated(get_path(side)):
+	   clean_up(get_path(side))
     	
           
 
@@ -43,8 +41,8 @@ def parse(line):
     vma =  vma[ vma.rfind(':')+1 : vma.find(')')].strip()
     vma = int(vma)/get_page_size()
     #  if it is enable, mush be over threshold 
-    if do_threshold() and get_threshold() > len(vma):
-       return 
+    #if do_threshold() and get_threshold() > len(vma):
+     #  return 
 # if line is generated after wards 
     date = matched.group(1)
     time = string_to_date(date, get_pattern("DATE"))

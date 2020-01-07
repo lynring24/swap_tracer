@@ -10,7 +10,7 @@
 + plotly : for visualization
 
 ## [Kernel Patch](https://github.com/lynring24/swptracer/blob/master/tracer_kernel.patch)
-> patch -p0 < swptracer.patch   
+> patch -p0 < $SWPTRACE/../swptracer.patch   
 
 In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/memory.c.
 
@@ -18,6 +18,7 @@ In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/m
 ### Setup
 ```
 sh setup.sh
+source ~/.bashrc
 ```
 ### run  
 
@@ -36,17 +37,7 @@ This will be a default setting.
 		"LOG_ROOT": path for log directory, MUST BE ABSOLUTE PATH 
 	},
         "ABSTRACT": option to abstract data using spatial locality (default true),
-        "THRESHOLD": user-defined threshold for vma (default -1 if not used), 
-        "PATTERN": { // pattern used to parse or extract data
-	        "LOG": pattern for log , 
-       		"DATE": pattern for date ,
-       		"BLOCK": pattern for block,
-        	"MICROSEC": pattern for microsec
-	},
-	"SIZE" : {
-        	"BLOCK": a block of log lines,
-        	"PAGE": size of vm page (default 4096) 
-	}
+        "THRESHOLD": user-defined threshold for vma (default -1 if not used) 
 }
 ```
 
@@ -60,7 +51,7 @@ LOG_ROOT
 ```
 ### plot
 
-![plot](./demo/plot/plot.pdf)
+![plot](./demo/plot/increment.png)
 
 
 ## Directory 

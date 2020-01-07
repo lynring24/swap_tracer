@@ -1,20 +1,8 @@
 {
-        "MEM_LIMIT": 10,
+        "MEM_LIMIT": 256,
 	"COMMAND": "python $SWPTRACE/../demo/code/increment.py",
 	"PATH": {
-		"LOG_ROOT":"./swp_log"
-	},
-        "ABSTRACT": true,
-        "THRESHOLD":-1,
-        "PATTERN": {
-	        "LOG": "(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6})\\+\\d{2}:\\d{2} .*swptrace\\((.+)\\): map (\\(swpentry: \\d+, uaddr: \\d+\\))",
-       		"DATE":"%Y-%m-%dT%H:%M:%S.%f",
-       		"BLOCK":"(\\d+.\\d{6}) (.+)",
-        	"MICROSEC":"(\\d+:\\d{2}:\\d{2}\\.\\d{6}) (.+)"
-	},
-	"SIZE" : {
-        	"BLOCK":1024,
-        	"PAGE":4096
+		"LOG_ROOT":"./swplog"
 	}
 }
 
