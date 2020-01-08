@@ -8,20 +8,30 @@ from requests import get
 def config_input():
     if len(sys.argv) > 1: 
        NOTEXIST = -1
-       print sys.argv[1:]
+       #print sys.argv[1:]
        for arg in sys.argv[1:]:
           if arg.find('--mem=') > NOTEXIST:
-      	     set_mem_limit(arg[arg.find('='):])
+      	     set_mem_limit(arg[arg.find('=')+1:])
           elif arg.find('--cmd') > NOTEXIST:
-       	     set_command(arg[arg.find('='):]) 
+       	     set_command('"%s"'%arg[arg.find('=')+1:]) 
           elif arg.find('--ip') > NOTEXIST:
-       	     set_ip(arg[arg.find('='):])
+       	     set_ip(arg[arg.find('=')+1:])
           elif arg.find('--port') > NOTEXIST:
-       	     set_port(arg[arg.find('='):])
+       	     set_port(arg[arg.find('=')+1:])
           else:
              print '[error] invalid option %s'%arg
-             print "usage : python $SWPTARCE/exec.py <--mem=Mib > <--command=\"COMMAND\"> <--ip=PUBLIC_IP> <--port=PORT_TO_USE>"
+             print "usage : python $SWPTARCE/exec.py <--mem=Mib > <--cmd=\"COMMAND\"> <--ip=PUBLIC_IP> <--port=PORT_TO_USE>"
              sys.exit(1)
+
+
+
+def check_option():
+    print "\n---------------------------------------------------------------"
+    print " * command        :%s "%get_command()
+    print " * mem lim(Mib)   :%s "%get_mem_limit()
+    print " * public IP      :%s "%get_ip()
+    print " * port           :%s "%str(get_port())
+    print "---------------------------------------------------------------\n"
 
 
 def exe_cmd():
@@ -87,6 +97,7 @@ def run_flask():
 if __name__ == '__main__':
    set_up()
    config_input()
+   check_option()
    exe_cmd()
    set_up_path()
    awk_log()

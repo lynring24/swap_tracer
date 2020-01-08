@@ -17,8 +17,12 @@ In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/m
 ## How To Use
 ### Setup
 ```
-sh setup.sh
-source ~/.bashrc
+$ sh setup.sh
+
+# to check setup
+$ echo $SWPTRACE
+$ source ~/.bashrc
+
 ```
 ### run  
 
@@ -32,13 +36,15 @@ Before using this swap tracer, modify **driver/configure.json** if needed.
 This will be a default setting.
 ```
 {
-        "MEM_LIMIT": memory limit in MiB,
-	"COMMAND": command to run,
+        "MEM_LIMIT"  : memory limit in MiB,
+	"COMMAND"    : command to run,
+        "PUBLIC"  : {
+              "IP"   : public ip you need,
+              "PORT" : port number,
+        },
 	"PATH": {
 		"LOG_ROOT": path for log directory, MUST BE ABSOLUTE PATH 
-	},
-        "ABSTRACT": option to abstract data using spatial locality (default true),
-        "THRESHOLD": user-defined threshold for vma (default -1 if not used) 
+	}
 }
 ```
 
