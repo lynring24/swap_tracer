@@ -24,16 +24,10 @@ $ echo $SWPTRACE
 $ source ~/.bashrc
 
 ```
-### run  
-
-```
-$ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> <--ip=public ip> <--port=port number> 
-
-# <options> are for quick setup.
-```
-[optional] 
+#### PATH SETTING 
 Before using this swap tracer, modify **driver/configure.json** if needed.
 This will be a default setting.
+
 ```
 {
         "MEM_LIMIT"  : memory limit in MiB,
@@ -46,6 +40,13 @@ This will be a default setting.
 		"LOG_ROOT": path for log directory, MUST BE ABSOLUTE PATH 
 	}
 }
+```
+### run  
+
+```
+$ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> <--ip=public ip> <--port=port number> 
+
+# <options> are for quick setup.
 ```
 
 ### OUTPUT

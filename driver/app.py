@@ -58,4 +58,7 @@ def index():
                            graphJSON=graphJSON)
 
 if __name__ =='__main__':
-   app.index()
+   try:
+     app.index()
+   except socket.error as err:
+     print '[error] socket.error : [error %s]'%str(err.errno)
