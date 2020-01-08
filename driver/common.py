@@ -142,7 +142,7 @@ def string_to_date(timestamp, pattern):
  
 def clean_up(path):
     if os.path.exists(path): 
-       print "clean up %s"%path
+       print "Drop %s"%path
        if os.path.isfile(path):
           os.remove(path)
        else: 

@@ -89,9 +89,13 @@ def run_flask():
     os.environ['FLASK_APP']='app.py'
     os.environ['SWPTRACE_CMD']='$ %s %s'%(str(get_mem_limit()), get_command())
     #ip = get('https://api.ipify.org').text
-    os.system('cd $SWPTRACE ; flask run --host=%s --port=%s'%(get_ip(), get_port()))
-    #subprocess.call(['flask', 'run', '--host=0.0.0.0'])
-
+    try: 
+      result = os.system('cd $SWPTRACE ; flask run --host=%s --port=%s'%(get_ip(), get_port()))
+      if result != 0:
+         raise OSError
+    except OSError:
+      print "[warning] invalid IP or port try 0.0.0.0:5000"
+      os.system('cd $SWPTRACE ; flask run')
      
 
 if __name__ == '__main__':

@@ -11,11 +11,10 @@ def isNumber(s):
 def extract():
     global area_subs
     try:
-	print "generate extracted logs"
+	print "$ extract.py"
 	area_subs = []
 	for side in area: 
 	    area_subs.append(open(get_path(side) , 'w'))
-	tracked=[]
 	with open(get_path('awk'), 'r') as src:
 	      for line in src:
 		  extracted = parse(line)
@@ -40,14 +39,13 @@ def parse(line):
   
     if matched is None:
        return None
+   
     comm = matched.group(2).strip()
     if comm not in get_command():
        return None
-    
     vma = matched.group(3)
     vma =  vma[ vma.rfind(':')+1 : vma.find(')')].strip()
     vma = int(vma)/get_page_size()
-    
     date = matched.group(1)
     time = string_to_date(date, get_pattern("DATE"))
     delta_t = time - get_time()
