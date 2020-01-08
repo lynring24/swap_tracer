@@ -59,7 +59,7 @@ LOG_ROOT
 ```
 ### plot
 
-![plot](./demo/plot/increment.png)
+![plot](./example.gif)
 
 
 ## Directory 
