@@ -7,9 +7,22 @@ from requests import get
 
 def config_input():
     if len(sys.argv) > 1: 
-       set_mem_limit(sys.argv[1])
-       set_command(sys.argv[2])
-  
+       NOTEXIST = -1
+       print sys.argv[1:]
+       for arg in sys.argv[1:]:
+          if arg.find('--mem=') > NOTEXIST:
+      	     set_mem_limit(arg[arg.find('='):])
+          elif arg.find('--cmd') > NOTEXIST:
+       	     set_command(arg[arg.find('='):]) 
+          elif arg.find('--ip') > NOTEXIST:
+       	     set_ip(arg[arg.find('='):])
+          elif arg.find('--port') > NOTEXIST:
+       	     set_port(arg[arg.find('='):])
+          else:
+             print '[error] invalid option %s'%arg
+             print "usage : python $SWPTARCE/exec.py <--mem=Mib > <--command=\"COMMAND\"> <--ip=PUBLIC_IP> <--port=PORT_TO_USE>"
+             sys.exit(1)
+
 
 def exe_cmd():
     try:
@@ -66,7 +79,7 @@ def run_flask():
     os.environ['FLASK_APP']='app.py'
     os.environ['SWPTRACE_CMD']='$ %s %s'%(str(get_mem_limit()), get_command())
     #ip = get('https://api.ipify.org').text
-    os.system('cd $SWPTRACE ; flask run --host=0.0.0.0')
+    os.system('cd $SWPTRACE ; flask run --host=%s --port=%s'%(get_ip(), get_port()))
     #subprocess.call(['flask', 'run', '--host=0.0.0.0'])
 
      

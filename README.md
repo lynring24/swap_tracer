@@ -23,8 +23,9 @@ source ~/.bashrc
 ### run  
 
 ```
-python $SWPTRACE/exec.py [<Mib> <command>] 
-# <MiB> and <command> is a quick option for setup. 
+$ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> <--ip=public ip> <--port=port number> 
+
+# <options> are for quick setup.
 ```
 [optional] 
 Before using this swap tracer, modify **driver/configure.json** if needed.
@@ -58,6 +59,7 @@ LOG_ROOT
 + swptracer.patch
 + driver 
 + driver/templates
++ driver/unittest (for checkup)
 + demo/log
 + demo/code
 + demo/plot

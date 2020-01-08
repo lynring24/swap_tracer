@@ -47,6 +47,18 @@ def set_up_path():
    # os.system('mkdir -p ' + EXEC_DIR +'/block/')
 
 
+def set_ip(value):
+    configure['PUBLIC']['IP'] = value
+
+def get_ip():
+    return configure['PUBLIC']['IP'] 
+
+def set_port(value):
+    configure['PUBLIC']['PORT'] = value
+
+def get_port():
+    return configure['PUBLIC']['PORT']
+
 def set_command(value):
     configure['COMMAND'] = value
  
