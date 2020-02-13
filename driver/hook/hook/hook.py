@@ -19,7 +19,6 @@ os.system('g++ lex.yy.c -I/usr/lib/libfl.a')
 for file in paths :
     os.system("./a.out < %s > mod/%s"%(file, file))
 
-os.system("cp hmalloc.* mod")
 os.system("cd mod; ls")
 
 

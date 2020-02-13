@@ -15,7 +15,7 @@ void fooA() {
 	char * d;
 
 	printf("%s\n",__FUNCTION__);
-	d = (char*) hmalloc (256 * MEGABYTE);
+	d = (char*) hmalloc ('d' , 256 * MEGABYTE);
 
 	printf("%s\n",__FUNCTION__);
 }
@@ -25,21 +25,21 @@ void fooB() {
 	char * d;
 
 	fooC();
-    d = (char*) hmalloc (256 * MEGABYTE);
+    d = (char*) hmalloc ('d' , 256 * MEGABYTE);
 
 }
 
 void fooC() {
 	char * d;
     fooD();
-	d = (char*) hmalloc (256 * MEGABYTE);
+	d = (char*) hmalloc ('d' , 256 * MEGABYTE);
 
 }
 
 
 void fooD() {
 	char * d;
-	d = (char*) hmalloc (256 * MEGABYTE);
+	d = (char*) hmalloc ('d' , 256 * MEGABYTE);
 
 }
 
