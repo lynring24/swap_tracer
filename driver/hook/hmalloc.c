@@ -7,9 +7,9 @@
 
 
 void getISOTime();
-void* hmalloc(const char * funcn, char * argn, size_t size) {
+void* hmalloc(const char * filen, const int line, const char * funcn, char * argn, size_t size) {
 	void * res = malloc (size);
-	printf("%s:%u:%s allocate %s in %p(%lu)\n",__FILE__, __LINE__, funcn, argn, res, size);
+	printf("%s:%u:%s allocate %s in %p(%lu)\n", filen , line , funcn, argn, res, size);
 	getISOTime();
 	return res;
 }
