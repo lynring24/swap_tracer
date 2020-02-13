@@ -12,10 +12,7 @@ void fooC() ;
 
 void fooA() {
 	char * argA;
-
-	printf("%s\n",__FUNCTION__);
 	argA = (char*) malloc (256 * MEGABYTE);
-	printf("%s\n",__FUNCTION__);
 }
 
 
