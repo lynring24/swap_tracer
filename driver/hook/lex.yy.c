@@ -753,7 +753,7 @@ YY_RULE_SETUP
 
       regex_search(yytext, var_matches, re);
       //cout << var_matches[1] <<endl;
-      request.insert(request.rfind('(')+1, "'"+var_matches[1].str()+"' , ");
+      request.insert(request.rfind('(')+1, "__FUNCTION__, \""+var_matches[1].str()+"\" , ");
       cout << request << endl; 
         
  }

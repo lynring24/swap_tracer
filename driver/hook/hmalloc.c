@@ -1,19 +1,25 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include "hmalloc.h"
+#include <time.h>
+#include <sys/time.h>
+#include <assert.h>
 
-/*
-void* hmalloc(size_t size) {
+
+void getISOTime();
+void* hmalloc(const char * funcn, char * argn, size_t size) {
 	void * res = malloc (size);
-	printf("%s:%u:%s:%p:%lu\n",__FILE__, __LINE__, __FUNCTION__, res, size);
+	printf("%s:%u:%s allocate %s in %p(%lu)\n",__FILE__, __LINE__, funcn, argn, res, size);
+	getISOTime();
 	return res;
 }
-*/
 
+void getISOTime() {
+	struct timeval tv;
+	struct tm * localTime;
+	time_t t = time(NULL);
 
-
-void* hmalloc(char * argn, size_t size) {
-	void * res = malloc (size);
-	printf("%s:%u:%s allocate %s in %p(%lu)\n",__FILE__, __LINE__, __FUNCTION__, argn, res, size);
-	return res;
+	gettimeofday(&tv, NULL);
+	localTime = localtime(&t);
+	printf("local: %04d-%02d-%02d %02d:%02d:%02d.%06ld\n", localTime->tm_year + 1900, localTime->tm_mon + 1, localTime->tm_mday, localTime->tm_hour, localTime->tm_min, localTime->tm_sec, tv.tv_usec);
 }
