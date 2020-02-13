@@ -31,8 +31,7 @@ void fooC() {
 
 
 void fooD() {
-	char * argD;
-	argD = (char*) malloc (256 * MEGABYTE);
+	char * argD = (char*) malloc (256 * MEGABYTE);
 }
 
 int main() {

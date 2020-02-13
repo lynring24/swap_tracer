@@ -15,13 +15,15 @@ using namespace std;
       string request = yytext ;
       request = request.replace(request.find("malloc"), string("malloc").size(), "hmalloc"); 
       // cout << request << endl;
-      string argn = yytext;
       //[a-zA-Z0-9_] : variable name rule
-      const regex re("([a-zA-Z0-9_]+).*=.*malloc.*");
-      cmatch var_matches;
+      //const regex re2("((int|char|double|float|[a-zA-Z0-9_]+))?.*(\*)?.*([a-zA-Z0-9_]+).*=.*malloc.*");
 
-      regex_search(yytext, var_matches, re);
-      request.insert(request.rfind('(')+1, "__FILE__, __LINE__, __FUNCTION__, \""+var_matches[1].str()+"\" , ");
+      const regex re ("[\t ]*(.*)[\t ]*=.*malloc.*");
+      //const regex re ("(.*)=.*malloc.*");
+      cmatch matched;
+
+      regex_search(yytext, matched, re);
+      request.insert(request.rfind('(')+1, "__FILE__, __LINE__, __FUNCTION__, \"" + matched[1].str() + "\" , ");
       cout << request << endl; 
         
  }
