@@ -17,11 +17,10 @@ using namespace std;
       // cout << request << endl;
       string argn = yytext;
       //[a-zA-Z0-9_] : variable name rule
-      const regex re(".*([a-zA-Z0-9_]+).*=.*malloc.*");
+      const regex re("([a-zA-Z0-9_]+).*=.*malloc.*");
       cmatch var_matches;
 
       regex_search(yytext, var_matches, re);
-      //cout << var_matches[1] <<endl;
       request.insert(request.rfind('(')+1, "__FILE__, __LINE__, __FUNCTION__, \""+var_matches[1].str()+"\" , ");
       cout << request << endl; 
         

@@ -20,6 +20,7 @@ for file in paths :
     os.system("./brew < %s > mod/%s"%(file, file))
 
 os.system("cp hmalloc.* mod")
-os.system("cd mod; ls")
+os.system("gcc -o mod/main mod/main.c")
+os.system("mod/main")
 
 
