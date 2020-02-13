@@ -6,3 +6,9 @@ driver/graphic/install_chrome.sh
 driver/graphic/toploy.py
 driver/graphic/get_smaps.sh
 driver/graphic/*.html
+driver/hook/mod
+driver/hook/a.out
+driver/hook/lex.yy.c
+driver/hook/brew
+driver/hook/hook
+

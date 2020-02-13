@@ -457,10 +457,10 @@ char *yytext;
 #line 2 "brew.l"
 #include <stdio.h>
 #include <iostream>
-#include <string.h>
+#include <string>
+#include <regex>
 
 using namespace std;
-
 #line 465 "lex.yy.c"
 #line 466 "lex.yy.c"
 
@@ -679,7 +679,7 @@ YY_DECL
 		}
 
 	{
-#line 10 "brew.l"
+#line 12 "brew.l"
 
 
 #line 686 "lex.yy.c"
@@ -741,19 +741,29 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 12 "brew.l"
+#line 14 "brew.l"
 {
       string request = yytext ;
-	  request = request.replace(request.find("malloc"), string("malloc").size(), "hmalloc"); 
-	  cout << request << endl;
+      request = request.replace(request.find("malloc"), string("malloc").size(), "hmalloc"); 
+      // cout << request << endl;
+      string argn = yytext;
+      //[a-zA-Z0-9_] : variable name rule
+      const regex re(".*([a-zA-Z0-9_]+).*=.*malloc.*");
+      cmatch var_matches;
+
+      regex_search(yytext, var_matches, re);
+      //cout << var_matches[1] <<endl;
+      request.insert(request.rfind('(')+1, "'"+var_matches[1].str()+"' , ");
+      cout << request << endl; 
+        
  }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 18 "brew.l"
+#line 30 "brew.l"
 ECHO;
 	YY_BREAK
-#line 757 "lex.yy.c"
+#line 767 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1758,7 +1768,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 18 "brew.l"
+#line 30 "brew.l"
 
 
 int main (int argc, char ** argv) {
