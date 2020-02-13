@@ -11,31 +11,31 @@ void fooD() ;
 void fooC() ;
 
 void fooA() {
-	char * d;
+	char * argA;
 
 	printf("%s\n",__FUNCTION__);
-	d = (char*) malloc (256 * MEGABYTE);
+	argA = (char*) malloc (256 * MEGABYTE);
 	printf("%s\n",__FUNCTION__);
 }
 
 
 void fooB() {
-	char * d;
+	char * argB;
 
 	fooC();
-    d = (char*) malloc (256 * MEGABYTE);
+        argB = (char*) malloc (256 * MEGABYTE);
 }
 
 void fooC() {
-	char * d;
-    fooD();
-	d = (char*) malloc (256 * MEGABYTE);
+	char * argC;
+        fooD();
+	argC = (char*) malloc (256 * MEGABYTE);
 }
 
 
 void fooD() {
-	char * d;
-	d = (char*) malloc (256 * MEGABYTE);
+	char * argD;
+	argD = (char*) malloc (256 * MEGABYTE);
 }
 
 int main() {
