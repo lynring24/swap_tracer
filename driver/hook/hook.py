@@ -15,7 +15,7 @@ os.system("mkdir -p mod")
 os.system("flex brew.l")
 # os.system("g++ lex.yy.c -lfl")
 # g++ lex.yy.c -I/usr/lib/libfl.a
-os.system('g++ -o brew lex.yy.c -I/usr/lib/libfl.a')
+os.system('g++ -o brew lex.yy.c -I/usr/lib/libfl.a -std=c++11')
 for file in paths :
     os.system("./brew < %s > mod/%s"%(file, file))
 
