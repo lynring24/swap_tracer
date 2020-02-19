@@ -87,7 +87,7 @@ def awk_log():
 def run_flask():
     os.environ['SWPTRACE_LOG'] = '../demo/log/2020-01-08T03:07:31.958102'
     os.environ['FLASK_APP']='app.py'
-    os.environ['SWPTRACE_CMD']='$ TEST DATA OF CFD'
+    os.environ['SWPTRACE_CMD']='$ 1024  \'./Deneb\' [CFD]'
     #ip = get('https://api.ipify.org').text
     try: 
       result = os.system('cd $SWPTRACE ; flask run --host=%s --port=%s'%(get_ip(), get_port()))

@@ -9,32 +9,43 @@ import json
 
 def set_up() :
     global configure
-    with open (os.environ['SWPTRACE']+'/configure.json') as file:
-    # JSON can't unescape the so replace with the actual character 
-          configure = json.load(file)
 
-    if platform.dist()[0] == 'Ubuntu':
-       configure['PATH']['rsyslog'] = "/var/log/syslog"
-    else:
-       configure['PATH']['rsyslog'] = "/var/log/messages"
     configure["TIME"] = datetime.now()
-    
+    # configure pattern
     configure['PATTERN'] = dict() 
     configure['PATTERN']['LOG']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})[-\+]\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
     configure['PATTERN']['DATE']='%Y-%m-%dT%H:%M:%S.%f'
     configure['PATTERN']['BLOCK']='(\d+.\d{6}) (.+)'
     configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}\.\d{6}) (.+)'
-    
+    # configure size
     configure['SIZE'] = dict()
     configure['SIZE']['BLOCK'] = 1024
     configure['SIZE']['PAGE'] = 4096
+    # configure path 
+    configure['PATH'] = dict()
+    configure['PATH']['root'] = os.getcwd()
+    confiugre['PATH']['target'] = os.getcwd()
+    if platform.dist()[0] == 'Ubuntu':
+       configure['PATH']['rsyslog'] = "/var/log/syslog"
+    else:
+       configure['PATH']['rsyslog'] = "/var/log/messages"
+
+    # configure mem limit
+    configure['MEM_LIMIT'] = 256
+    configure['COMMAND'] = "python $SWPTRACE/../demo/code/increment.py"
+    # configre public ip
+    configure['PUBLIC'] = dict()
+    configure['PUBLIC']['IP'] = '0.0.0.0'
+    configure['PUBLIC']['PORT'] = 5000
+   
+    
     
 
 area = ['total', 'code', 'sram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
 
 
 def set_up_path():
-    EXEC_DIR = configure['PATH']["LOG_ROOT"]+'/'+datetime_to_string(configure["TIME"])
+    EXEC_DIR = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['head'] = EXEC_DIR
     configure['PATH']['awk'] = EXEC_DIR +'/awk.log'
     configure['PATH']['pdf'] = EXEC_DIR + 'snapshot.pdf'
@@ -42,7 +53,7 @@ def set_up_path():
         configure['PATH'][side] = EXEC_DIR + '/' + side + '.log'
    #configure['PATH']['extracted'] = EXEC_DIR +'/extracted.log'
    # configure['PATH']['block'] = EXEC_DIR+'/block/'
-    os.system('sudo mkdir -p ' + configure['PATH']["LOG_ROOT"] )
+    os.system('sudo mkdir -p ' + configure['PATH']["root"] )
     os.system('sudo mkdir -p ' + EXEC_DIR)
    # os.system('mkdir -p ' + EXEC_DIR +'/block/')
 
