@@ -4,6 +4,7 @@ from extract import extract
 from split import split
 import subprocess
 from requests import get
+from scan import scan_to_hook
 
 def config_input():
     if len(sys.argv) > 1: 
@@ -102,8 +103,9 @@ if __name__ == '__main__':
    set_up()
    config_input()
    check_option()
+   scan_code()
    exe_cmd()
    set_up_path()
-   awk_log()
-   extract()
-   run_flask() 
+   #awk_log()
+   #extract()
+   #run_flask() 
