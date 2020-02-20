@@ -9,7 +9,7 @@ import json
 
 def set_up() :
     global configure
-
+    configure = dict()
     configure["TIME"] = datetime.now()
     # configure pattern
     configure['PATTERN'] = dict() 
@@ -24,14 +24,14 @@ def set_up() :
     # configure path 
     configure['PATH'] = dict()
     configure['PATH']['root'] = os.getcwd()
-    confiugre['PATH']['target'] = os.getcwd()
+    configure['PATH']['target'] = os.getcwd()
     if platform.dist()[0] == 'Ubuntu':
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
        configure['PATH']['rsyslog'] = "/var/log/messages"
 
     # configure mem limit
-    configure['MEM_LIMIT'] = 256
+    configure['MEM_LIMIT'] = 1024
     configure['COMMAND'] = "python $SWPTRACE/../demo/code/increment.py"
     # configre public ip
     configure['PUBLIC'] = dict()

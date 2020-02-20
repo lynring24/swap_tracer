@@ -11,48 +11,57 @@ def config_input():
        NOTEXIST = -1
        #print sys.argv[1:]
        for arg in sys.argv[1:]:
+          pos = arg.find('=')+1
+          item = arg[pos:]
           if arg.find('--mem=') > NOTEXIST:
-      	     set_mem_limit(arg[arg.find('=')+1:])
+      	     set_mem_limit(item)
           elif arg.find('--cmd') > NOTEXIST:
-       	     set_command('"%s"'%arg[arg.find('=')+1:]) 
+       	     set_command('"%s"'%item) 
           elif arg.find('--ip') > NOTEXIST:
-       	     set_ip(arg[arg.find('=')+1:])
+       	     set_ip(item)
           elif arg.find('--port') > NOTEXIST:
-       	     set_port(arg[arg.find('=')+1:])
+       	     set_port(item)
+          elif arg.find('--target') > NOTEXIST:
+             set_path('target', item) 
+          elif arg.find('--log') > NOTEXIST:
+             set_path('root', item)
           else:
              print '[error] invalid option %s'%arg
-             print "usage : python $SWPTARCE/exec.py <--mem=Mib > <--cmd=\"COMMAND\"> <--ip=PUBLIC_IP> <--port=PORT_TO_USE>"
+             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--ip=PUBLIC_IP> <--port=PORT_TO_USE>"
              sys.exit(1)
 
 
 
 def check_option():
     print "\n---------------------------------------------------------------"
+    print " * target         :%s "%get_path('target')
     print " * command        :%s "%get_command()
     print " * mem lim(Mib)   :%s "%get_mem_limit()
+    print " * log            :%s "%get_path('root')
     print " * public IP      :%s "%get_ip()
     print " * port           :%s "%str(get_port())
     print "---------------------------------------------------------------\n"
 
 
 def exe_cmd():
-    try:
-	rsyslog = open('/etc/rsyslog.conf').read()
-	if "# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat" in rsyslog:
-	    print "rsyslog timestamping in RFC 3339 format"
-	else: 
-	    print "rsyslog timestamp traditional file format "
-	    os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
-	    os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
-        print 'mem :%s'%str(get_mem_limit())
-	exe_instr='sudo sh $SWPTRACE/exec_mem_lim.sh '+ str(get_mem_limit()) +' \"'+ get_command() + '\"'
-	print "\n$"+ exe_instr
-	eval_result = os.system(exe_instr)
-        if eval_result != 0:
-           raise OSError
-    except OSError:
-        print '[Debug] execution failed.'
-	sys.exit(1)
+#    try:
+    rsyslog = open('/etc/rsyslog.conf').read()
+    if "# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat" in rsyslog:
+       print "rsyslog timestamping in RFC 3339 format"
+    else: 
+       print "rsyslog timestamp traditional file format "
+       os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
+       os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
+    print 'mem :%s'%str(get_mem_limit())
+    exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%( get_path('root')+"/mod", str(get_mem_limit()) , get_command() )
+    print "\n$"+ exe_instr
+    eval_result = os.system(exe_instr)
+    print eval_result
+ #       if eval_result != 0:
+  #         raise OSError
+#    except OSError:
+#        print '[Debug] execution failed.'
+#	sys.exit(1)
 
 
 
@@ -103,9 +112,9 @@ if __name__ == '__main__':
    set_up()
    config_input()
    check_option()
-   scan_code()
+   scan_to_hook()
    exe_cmd()
    set_up_path()
-   #awk_log()
-   #extract()
+   awk_log()
+   extract()
    #run_flask() 
