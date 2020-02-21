@@ -49,7 +49,3 @@ def scan_to_hook():
     os.system("cd  %s; make;"%moddir)
 
 
-#pos = file.rfind('/')+1
-os.system('cp %s/hmalloc.* %s'%(DRIVER, moddir))
-    os.system('cp %s/hmalloc.* %s'%(DRIVER, moddir))
-#modpath = file[:pos]+"mod/"+file[pos:]
