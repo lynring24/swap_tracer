@@ -1,32 +1,18 @@
-hookPageTable = [address, size, address info ] 
-key = address 
+import fileinput
+import re
+from time import strptime
+from common import *
 
-
-prev hook
-prev swap 
-
-
-def add_page_table(line):
-
-
-
-
-
-
-
-
-
-
-
-f_names = [hlog, log]
-lines  = list(fileinput.input(f_names))
-t_fmt = '%a %b %d %H:%M:%S %Y' # format of time stamps
-t_pat = re.compile(r'\[(.+?)\]') # pattern to extract timestamp
-#for l in sorted(lines, key=lambda l: strptime(t_pat.search(l).group(1), t_fmt)):
-lines =  sorted(lines, key=lambda l: strptime(t_pat.search(l).group(1), t_fmt)):
-for line in lines: 
-    if isHook :
-       add_page_table(line) 
-    else : 
-       classify swap(line) 
-
+def merge():
+	f_names = [get_path('hook'), get_path('awk')] # names of log files
+        print f_names
+	lines = list(fileinput.input(f_names))
+        lines.sort()
+	#t_fmt = '%a %b %d %H:%M:%S %Y' # format of time stamps
+	t_fmt = get_pattern('DATE')
+	t_pat = re.compile(get_pattern('MICROSEC')) # pattern to extract timestamp
+	with open('your_file.txt', 'w') as f:
+	     for i in lines:
+		 f.write("%s\n"%i)      
+#	for l in sorted(lines, key=lambda l: strptime(t_pat.search(l).group(1), t_fmt)):
+#	    print l,

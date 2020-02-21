@@ -13,10 +13,10 @@ def set_up() :
     configure["TIME"] = datetime.now()
     # configure pattern
     configure['PATTERN'] = dict() 
-    configure['PATTERN']['LOG']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6})[-\+]\d{2}:\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
+    configure['PATTERN']['LOG']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[,\.]\d{6})[-\+]\d{2}:?\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
     configure['PATTERN']['DATE']='%Y-%m-%dT%H:%M:%S.%f'
     configure['PATTERN']['BLOCK']='(\d+.\d{6}) (.+)'
-    configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}\.\d{6}) (.+)'
+    configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}[,\.]\d{6}) (.+)'
     # configure size
     configure['SIZE'] = dict()
     configure['SIZE']['BLOCK'] = 1024
@@ -25,6 +25,7 @@ def set_up() :
     configure['PATH'] = dict()
     configure['PATH']['root'] = os.getcwd()
     configure['PATH']['target'] = os.getcwd()
+    configure['PATH']['hook'] = os.getcwd()+"/mod/hook.log"
     if platform.dist()[0] == 'Ubuntu':
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
