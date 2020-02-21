@@ -116,5 +116,6 @@ if __name__ == '__main__':
    exe_cmd()
    set_up_path()
    awk_log()
-   extract()
+   #create_pat
+   #extract()
    #run_flask() 
