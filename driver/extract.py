@@ -68,7 +68,7 @@ def print_line(duration, vma):
     area_subs[0].write("%s, %s \n"%(str(duration), vpn))
 
 
-def create_pagetable(line):
+def (line):
    
 #    print "parse(line)"
     pattern="(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})[+-]\d{2}:\d{2}.*swptracer::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
