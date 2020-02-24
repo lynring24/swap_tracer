@@ -50,6 +50,7 @@ def set_up_path():
     configure['PATH']['head'] = EXEC_DIR
     configure['PATH']['awk'] = EXEC_DIR +'/awk.log'
     configure['PATH']['pdf'] = EXEC_DIR + 'snapshot.pdf'
+    configure['PATH']['merge']=EXEC_DIR + '/merge.log'
     for side in area:
         configure['PATH'][side] = EXEC_DIR + '/' + side + '.log'
    #configure['PATH']['extracted'] = EXEC_DIR +'/extracted.log'

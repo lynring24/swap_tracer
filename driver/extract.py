@@ -51,9 +51,39 @@ def parse(line):
     delta_t = time - get_time()
     if delta_t < timedelta(0):
        return None
-#    ustime = delta_t.total_seconds() * US_TO_SEC
     ustime = delta_t.total_seconds()
     return [ustime, vma]
+
+
+
+def parse_malloc(line): 
+    pattern="(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})[+-]\d{2}:\d{2}.*swptracer::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
+    matched = re.compile(pattern).search(line)
+    if matched is None:
+       return None
+
+    timestamp = matched.group(1)
+    time = string_to_date(timestamp, get_pattern("DATE"))
+    delta_t = time - get_time()
+    if delta_t < timedelta(0):
+       return None
+    fname = matched.group(2)
+    nu = int(matched.group(3),0)
+    func = matched.group(4)
+    var = matched.group(5)
+    address = int(matched.group(6),0)
+    size = int(matched.group(7),0) 
+    area = [address, address + size]
+    return [time, fname, nu, func, var, area[0], area[1]] 
+
+
+def trace_malloc():
+    merge = open(get_path('merge'), 'w')
+    with open(get_path('hook'), 'r') as hook:
+         for line in hook:
+             res = parse_malloc(line)
+             if res is not None: 
+                merge.write("%s, %s, %s, %s, %s, %s \n"%(res[0], res[1], res[2], res[3], res[4], res[5], res[6]))
 
 
 borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']
@@ -68,33 +98,6 @@ def print_line(duration, vma):
     area_subs[0].write("%s, %s \n"%(str(duration), vpn))
 
 
-def (line):
-   
-#    print "parse(line)"
-    pattern="(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})[+-]\d{2}:\d{2}.*swptracer::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
-    matched = re.compile(pattern).search(line)
-    if matched is None:
-       return None
-
-    timestamp = matched.group(1)
-    fname = matched.group(2)
-    nu = int(matched.group(3),0)
-    func = matched.group(4)
-    var = matched.group(5)
-    address = int(matched.group(6),0)
-    size = int(matched.group(7),0) 
-    area = [address, address + size]
-    
-    print line
-    print " file name : %s"%fname
-    print " line number : %d "%nu
-    print " function name :%s "%func
-    print " variable name :%s "%var
-    print " address area : [%d, %d]"%(area[0], area[1]) 
-
-
-
-# (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})[+-]\d{2}:\d{2}.*swptracer::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)
  
 
 
