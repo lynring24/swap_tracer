@@ -1,6 +1,6 @@
 from pprint import pprint 
 from common import * 
-from extract import extract
+from extract import extract, trace_malloc
 from split import split
 import subprocess
 from requests import get
@@ -8,6 +8,8 @@ from scan import scan_to_hook
 from merge import merge
 
 def config_input():
+    global hasTarget
+    hasTarget = False
     if len(sys.argv) > 1: 
        NOTEXIST = -1
        #print sys.argv[1:]
@@ -17,12 +19,13 @@ def config_input():
           if arg.find('--mem=') > NOTEXIST:
       	     set_mem_limit(item)
           elif arg.find('--cmd') > NOTEXIST:
-       	     set_command('"%s"'%item) 
+       	     set_command('%s'%item) 
           elif arg.find('--ip') > NOTEXIST:
        	     set_ip(item)
           elif arg.find('--port') > NOTEXIST:
        	     set_port(item)
           elif arg.find('--target') > NOTEXIST:
+             hasTarget = True
              set_path('target', item) 
           elif arg.find('--log') > NOTEXIST:
              set_path('root', item)
@@ -35,7 +38,8 @@ def config_input():
 
 def check_option():
     print "\n---------------------------------------------------------------"
-    print " * target         :%s "%get_path('target')
+    if hasTarget == True:
+       print " * target         :%s "%get_path('target')
     print " * command        :%s "%get_command()
     print " * mem lim(Mib)   :%s "%get_mem_limit()
     print " * log            :%s "%get_path('root')
@@ -53,7 +57,8 @@ def exe_cmd():
        print "rsyslog timestamp traditional file format "
        os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
        os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
-    print 'mem :%s'%str(get_mem_limit())
+
+    print 'mem : %s'%str(get_mem_limit())
     exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%( get_path('root')+"/mod", str(get_mem_limit()) , get_command() )
     print "\n$"+ exe_instr
     eval_result = os.system(exe_instr)
@@ -113,11 +118,13 @@ if __name__ == '__main__':
    set_up()
    config_input()
    check_option()
-   scan_to_hook()
+   if hasTarget == True :
+      scan_to_hook()
    exe_cmd()
    set_up_path()
    awk_log()
-   merge()
-   #create_pat
-   #extract()
+   if hasTarget == True :
+      trace_malloc()
+   extract()
+   #merge()
    #run_flask() 
