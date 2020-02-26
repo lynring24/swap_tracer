@@ -78,6 +78,7 @@ def parse_malloc(line):
 
 
 def trace_malloc():
+    print "trace_malloc"
     merge = open(get_path('merge'), 'w')
     with open(get_path('hook'), 'r') as hook:
          for line in hook:
