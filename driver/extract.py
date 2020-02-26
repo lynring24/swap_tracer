@@ -57,7 +57,7 @@ def parse(line):
 
 
 def parse_malloc(line): 
-    pattern="(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})[+-]\d{2}:\d{2}.*swptracer::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
+    pattern="(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
     matched = re.compile(pattern).search(line)
     if matched is None:
        return None
@@ -67,6 +67,7 @@ def parse_malloc(line):
     delta_t = time - get_time()
     if delta_t < timedelta(0):
        return None
+    print delta_t
     fname = matched.group(2)
     nu = int(matched.group(3),0)
     func = matched.group(4)
@@ -78,13 +79,13 @@ def parse_malloc(line):
 
 
 def trace_malloc():
-    print "trace_malloc"
+    print "$ trace_malloc"
     merge = open(get_path('merge'), 'w')
     with open(get_path('hook'), 'r') as hook:
          for line in hook:
              res = parse_malloc(line)
              if res is not None: 
-                merge.write("%s, %s, %s, %s, %s, %s \n"%(res[0], res[1], res[2], res[3], res[4], res[5], res[6]))
+                merge.write("%s, %s, %d, %s, %s, %d, %d \n"%(res[0], res[1], res[2], res[3], res[4], res[5], res[6]))
 
 
 borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']

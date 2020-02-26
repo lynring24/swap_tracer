@@ -4,7 +4,7 @@ from time import strptime
 from common import *
 
 def merge():
-	f_names = [get_path('hook'), get_path('awk')] # names of log files
+	f_names = [get_path('hook'), get_path('total')] # names of log files
         print f_names
 	lines = list(fileinput.input(f_names))
         lines.sort()
