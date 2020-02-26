@@ -87,9 +87,7 @@ def awk_log():
        #__awk_log('dmesg -T', BaseException)
         instr ='dmesg --time-format iso | grep swptrace > '+get_path('awk')
         os.system(instr)
-	print "\n$ "+instr+"\n"
-	date_pattern= '%Y-%m-%dT%H:%M:%S,%f'
-	set_pattern('DATE', date_pattern)
+	print "\n$ %s \n"%instr
     except BaseException as ex:
         print ex
 	clean_up_and_exit(get_path('head'), 'awk_log')

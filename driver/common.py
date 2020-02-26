@@ -13,14 +13,18 @@ def set_up() :
     configure["TIME"] = datetime.now()
     # configure pattern
     configure['PATTERN'] = dict() 
-    configure['PATTERN']['LOG']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[,\.]\d{6})[-\+]\d{2}:?\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
-    configure['PATTERN']['DATE']='%Y-%m-%dT%H:%M:%S.%f'
-    configure['PATTERN']['BLOCK']='(\d+.\d{6}) (.+)'
+    configure['PATTERN']['log']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[,\.]\d{6})[-\+]\d{2}:?\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
+    configure['PATTERN']['hook'] = "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
+    configure['PATTERN']['rsyslog']='%Y-%m-%dT%H:%M:%S.%f'
+    configure['PATTERN']['dmesg']='%Y-%m-%dT%H:%M:%S,%f'
+    configure['PATTERN']['date']='%Y-%m-%dT%H:%M:%S[,.]%f'
+    
+    configure['PATTERN']['block']='(\d+.\d{6}) (.+)'
     configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}[,\.]\d{6}) (.+)'
     # configure size
     configure['SIZE'] = dict()
-    configure['SIZE']['BLOCK'] = 1024
-    configure['SIZE']['PAGE'] = 4096
+    configure['SIZE']['block'] = 1024
+    configure['SIZE']['page'] = 4096
     # configure path 
     configure['PATH'] = dict()
     configure['PATH']['root'] = os.getcwd()
@@ -94,7 +98,7 @@ def set_time():
 
 
 def is_valid_ms(line):
-    matched= re.compile(configure["PATTERN"].get("BLOCK")).search(line)
+    matched= re.compile(configure["PATTERN"].get("block")).search(line)
     return matched
 
 
@@ -103,14 +107,15 @@ def get_time():
 
 
 def datetime_to_string(x):
-    return x.strftime(configure["PATTERN"]["DATE"])
+    # needed for path, will print in rsyslog format
+    return x.strftime(configure["PATTERN"]["rsyslog"])
 
 
 def get_path(x):
     return configure['PATH'].get(x)
 
 def get_page_size():
-    return configure['SIZE']["PAGE"]
+    return configure['SIZE']["page"]
 
 def get_command():
     return configure["COMMAND"]
@@ -149,8 +154,13 @@ def is_false_generated(x):
     return (os.path.isfile(x) == False or os.stat(x).st_size == 0)
  
 
-def string_to_date(timestamp, pattern):
-    return datetime.strptime(timestamp, pattern)
+def string_to_date(timestamp):
+    try: 
+       timestamp = datetime.strptime(timestamp, get_pattern('rsyslog'))
+    except ValueError:
+       timestamp = datetime.strptime(timestamp, get_pattern('dmesg'))
+       
+    return timestamp
 
  
 def clean_up(path):

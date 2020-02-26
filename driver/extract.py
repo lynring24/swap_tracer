@@ -12,29 +12,22 @@ def extract():
     global area_subs
     try:
 	print "$ extract.py"
-	area_subs = []
-	for side in area: 
-	    area_subs.append(open(get_path(side) , 'w'))
+        merge = open(get_path('merge'), 'a+')
 	with open(get_path('awk'), 'r') as src:
 	      for line in src:
 		  extracted = parse(line)
 		  if extracted is not None:
-		     print_line(extracted[0], extracted[1])
+		     merge.write("%s, %s \n"%(str(extracted[0]), extracted[1]))
 	#if ISABSTRACT is used, release last tracked state
-	for side in area:
-	    area_subs[area.index(side)].close()
-	    if is_false_generated(get_path(side)):
-	       clean_up(get_path(side))
-    	
-        if is_false_generated(get_path('total')) == True:
-	   raise BaseException
+	merge.close()
     except BaseException as ex:
+           print ex
            clean_up_and_exit(get_path('head'), 'extract')
           
 
 def parse(line):
 # if matches pattern, name and generated after(time)
-    regex = re.compile(get_pattern('LOG'))
+    regex = re.compile(get_pattern('log'))
     matched = regex.search(line)
   
     if matched is None:
@@ -47,7 +40,7 @@ def parse(line):
     vma =  vma[ vma.rfind(':')+1 : vma.find(')')].strip()
     vma = int(vma)/get_page_size()
     date = matched.group(1)
-    time = string_to_date(date, get_pattern("DATE"))
+    time = string_to_date(date)
     delta_t = time - get_time()
     if delta_t < timedelta(0):
        return None
@@ -58,16 +51,15 @@ def parse(line):
 
 def parse_malloc(line): 
     pattern="(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
-    matched = re.compile(pattern).search(line)
+    matched = re.compile(get_pattern('hook')).search(line)
     if matched is None:
        return None
 
     timestamp = matched.group(1)
-    time = string_to_date(timestamp, get_pattern("DATE"))
+    time = string_to_date(timestamp)
     delta_t = time - get_time()
     if delta_t < timedelta(0):
        return None
-    print delta_t
     fname = matched.group(2)
     nu = int(matched.group(3),0)
     func = matched.group(4)
@@ -90,7 +82,7 @@ def trace_malloc():
 
 borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']
 def print_line(duration, vma):
-    vpn = int (vma/get_size('BLOCK'))
+    vpn = int (vma/get_size('block'))
     area_num = 1
     for border in borders:
         if vma < int(border, 16):
