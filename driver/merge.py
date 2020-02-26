@@ -3,16 +3,16 @@ import re
 from time import strptime
 from common import *
 
+#		t_fmt = '%Y-%m-%dT%H:%M:%S.%f'
+#		t_pat = re.compile('(%Y-%m-%dT%H:%M:%S.%f).*' ) # pattern to extract timestamp
+#		with open('test2.txt', 'w') as f:
+#		     for l in sorted(lines, key=lambda l: strptime(t_pat.search(l).group(1), t_fmt)):
+#			 f.write("%s\n"%l)
 def merge():
-	f_names = [get_path('hook'), get_path('total')] # names of log files
-        print f_names
-	lines = list(fileinput.input(f_names))
-        lines.sort()
-	#t_fmt = '%a %b %d %H:%M:%S %Y' # format of time stamps
-	t_fmt = get_pattern('DATE')
-	t_pat = re.compile(get_pattern('MICROSEC')) # pattern to extract timestamp
-#	with open('your_file.txt', 'w') as f:
-	  #   for i in lines:
-	#	 f.write("%s\n"%i)      
-	for l in sorted(lines, key=lambda l: strptime(t_pat.search(l).group(1), t_fmt)):
-	    print l,
+        with open(get_path('merge'),'r') as merge:
+                lines = merge.readlines()
+                lines.sort()
+		with open('test.txt', 'w') as f:
+		     for line in lines: 
+			 f.write("%s\n"%line)
+

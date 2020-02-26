@@ -60,6 +60,7 @@ def parse_malloc(line):
     delta_t = time - get_time()
     if delta_t < timedelta(0):
        return None
+    ustime = delta_t.total_seconds()
     fname = matched.group(2)
     nu = int(matched.group(3),0)
     func = matched.group(4)
@@ -67,7 +68,7 @@ def parse_malloc(line):
     address = int(matched.group(6),0)
     size = int(matched.group(7),0) 
     area = [address, address + size]
-    return [time, fname, nu, func, var, area[0], area[1]] 
+    return [ustime, fname, nu, func, var, area[0], area[1]] 
 
 
 def trace_malloc():
