@@ -160,7 +160,7 @@ def clean_up(path):
           os.remove(path)
        else: 
           shutil.rmtree(path, ignore_errors=True)
-       #shutil.rmtree(configure['PATH']['head'], ignore_errors=True)
+#       shutil.rmtree(configure['PATH']['head'], ignore_errors=True)
 
 def clean_up_and_exit(path, func):
     print "[DEBUG] Failure in %s()"%func

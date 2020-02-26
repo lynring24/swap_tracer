@@ -4,43 +4,90 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-
 #define MEGABYTE 1024*1024
 
-void fooD() ;
-void fooC() ;
+int fooD() ;
+int fooC() ;
 
-void fooA() {
+time_t start, end;
+double elapsed;
+
+void skim(char * list) {
+     char temp;
+     for (int i =0 ;  i  <strlen(list); i++) 
+         temp = list[i];
+}
+
+int fooA() {
 	char * argA;
 	argA = (char*) malloc (256 * MEGABYTE);
+        skim(argA);
+       end = time(NULL);
+       elapsed = difftime(end, start);
+       if (elapsed >= 59.0) 
+                return 0; 
+       else
+          return 1;
 }
 
 
-void fooB() {
+int fooB() {
 	char * argB;
 
 	fooC();
         argB = (char*) malloc (256 * MEGABYTE);
+        skim(argB);
+       end = time(NULL);
+       elapsed = difftime(end, start);
+       if (elapsed >= 59.0) 
+                return 0; 
+       else
+          return 1;
+
 }
 
-void fooC() {
-	char * argC;
-        fooD();
-	argC = (char*) malloc (256 * MEGABYTE);
+int fooC() {
+       char * argC;
+       fooD();
+       argC = (char*) malloc (256 * MEGABYTE);
+       skim(argC);
+       end = time(NULL);
+       elapsed = difftime(end, start);
+       if (elapsed >= 59.0) 
+          return 0; 
+       else
+          return 1;
+
+
 }
 
 
-void fooD() {
+int  fooD() {
 	char * argD = (char*) malloc (256 * MEGABYTE);
+        skim(argD);
+
+       end = time(NULL);
+       elapsed = difftime(end, start);
+       if (elapsed >= 59.0) 
+          return 0; 
+       else
+          return 1;
 }
 
 int main() {
-	printf("start main\n");
-	int cnt = 0;
-        while (cnt < 10) {
-	     cnt += 1;
-             fooA();
-             fooB();
-        } 
-   return 1;  
+   int cnt = 0;
+     
+   printf("Malloc for 1 min\n");
+   start = time(NULL);
+   
+   while (1) {
+       if (!fooA() ) 
+          break;
+       if (!fooB() )
+          break;
+       cnt+=1;
+       if (cnt > 2147483645) 
+               break;
+   } 
+   return 0;  
 }

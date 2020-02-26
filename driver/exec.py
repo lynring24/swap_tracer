@@ -58,11 +58,9 @@ def exe_cmd():
        os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
        os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
 
-    print 'mem : %s'%str(get_mem_limit())
     exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%( get_path('root')+"/mod", str(get_mem_limit()) , get_command() )
-    print "\n$"+ exe_instr
+    print "\n$ "+ exe_instr
     eval_result = os.system(exe_instr)
-    print eval_result
  #       if eval_result != 0:
   #         raise OSError
 #    except OSError:
@@ -85,15 +83,13 @@ def awk_log():
 	__awk_log('cat '+get_path('rsyslog'),IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
-	clean_up(get_path('rsyslog'))
+	#clean_up(get_path('rsyslog'))
        #__awk_log('dmesg -T', BaseException)
         instr ='dmesg --time-format iso | grep swptrace > '+get_path('awk')
         os.system(instr)
 	print "\n$ "+instr+"\n"
 	date_pattern= '%Y-%m-%dT%H:%M:%S,%f'
-	parse_pattern = '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\,\d{6})[\+-]\d{4} swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
-#	set_pattern('DATE', date_pattern)
-#	set_pattern('LOG', parse_pattern)
+	set_pattern('DATE', date_pattern)
     except BaseException as ex:
         print ex
 	clean_up_and_exit(get_path('head'), 'awk_log')
@@ -115,6 +111,7 @@ def run_flask():
      
 
 if __name__ == '__main__':
+   
    set_up()
    config_input()
    check_option()
