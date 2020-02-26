@@ -121,5 +121,5 @@ if __name__ == '__main__':
    if hasTarget == True :
       trace_malloc()
    extract()
-   #merge()
+   merge()
    #run_flask() 
