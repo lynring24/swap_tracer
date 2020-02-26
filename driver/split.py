@@ -38,8 +38,8 @@ def get_valid_range(lines):
 
 def check_and_flush(vpn):
     global line_count, block_id, line_block
-    page_size = get_size('PAGE')
-    block_size = get_size('BLOCK')
+    page_size = get_size('page')
+    block_size = get_size('block')
     interval = page_size * page_size * page_size * block_size
     if abs(prevAt - vpn) > interval or line_count > block_size:
        filepath = get_path('block')+str(block_id)+".csv"
