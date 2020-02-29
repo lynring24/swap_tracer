@@ -6,6 +6,7 @@ import subprocess
 from requests import get
 from scan import scan_to_hook
 from merge import merge
+from createPT import createPT
 
 def config_input():
     global hasTarget
@@ -122,4 +123,5 @@ if __name__ == '__main__':
       trace_malloc()
    extract()
    merge()
+   createPT()
    #run_flask() 

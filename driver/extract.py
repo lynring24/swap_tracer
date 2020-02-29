@@ -38,7 +38,8 @@ def parse(line):
        return None
     vma = matched.group(3)
     vma =  vma[ vma.rfind(':')+1 : vma.find(')')].strip()
-    vma = int(vma)/get_page_size()
+    #vma = int(vma)/get_page_size()
+    vma = int(vma)
     date = matched.group(1)
     time = string_to_date(date)
     delta_t = time - get_time()
