@@ -1,6 +1,6 @@
-from common import *
+from utility import *
 
-def scan_to_hook():
+def scan_malloc():
     # check if file exist
     try: 
 	DRIVER=os.environ['SWPTRACE']

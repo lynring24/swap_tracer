@@ -1,12 +1,11 @@
 from pprint import pprint 
-from common import * 
-from extract import extract, trace_malloc
-from split import split
+from utility import * 
+from extract import extract_swap, extract_malloc
 import subprocess
 from requests import get
-from scan import scan_to_hook
+from scan import scan_malloc
 from merge import merge
-from createPT import createPT
+#from split import split
 
 def config_input():
     global hasTarget
@@ -66,7 +65,6 @@ def exe_cmd():
   #         raise OSError
 #    except OSError:
 #        print '[Debug] execution failed.'
-#	sys.exit(1)
 
 
 
@@ -115,13 +113,12 @@ if __name__ == '__main__':
    config_input()
    check_option()
    if hasTarget == True :
-      scan_to_hook()
+      scan_malloc()
    exe_cmd()
    set_up_path()
    awk_log()
    if hasTarget == True :
-      trace_malloc()
-   extract()
+      extract_malloc()
+   extract_swap()
    merge()
-   createPT()
    #run_flask() 
