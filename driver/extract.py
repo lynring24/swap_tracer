@@ -1,4 +1,4 @@
-from common import *
+from utility import *
 
 def isNumber(s):
   try:
@@ -8,14 +8,14 @@ def isNumber(s):
     return False
 
 
-def extract():
+def extract_swap():
     global area_subs
     try:
-	print "$ extract.py"
+	print "$ extract_swap.py"
         merge = open(get_path('merge'), 'a+')
 	with open(get_path('awk'), 'r') as src:
 	      for line in src:
-		  extracted = parse(line)
+		  extracted = parse_swap(line)
 		  if extracted is not None:
 		     merge.write("%s, %s \n"%(str(extracted[0]), extracted[1]))
 	#if ISABSTRACT is used, release last tracked state
@@ -25,7 +25,7 @@ def extract():
            clean_up_and_exit(get_path('head'), 'extract')
           
 
-def parse(line):
+def parse_swap(line):
 # if matches pattern, name and generated after(time)
     regex = re.compile(get_pattern('log'))
     matched = regex.search(line)
@@ -72,8 +72,8 @@ def parse_malloc(line):
     return [ustime, fname, nu, func, var, area[0], area[1]] 
 
 
-def trace_malloc():
-    print "$ trace_malloc"
+def extract_malloc():
+    print "$ extract_malloc"
     merge = open(get_path('merge'), 'w')
     with open(get_path('hook'), 'r') as hook:
          for line in hook:
