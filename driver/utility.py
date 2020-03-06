@@ -46,7 +46,11 @@ def set_up() :
     
     
 
-area = ['total', 'code', 'sram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
+area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
+
+
+def get_sub_path_by_id(id):
+    return get_path(area[id])
 
 
 def set_up_path():

@@ -21,7 +21,8 @@ def read_csv(side):
          for row in plots:
 	     sec.append(row[0])
 	     vpn.append(row[1])
-             info.append(row[2:])
+             text= '/'.join(str(elem) for elem in row[2:])
+             info.append(text)
     return sec, vpn, info
 	         
 
@@ -29,8 +30,8 @@ def get_path_of(loc):
     head = os.environ['SWPTRACE_LOG']
     return head+'/'+loc+ '.log'
 
-def count_swap():
-    return sum(1 for line in open(get_path_of('total'))) 
+def count_swap(side):
+    return sum(1 for line in open(get_path_of(side))) 
 
 def get_cmd():
     return 'Swap Timestamps of %s'%os.environ['SWPTRACE_CMD']
@@ -43,14 +44,16 @@ def index():
     logs = glob.glob(head+'/*.log')
 
     data=[]
-    for side in reversed(area): 
+    swp = 0
+    for side in reversed(area):
          if side != 'total' and get_path_of(side) in logs:
-	    sec, vpn = read_csv(side) 
-            data.append(dict( x= sec, y=vpn, mode='markers', type='scatter')) 
+            swp = swp + count_swap(side)
+	    sec, vpn, info = read_csv(side) 
+            data.append(dict( x= sec, y=vpn, hoverinfo="all", text=info, mode='markers', type='scatter')) 
 
     layout=dict(grid=dict(title='title', font=dict(size=18)))
     
-    head = dict(count = count_swap(), command=get_cmd())
+    head = dict(count = swp, command=get_cmd())
       
     chart = dict(data=data, layout=layout)
     graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
