@@ -69,7 +69,7 @@ def parse_malloc(line):
     address = int(matched.group(6),0)
     size = int(matched.group(7),0) 
     area = [address, address + size]
-    return [ustime, fname, nu, func, var, area[0], area[1]] 
+    return [ustime, area[0], area[1], fname, func, var] 
 
 
 def extract_malloc():
@@ -79,7 +79,7 @@ def extract_malloc():
          for line in hook:
              res = parse_malloc(line)
              if res is not None: 
-                merge.write("%s, %s, %d, %s, %s, %d, %d \n"%(res[0], res[1], res[2], res[3], res[4], res[5], res[6]))
+                merge.write("%s, %d, %d, %s, %s, %s\n"%(res[0], res[1], res[2], res[3], res[4], res[5]))
 
 
 borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']
