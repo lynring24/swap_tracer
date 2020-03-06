@@ -82,19 +82,4 @@ def extract_malloc():
                 merge.write("%s, %d, %d, %s, %s, %s\n"%(res[0], res[1], res[2], res[3], res[4], res[5]))
 
 
-borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']
-def print_line(duration, vma):
-    vpn = int (vma/get_size('block'))
-    area_num = 1
-    for border in borders:
-        if vma < int(border, 16):
-           break
-        area_num+=1  
-    area_subs[area_num].write("%s, %s \n"%(str(duration), vpn))
-    area_subs[0].write("%s, %s \n"%(str(duration), vpn))
-
-
- 
-
-
 

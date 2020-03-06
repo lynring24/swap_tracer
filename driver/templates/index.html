@@ -28,10 +28,10 @@
         var data = graphs.data;
         var length = data.length ;
         var layout = graphs.layout;
-        var info = {{info | safe}}; 
+        var head = {{head | safe}}; 
       
-        document.getElementById('command').innerHTML=info.command; 
-        document.getElementById('result').innerHTML='Total swap ='+info.count; 
+        document.getElementById('command').innerHTML=head.command; 
+        document.getElementById('result').innerHTML='Total swap ='+head.count; 
 
         data.forEach(drawGraph);
 

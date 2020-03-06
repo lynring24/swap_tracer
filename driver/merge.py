@@ -15,7 +15,7 @@ def merge():
          page_table = []
          for track in merge:
              item = [x.strip() for x in track.split(',')]
-             if len(item) > 3 : 
+             if len(item) > 2 : 
                 add_page_table(item)
              else:
                 classify_area(item)
@@ -33,17 +33,27 @@ def add_page_table(item):
 
 def classify_area(item): 
        # run key and find the key that fits most
-       output=open(get_path('total'), 'a+')
+#       output=open(get_path('total'), 'a+')
        page_table.sort(reverse=True)
        item[1]=item[1][:-2]
-       print item
        if page_table is not None:
           for track in page_table:
-              if track[TOP] <= item[TOP] and  item[TOP] <= track[BTM] and track[TIME] <= item[TIME]: 
+              if track[TOP] <= item[TOP] and item[TOP] <= track[BTM] and track[TIME] <= item[TIME]: 
                  # remove endline
                  item.extend([track[FNAME], track[FUNC], track[VAR]])
                  break       
        line = ','.join(item) + "\n"
-       output.write(line)
+#       output.write(line)
+       write_in_area(line, item[TOP])
 
 
+borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']
+def write_in_area(line, vas):
+    vpn = int(int(vas)/get_page_size())
+    area_num = 1
+    for border in borders:
+        if vpn < int(border, 16):
+           break
+        area_num+=1
+    with open(get_sub_path_by_id(area_num), 'a+') as sub:
+         sub.write(line) 
