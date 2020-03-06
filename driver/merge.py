@@ -33,7 +33,7 @@ def add_page_table(item):
 
 def classify_area(item): 
        # run key and find the key that fits most
-#       output=open(get_path('total'), 'a+')
+       output=open(get_path('total'), 'a+')
        page_table.sort(reverse=True)
        item[1]=item[1][:-2]
        if page_table is not None:
@@ -43,7 +43,7 @@ def classify_area(item):
                  item.extend([track[FNAME], track[FUNC], track[VAR]])
                  break       
        line = ','.join(item) + "\n"
-#       output.write(line)
+       output.write(line)
        write_in_area(line, item[TOP])
 
 
