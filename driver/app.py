@@ -16,11 +16,13 @@ def read_csv(side):
     with open(get_path_of(side)) as csvfile:
 	 sec = []
 	 vpn = []
+         info = []
 	 plots = csv.reader(csvfile, delimiter=',')
-	 for row in plots:
+         for row in plots:
 	     sec.append(row[0])
 	     vpn.append(row[1])
-    return sec, vpn
+             info.append(row[2:])
+    return sec, vpn, info
 	         
 
 def get_path_of(loc):
@@ -48,13 +50,13 @@ def index():
 
     layout=dict(grid=dict(title='title', font=dict(size=18)))
     
-    info = dict(count = count_swap(), command=get_cmd())
+    head = dict(count = count_swap(), command=get_cmd())
       
     chart = dict(data=data, layout=layout)
     graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
   
     dirpath = os.path.dirname(os.path.abspath(__file__))
-    return render_template('index.html', info=info, 
+    return render_template('index.html', head=head, 
                            graphJSON=graphJSON)
 
 if __name__ =='__main__':

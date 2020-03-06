@@ -21,6 +21,7 @@ def merge():
                 classify_area(item)
     merge.close()
 
+
 def add_page_table(item):
     dump = [item[TIME], item[TOP], item[BTM], item[FNAME], item[FUNC], item[VAR]] 
 
@@ -28,6 +29,7 @@ def add_page_table(item):
         page_table.append(dump)
     else:
         page_table.append(dump)
+
 
 def classify_area(item): 
        # run key and find the key that fits most
@@ -39,11 +41,8 @@ def classify_area(item):
           for track in page_table:
               if track[TOP] <= item[TOP] and  item[TOP] <= track[BTM] and track[TIME] <= item[TIME]: 
                  # remove endline
-                 print track
                  item.extend([track[FNAME], track[FUNC], track[VAR]])
-                 print item
-                 break
-       
+                 break       
        line = ','.join(item) + "\n"
        output.write(line)
 
