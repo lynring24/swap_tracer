@@ -44,7 +44,7 @@ def classify_area(item):
                  break       
        line = ','.join(item) + "\n"
        output.write(line)
-       write_in_area(line, item[TOP])
+       #write_in_area(line, item[TOP])
 
 
 borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']
