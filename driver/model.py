@@ -23,4 +23,6 @@ def build():
         print wcss
         index_min = min(xrange(len(wcss)), key=wcss.__getitem__)
         print wcss[index_min]
+
+        kmeans = KMeans(n_clusters=index_min, init='k-means++', max_iter=300, n_init=10, random_state=0)
         
