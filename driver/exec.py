@@ -123,4 +123,4 @@ if __name__ == '__main__':
    extract_swap()
    merge()
    cluster()
-   #run_flask() 
+   run_flask() 
