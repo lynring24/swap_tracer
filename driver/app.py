@@ -14,7 +14,7 @@ app.debug = True
 
 def read_csv(side):
     data=[]
-    n_class = get_class()
+    n_class = int(os.environ['CLASS'])
     for item in range (0, n_class):
         item = dict()
         item['hoverinfo']='all'
