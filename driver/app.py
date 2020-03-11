@@ -13,29 +13,36 @@ app.debug = True
 
 
 def read_csv(side):
+    data=[]
+    n_class = get_class()
+    for item in range (0, n_class):
+        item = dict()
+        item['hoverinfo']='all'
+        item['mode']='markers+text'
+        item['type']='scatter'
+
     with open(get_path_of(side)) as csvfile:
-	 sec = []
-	 vpn = []
-         info = []
 	 plots = csv.reader(csvfile, delimiter=',')
-         for row in plots:
-	     sec.append(row[0])
-	     vpn.append(row[1])
-             text= '/'.join(str(elem) for elem in row[2:])
-             info.append(text)
-    return sec, vpn, info
+         for row in plots:    
+             label = row[0]
+	     sec  = row[1]
+	     vpn = row[2]
+             text= '/'.join(str(elem) for elem in row[3:])
+             data[label].get('x').append(sec)
+             data[label].get('y').append(vpn)
+             data[label].get('text').append(text) 
+    return data
 	         
 
 def get_path_of(loc):
     head = os.environ['SWPTRACE_LOG']
-    return head+'/'+loc+ '.log'
+    return head+'/'+loc+ '.csv'
 
-def count_swap(side):
-    return sum(1 for line in open(get_path_of(side))) 
 
 def get_cmd():
     return 'Swap Timestamps of %s'%os.environ['SWPTRACE_CMD']
 
+def count_swap(side):
 @app.route('/')
 def index():
 
@@ -43,14 +50,9 @@ def index():
     head = os.environ['SWPTRACE_LOG']
     logs = glob.glob(head+'/*.log')
 
-    data=[]
-    swp = 0
-    for side in reversed(area):
-         if side != 'total' and get_path_of(side) in logs:
-            swp = swp + count_swap(side)
-	    sec, vpn, info = read_csv(side) 
-            data.append(dict( x= sec, y=vpn, hoverinfo="all", text=info, mode='markers', type='scatter')) 
+    swp =  sum(1 for line in open(get_path_of('labeled'))) 
 
+    data = read_csv('labeled') 
     layout=dict(grid=dict(title='title', font=dict(size=18)))
     
     head = dict(count = swp, command=get_cmd())
