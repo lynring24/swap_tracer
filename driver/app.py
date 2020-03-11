@@ -42,7 +42,6 @@ def get_path_of(loc):
 def get_cmd():
     return 'Swap Timestamps of %s'%os.environ['SWPTRACE_CMD']
 
-
 @app.route('/')
 def index():
 
