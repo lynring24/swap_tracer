@@ -20,12 +20,6 @@ sudo mkdir -p $MEMCG_DIR
 sudo bash -c "echo $$ >> $MEMCG_DIR/cgroup.procs"
 sudo bash -c "echo $MEMLIM > $MEMCG_DIR/memory.limit_in_bytes"
 
-#for MPAS
-#rm -rf history.2014-09-10_00.00.00.nc
-#rm -rf diag.2014-09-10_00.00.00.nc
-
-echo "COMM: $COMM"
-
 eval "$COMM"
 
 #sudo rmdir $MEMCG_DIR

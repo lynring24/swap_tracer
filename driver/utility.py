@@ -42,6 +42,7 @@ def set_up() :
     configure['PUBLIC'] = dict()
     configure['PUBLIC']['IP'] = '0.0.0.0'
     configure['PUBLIC']['PORT'] = 5000
+    configure['CLASS'] = 4
    
     
     
@@ -86,7 +87,15 @@ def set_mem_limit(value):
 
 def set_path(path, value):
     configure['PATH'][path] = value
+
+
+def set_class(num):
+    configure['CLASS'] = num
     
+
+def get_class():
+    return configure['CLASS']
+
 
 def set_pattern(key, value):
     configure['PATTERN'][key] = value
