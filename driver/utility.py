@@ -46,7 +46,8 @@ def set_up() :
     
     
 
-area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
+area = ['total','merge', 'labeled']
+#area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
 
 
 def get_sub_path_by_id(id):
@@ -54,18 +55,12 @@ def get_sub_path_by_id(id):
 
 
 def set_up_path():
-    EXEC_DIR = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
-    configure['PATH']['head'] = EXEC_DIR
-    configure['PATH']['awk'] = EXEC_DIR +'/awk.log'
-    configure['PATH']['pdf'] = EXEC_DIR + 'snapshot.pdf'
-    configure['PATH']['merge']=EXEC_DIR + '/merge.log'
+    configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
+    configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.log'
     for side in area:
-        configure['PATH'][side] = EXEC_DIR + '/' + side + '.log'
-   #configure['PATH']['extracted'] = EXEC_DIR +'/extracted.log'
-   # configure['PATH']['block'] = EXEC_DIR+'/block/'
+        configure['PATH'][side] = configure['PATH']['head'] + '/' + side + '.csv'
     os.system('sudo mkdir -p ' + configure['PATH']["root"] )
-    os.system('sudo mkdir -p ' + EXEC_DIR)
-   # os.system('mkdir -p ' + EXEC_DIR +'/block/')
+    os.system('sudo mkdir -p ' + configure['PATH']['head'])
 
 
 def set_ip(value):

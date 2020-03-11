@@ -5,7 +5,7 @@ import subprocess
 from requests import get
 from scan import scan_malloc
 from merge import merge
-from model import build
+from model import cluster
 #from split import split
 
 def config_input():
@@ -122,5 +122,5 @@ if __name__ == '__main__':
       extract_malloc()
    extract_swap()
    merge()
-   build()
+   cluster()
    #run_flask() 

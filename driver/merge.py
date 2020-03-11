@@ -9,7 +9,7 @@ VAR=5
 
 
 def merge():
-    print "$ create page table"
+    print "$ record page info"
     with open(get_path('merge'), 'r') as merge:
          global page_table
          page_table = []

@@ -11,7 +11,7 @@ def isNumber(s):
 def extract_swap():
     global area_subs
     try:
-	print "$ extract_swap.py"
+	print "$ extract swap"
         merge = open(get_path('merge'), 'a+')
 	with open(get_path('awk'), 'r') as src:
 	      for line in src:
@@ -73,7 +73,7 @@ def parse_malloc(line):
 
 
 def extract_malloc():
-    print "$ extract_malloc"
+    print "$ extract malloc"
     merge = open(get_path('merge'), 'w')
     with open(get_path('hook'), 'r') as hook:
          for line in hook:
