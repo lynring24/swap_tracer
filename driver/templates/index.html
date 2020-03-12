@@ -36,6 +36,24 @@
         console.log('data:', data);
         Plotly.newPlot('chart', data, layout || {}, {responsive: true});            
 
+        chart = document.getElementById('chart');
+	chart.on('plotly_selected', function(eventData) {        
+              var x = [];
+              var y = [];
+              eventData.points.forEach(function(pt) {
+ 		   x.push(pt.x);
+                   y.push(pt.y);
+              });
+              
+              Plotly.restyle(chart, {
+                  x:[x, y],
+                  xbins: {}
+		}, [1,2]);
+              
+              Plotly.restyle(chart, 'marker.color', [], [0]);
+        });
+
+
         // data.forEach(drawSubGraph);
         function drawSubGraph(item, index) {
                  var iDiv = document.createElement('div');
