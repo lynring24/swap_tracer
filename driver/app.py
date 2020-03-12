@@ -16,6 +16,7 @@ app = Flask(__name__)
 def read_csv(side):
     data=[]
     n_class = int(os.environ['CLASS'])
+    
     for idx in range (0, n_class*2):
         item = dict()
         item['x']=[]
@@ -30,6 +31,7 @@ def read_csv(side):
            item['name']= 'Swap'
         data.append(item)
     
+    cnt = 0 
     with open(get_path_of(side)) as csvfile:
 	 plots = csv.reader(csvfile, delimiter=',')
          for row in plots:    
@@ -41,11 +43,13 @@ def read_csv(side):
              if len(row) > 5:
                 text = text+"File : %s<br>Function : %s<br>Variable : %s"%(row[3],row[4],row[5])
              isSWP = int(row[-1])
+             cnt=cnt+isSWP
              label = n_class * isSWP + label 
              data[label]['x'].append(sec)
              data[label]['y'].append(vpn)
              data[label]['text'].append(text) 
-    return data
+
+    return data, cnt 
 	         
 
 def get_path_of(loc):
@@ -59,11 +63,10 @@ def get_cmd():
 @app.route('/')
 def index():
     print "$ flask run"
-    swp =  sum(1 for line in open(get_path_of('labeled'))) 
-    data = read_csv('labeled') 
+    data, cnt = read_csv('labeled') 
     layout = dict(grid=dict(title='title', font=dict(size=18)), yaxis=dict(type='log'))
     #layout = dict(grid=dict(title='title', font=dict(size=18)), yaxis=dict(type='log', autorange=True))
-    head = dict(count = swp, command=get_cmd())
+    head = dict(count = cnt, command=get_cmd())
     chart = dict(data=data, layout=layout)
     graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
   

@@ -11,9 +11,6 @@ def build(n_clusters, df):
     return kmeans, Z 
 
 
-
-
-
 def cluster():
     with open(get_path('total'), 'r+') as file:
         reader = csv.reader(file, delimiter=',')
@@ -29,7 +26,7 @@ def cluster():
         diff = pow(2,30) 
         threshold = pow(2,12)
 
-        for num in xrange(1, 10):
+        for num in xrange(1, 5):
             kmeans, label = build(num, df)
             inertias.append(kmeans.inertia_)
 
