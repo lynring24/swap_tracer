@@ -30,6 +30,11 @@ def add_page_table(item):
     else:
         page_table.append(dump)
 
+    output=open(get_path('total'), 'a+')
+    item=dump[:2]+dump[3:]
+    line = ','.join(item) + "\n"
+    output.write(line)
+
 
 def classify_area(item): 
        # run key and find the key that fits most
