@@ -30,9 +30,9 @@ def read_csv(side):
 	 plots = csv.reader(csvfile, delimiter=',')
          for row in plots:    
              label = int(row[0])
-	     sec  = row[1]
-	     vpn = row[2]
-             text= '/'.join(str(elem) for elem in row[3:])
+	     sec  = float(row[1])
+	     vpn = int(row[2])
+             text= '/'.join(str(elem) for elem in row[2:])
              data[label]['x'].append(sec)
              data[label]['y'].append(vpn)
              data[label]['text'].append(text) 
@@ -52,7 +52,7 @@ def index():
     print "$ flask run"
     swp =  sum(1 for line in open(get_path_of('labeled'))) 
     data = read_csv('labeled') 
-    layout = dict(grid=dict(title='title', font=dict(size=18)))
+    layout = dict(grid=dict(title='title', font=dict(size=18)), yaxis=dict(type='log', autorange=True))
     head = dict(count = swp, command=get_cmd())
     chart = dict(data=data, layout=layout)
     graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
@@ -75,6 +75,5 @@ if __name__ =='__main__':
    try:
      #app.index()
      app.run(debug=True)
-     print "main"
    except socket.error as err:
      print '[error] socket.error : [error %s]'%str(err.errno)
