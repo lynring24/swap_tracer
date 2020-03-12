@@ -41,7 +41,7 @@ def read_csv(side):
              if len(row) > 5:
                 text = text+"File : %s<br>Function : %s<br>Variable : %s"%(row[3],row[4],row[5])
              isSWP = int(row[-1])
-             label = n_class * isSWP +label 
+             label = n_class * isSWP + label 
              data[label]['x'].append(sec)
              data[label]['y'].append(vpn)
              data[label]['text'].append(text) 
