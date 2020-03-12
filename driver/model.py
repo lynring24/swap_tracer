@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd 
 from pandas import DataFrame
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import csv 
 from utility import *
@@ -27,8 +26,4 @@ def cluster():
                  lines[idx].insert(0, label[idx])
                  writer.writerow(lines[idx])
        
-        centroids  = kmeans.cluster_centers_
-        plt.scatter(df['time'], df['vas'], c=kmeans.labels_.astype(float), s=50, alpha=0.5)
-        plt.scatter(centroids[:,0], centroids[:, 1], c='red', s=50)
-#        plt.show()          
        

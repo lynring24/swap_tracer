@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from flask import response
 import json
 import plotly
 import plotly.graph_objects as go
@@ -9,7 +10,6 @@ from utility import *
 
 
 app = Flask(__name__)
-app.debug = True
 
 
 def read_csv(side):
@@ -45,26 +45,28 @@ def get_cmd():
 @app.route('/')
 def index():
 
-    global logs
     head = os.environ['SWPTRACE_LOG']
-    logs = glob.glob(head+'/*.log')
-
     swp =  sum(1 for line in open(get_path_of('labeled'))) 
-
     data = read_csv('labeled') 
-    layout=dict(grid=dict(title='title', font=dict(size=18)))
-    
+    layout =dict(grid=dict(title='title', font=dict(size=18)))
     head = dict(count = swp, command=get_cmd())
-      
     chart = dict(data=data, layout=layout)
     graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
   
     dirpath = os.path.dirname(os.path.abspath(__file__))
-    return render_template('index.html', head=head, 
-                           graphJSON=graphJSON)
+    #return render_template('index.html', head=head, graphJSON=graphJSON)
+    rendered = render_template('index.html', head=head, graphJSON=graphJSON)
+    pdf = pdfkit.from_url(rendered, head+'/plot.pdf')
+
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename='+head+'/plot.pdf'
+    return response
+
 
 if __name__ =='__main__':
    try:
-     app.index()
+     #app.index()
+     app.run(debug=True)
    except socket.error as err:
      print '[error] socket.error : [error %s]'%str(err.errno)

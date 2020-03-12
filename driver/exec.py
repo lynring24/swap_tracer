@@ -105,8 +105,9 @@ def run_flask():
       if result != 0:
          raise OSError
     except OSError:
-      print "[warning] invalid IP or port try 0.0.0.0:5000"
-      os.system('cd $SWPTRACE ; flask run')
+      if get_ip() != '0.0.0.0' and get_port() != '5000':
+         print "[warning] invalid IP or port try 0.0.0.0:5000"
+         os.system('cd $SWPTRACE ; flask run')
      
 
 if __name__ == '__main__':
