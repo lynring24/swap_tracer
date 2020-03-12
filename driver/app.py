@@ -16,7 +16,7 @@ app = Flask(__name__)
 def read_csv(side):
     data=[]
     n_class = int(os.environ['CLASS'])
-    for item in range (0, n_class):
+    for idx in range (0, n_class*2):
         item = dict()
         item['x']=[]
         item['y']=[]
@@ -24,6 +24,10 @@ def read_csv(side):
         item['mode']='markers'
         item['type']='scatter'
         item['hovertemplate']='<b>%{text}</b>'
+        if idx < n_class: 
+           item['name']= 'Alloc'
+        else:
+           item['name']= 'Swap'
         data.append(item)
     
     with open(get_path_of(side)) as csvfile:
@@ -34,8 +38,10 @@ def read_csv(side):
 	     vpn = int(row[2])
              #text= '/'.join(str(elem) for elem in row[2:])
              text = 'Addr : %s <br>'%row[2]
-             if len(row) > 3:
+             if len(row) > 5:
                 text = text+"File : %s<br>Function : %s<br>Variable : %s"%(row[3],row[4],row[5])
+             isSWP = int(row[-1])
+             label = n_class * isSWP +label 
              data[label]['x'].append(sec)
              data[label]['y'].append(vpn)
              data[label]['text'].append(text) 

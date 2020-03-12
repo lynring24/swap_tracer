@@ -7,6 +7,8 @@ FNAME=3
 FUNC=4
 VAR=5
 
+ALLOC='0'
+SWP='1'
 
 def merge():
     print "$ record page info"
@@ -22,23 +24,22 @@ def merge():
     merge.close()
 
 
+def write(line): 
+    output=open(get_path('total'), 'a+')
+    output.write(line)
+
+
+
 def add_page_table(item):
     dump = [item[TIME], item[TOP], item[BTM], item[FNAME], item[FUNC], item[VAR]] 
-
-    if dump in page_table:
-        page_table.append(dump)
-    else:
-        page_table.append(dump)
-
-    output=open(get_path('total'), 'a+')
-    item=dump[:2]+dump[3:]
+    page_table.append(dump)
+    item=dump[:2]+dump[3:]+[ALLOC]
     line = ','.join(item) + "\n"
-    output.write(line)
+    write(line)
 
 
 def classify_area(item): 
        # run key and find the key that fits most
-       output=open(get_path('total'), 'a+')
        page_table.sort(reverse=True)
        item[1]=item[1][:-2]
        if page_table is not None:
@@ -47,18 +48,6 @@ def classify_area(item):
                  # remove endline
                  item.extend([track[FNAME], track[FUNC], track[VAR]])
                  break       
+       item.append(SWP)
        line = ','.join(item) + "\n"
-       output.write(line)
-       #write_in_area(line, item[TOP])
-
-
-borders = ['0x2000000', '0x40000000', '0x60000000',  '0xA0000000', '0xE0000000', '0xE0100000']
-def write_in_area(line, vas):
-    vpn = int(int(vas)/get_page_size())
-    area_num = 1
-    for border in borders:
-        if vpn < int(border, 16):
-           break
-        area_num+=1
-    with open(get_sub_path_by_id(area_num), 'a+') as sub:
-         sub.write(line) 
+       write(line)
