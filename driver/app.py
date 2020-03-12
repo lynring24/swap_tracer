@@ -32,7 +32,10 @@ def read_csv(side):
              label = int(row[0])
 	     sec  = float(row[1])
 	     vpn = int(row[2])
-             text= '/'.join(str(elem) for elem in row[2:])
+             #text= '/'.join(str(elem) for elem in row[2:])
+             text = 'Addr : %s <br>'%row[2]
+             if len(row) > 3:
+                text = text+"File : %s<br>Function : %s<br>Variable : %s"%(row[3],row[4],row[5])
              data[label]['x'].append(sec)
              data[label]['y'].append(vpn)
              data[label]['text'].append(text) 
@@ -52,7 +55,8 @@ def index():
     print "$ flask run"
     swp =  sum(1 for line in open(get_path_of('labeled'))) 
     data = read_csv('labeled') 
-    layout = dict(grid=dict(title='title', font=dict(size=18)), yaxis=dict(type='log', autorange=True))
+    layout = dict(grid=dict(title='title', font=dict(size=18)), yaxis=dict(type='log'))
+    #layout = dict(grid=dict(title='title', font=dict(size=18)), yaxis=dict(type='log', autorange=True))
     head = dict(count = swp, command=get_cmd())
     chart = dict(data=data, layout=layout)
     graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
