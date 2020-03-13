@@ -24,14 +24,15 @@ def cluster():
         
         inertias= []
         diff = pow(2,30) 
-        threshold = pow(2,12)
+        threshold = pow(2,10)
 
         for num in xrange(1, 5):
             kmeans, label = build(num, df)
-            inertias.append(kmeans.inertia_)
+            inertias.append(kmeans.inertia_)             
+            if num != 1 and  inertias[num-1] - inertias[num-2] < threshold:
+               break;
 
         opt = inertias.index(min(inertias))+1 
-        print "$ number of cluster : %d"%opt
         set_class(opt)
         with open(get_path('labeled'), 'w') as labeled:
              writer = csv.writer(labeled, delimiter=',')

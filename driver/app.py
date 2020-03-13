@@ -16,6 +16,7 @@ app = Flask(__name__)
 def read_csv(side):
     data=[]
     n_class = int(os.environ['CLASS'])
+    print n_class
     
     for idx in range (0, n_class*2):
         item = dict()
