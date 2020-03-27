@@ -74,7 +74,11 @@ def parse_malloc(line):
 
 def extract_malloc():
     print "$ extract malloc"
+<<<<<<< HEAD
     merge = open(get_path('merge'), 'w')
+=======
+    merge = open(get_path('merge'), 'a+')
+>>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
     with open(get_path('hook'), 'r') as hook:
          for line in hook:
              res = parse_malloc(line)

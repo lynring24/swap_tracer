@@ -1,0 +1,9 @@
+pip install psutil 
+pip install flask
+pip install plotly 
+pip install cufflinks
+pip install uptime
+pip install requests
+apt-get install flex 
+pip install pdfkit
+sudo apt install -y wkhtmltopdf

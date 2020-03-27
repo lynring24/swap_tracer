@@ -50,7 +50,10 @@ def check_option():
 
 
 def exe_cmd():
+<<<<<<< HEAD
 #    try:
+=======
+>>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
     rsyslog = open('/etc/rsyslog.conf').read()
     if "# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat" in rsyslog:
        print "rsyslog timestamping in RFC 3339 format"
@@ -62,11 +65,14 @@ def exe_cmd():
     exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%( get_path('root')+"/mod", str(get_mem_limit()) , get_command() )
     print "\n$ "+ exe_instr
     eval_result = os.system(exe_instr)
+<<<<<<< HEAD
  #       if eval_result != 0:
   #         raise OSError
 #    except OSError:
 #        print '[Debug] execution failed.'
 
+=======
+>>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
 
 
 def __awk_log(head, error): 
@@ -83,8 +89,11 @@ def awk_log():
 	__awk_log('cat '+get_path('rsyslog'),IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
+<<<<<<< HEAD
 	#clean_up(get_path('rsyslog'))
        #__awk_log('dmesg -T', BaseException)
+=======
+>>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
         instr ='dmesg --time-format iso | grep swptrace > '+get_path('awk')
         os.system(instr)
 	print "\n$ %s \n"%instr
