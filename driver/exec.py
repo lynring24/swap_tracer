@@ -50,10 +50,6 @@ def check_option():
 
 
 def exe_cmd():
-<<<<<<< HEAD
-#    try:
-=======
->>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
     rsyslog = open('/etc/rsyslog.conf').read()
     if "# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat" in rsyslog:
        print "rsyslog timestamping in RFC 3339 format"
@@ -61,18 +57,12 @@ def exe_cmd():
        print "rsyslog timestamp traditional file format "
        os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
        os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
-
-    exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%( get_path('root')+"/mod", str(get_mem_limit()) , get_command() )
+    top=get_path('root')
+    if hasTarget:
+       top=top+"/mod"
+    exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
     print "\n$ "+ exe_instr
     eval_result = os.system(exe_instr)
-<<<<<<< HEAD
- #       if eval_result != 0:
-  #         raise OSError
-#    except OSError:
-#        print '[Debug] execution failed.'
-
-=======
->>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
 
 
 def __awk_log(head, error): 
@@ -89,11 +79,8 @@ def awk_log():
 	__awk_log('cat '+get_path('rsyslog'),IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
-<<<<<<< HEAD
 	#clean_up(get_path('rsyslog'))
-       #__awk_log('dmesg -T', BaseException)
-=======
->>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
+        #__awk_log('dmesg -T', BaseException)
         instr ='dmesg --time-format iso | grep swptrace > '+get_path('awk')
         os.system(instr)
 	print "\n$ %s \n"%instr
@@ -118,18 +105,18 @@ def run_flask():
          print "[warning] invalid IP or port try 0.0.0.0:5000"
          os.system('cd $SWPTRACE ; flask run')
      
-
+/
 if __name__ == '__main__':
    
    set_up()
    config_input()
    check_option()
-   if hasTarget == True :
+   if hasTarget!=False:
       scan_malloc()
    exe_cmd()
    set_up_path()
    awk_log()
-   if hasTarget == True :
+   if hasTarget :
       extract_malloc()
    extract_swap()
    merge()

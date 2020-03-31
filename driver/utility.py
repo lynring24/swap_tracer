@@ -158,7 +158,7 @@ def get_pattern(x):
     return configure['PATTERN'].get(x)
  
 
-def is_false_generated(x):
+def is_false_generated(x, fname=None):
     return (os.path.isfile(x) == False or os.stat(x).st_size == 0)
  
 

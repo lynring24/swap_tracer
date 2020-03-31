@@ -33,17 +33,6 @@
         document.getElementById('command').innerHTML=head.command; 
         document.getElementById('result').innerHTML='Total swap ='+head.count; 
 
-<<<<<<< HEAD
-        data.forEach(drawGraph);
-
-        function drawGraph(item, index) {
-                 var iDiv = document.createElement('div');
-                 iDiv.id = 'graph'+index;
-                 document.getElementById('chart').appendChild(iDiv);
-                 console.log('item:', item);
-                 Plotly.newPlot(iDiv.id, [item], layout || {}, {responsive: true});           
-        }
-=======
         console.log('data:', data);
         Plotly.newPlot('chart', data, layout || {}, {responsive: true});            
 
@@ -73,7 +62,6 @@
                  Plotly.newPlot(iDiv.id, [item], layout || {}, {responsive: true});           
         }
                 
->>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
 
    </script>
 </footer>

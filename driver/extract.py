@@ -22,7 +22,7 @@ def extract_swap():
 	merge.close()
     except BaseException as ex:
            print ex
-           clean_up_and_exit(get_path('head'), 'extract')
+           clean_up_and_exit(get_path('merge'), 'extract')
           
 
 def parse_swap(line):
@@ -74,16 +74,15 @@ def parse_malloc(line):
 
 def extract_malloc():
     print "$ extract malloc"
-<<<<<<< HEAD
-    merge = open(get_path('merge'), 'w')
-=======
     merge = open(get_path('merge'), 'a+')
->>>>>>> 026724062b5c2746723de2fd013f16cde949a1a3
     with open(get_path('hook'), 'r') as hook:
          for line in hook:
              res = parse_malloc(line)
              if res is not None: 
                 merge.write("%s, %d, %d, %s, %s, %s\n"%(res[0], res[1], res[2], res[3], res[4], res[5]))
+    if is_false_generated(get_path('merge')):
+       print "Allocation Hook False Generated"
+       clean_up_and_exit(get_path('merge'),'extract allocation')
 
 
 
