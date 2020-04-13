@@ -105,7 +105,7 @@ def run_flask():
          print "[warning] invalid IP or port try 0.0.0.0:5000"
          os.system('cd $SWPTRACE ; flask run')
      
-/
+
 if __name__ == '__main__':
    
    set_up()
@@ -121,4 +121,4 @@ if __name__ == '__main__':
    extract_swap()
    merge()
    cluster()
-   run_flask() 
+   # run_flask() 
