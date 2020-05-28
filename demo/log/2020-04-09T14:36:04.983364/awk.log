@@ -1,0 +1,49 @@
+2020-04-09T14:36:05.271265+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 135599, uaddr: 94517302599680)
+2020-04-09T14:36:05.271291+09:00 ubuntu kernel: swptrace(gmain): map (swpentry: 24475, uaddr: 139850893103104)
+2020-04-09T14:36:05.271299+09:00 ubuntu kernel: swptrace(gmain): read 24475 
+2020-04-09T14:36:05.271305+09:00 ubuntu kernel: swptrace(upstart-file-br): read 135599 
+2020-04-09T14:36:05.271312+09:00 ubuntu kernel: swptrace(gmain): map (swpentry: 24474, uaddr: 139850893107200)
+2020-04-09T14:36:05.271318+09:00 ubuntu kernel: swptrace(gmain): read 24474 
+2020-04-09T14:36:05.271324+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 31688, uaddr: 94517302595584)
+2020-04-09T14:36:05.271337+09:00 ubuntu kernel: swptrace(upstart-file-br): read 31688 
+2020-04-09T14:36:05.272118+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25558, uaddr: 140388852502528)
+2020-04-09T14:36:05.272138+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25558 
+2020-04-09T14:36:05.272145+09:00 ubuntu kernel: swptrace(gmain): map (swpentry: 137358, uaddr: 139850893099008)
+2020-04-09T14:36:05.272151+09:00 ubuntu kernel: swptrace(gmain): read 137358 
+2020-04-09T14:36:05.272158+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25572, uaddr: 94517302509568)
+2020-04-09T14:36:05.272164+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25572 
+2020-04-09T14:36:05.272170+09:00 ubuntu kernel: swptrace(gmain): map (swpentry: 24443, uaddr: 24702976)
+2020-04-09T14:36:05.272175+09:00 ubuntu kernel: swptrace(gmain): read 24443 
+2020-04-09T14:36:05.272329+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25976, uaddr: 140388846415872)
+2020-04-09T14:36:05.272368+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25976 
+2020-04-09T14:36:05.272375+09:00 ubuntu kernel: swptrace(gmain): map (swpentry: 23741, uaddr: 139851019010048)
+2020-04-09T14:36:05.272381+09:00 ubuntu kernel: swptrace(gmain): read 23741 
+2020-04-09T14:36:05.272642+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25410, uaddr: 140724844163072)
+2020-04-09T14:36:05.272652+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25410 
+2020-04-09T14:36:05.273175+09:00 ubuntu kernel: swptrace(gmain): map (swpentry: 23068, uaddr: 139851018944512)
+2020-04-09T14:36:05.273187+09:00 ubuntu kernel: swptrace(gmain): read 23068 
+2020-04-09T14:36:05.273843+09:00 ubuntu kernel: swptrace(gmain): map (swpentry: 23740, uaddr: 6340608)
+2020-04-09T14:36:05.273855+09:00 ubuntu kernel: swptrace(gmain): read 23740 
+2020-04-09T14:36:05.273865+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25519, uaddr: 140388861534208)
+2020-04-09T14:36:05.273871+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25519 
+2020-04-09T14:36:05.274577+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25574, uaddr: 94517302513664)
+2020-04-09T14:36:05.274589+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25574 
+2020-04-09T14:36:05.354669+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25409, uaddr: 140388861538304)
+2020-04-09T14:36:05.354700+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25409 
+2020-04-09T14:36:05.354706+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25605, uaddr: 140724844150784)
+2020-04-09T14:36:05.355411+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25605 
+2020-04-09T14:36:05.355425+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25604, uaddr: 140724844146688)
+2020-04-09T14:36:05.355438+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25604 
+2020-04-09T14:36:05.355795+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25604, uaddr: 140724844146688)
+2020-04-09T14:36:05.355809+09:00 ubuntu kernel: swptrace(upstart-file-br): map (swpentry: 25408, uaddr: 94517302099968)
+2020-04-09T14:36:05.355815+09:00 ubuntu kernel: swptrace(upstart-file-br): read 25408 
+2020-04-09T14:36:05.356573+09:00 ubuntu kernel: swptrace(upstart): map (swpentry: 25592, uaddr: 94121589551104)
+2020-04-09T14:36:05.356586+09:00 ubuntu kernel: swptrace(upstart): read 25592 
+2020-04-09T14:36:05.356593+09:00 ubuntu kernel: swptrace(upstart): map (swpentry: 29392, uaddr: 94121589391360)
+2020-04-09T14:36:05.356600+09:00 ubuntu kernel: swptrace(upstart): read 29392 
+2020-04-09T14:36:05.361054+09:00 ubuntu kernel: swptrace(upstart): map (swpentry: 25320, uaddr: 140016038318080)
+2020-04-09T14:36:05.361076+09:00 ubuntu kernel: swptrace(upstart): map (swpentry: 25323, uaddr: 140016007569408)
+2020-04-09T14:36:05.361088+09:00 ubuntu kernel: swptrace(upstart): map (swpentry: 25322, uaddr: 140016007573504)
+2020-04-09T14:36:05.361095+09:00 ubuntu kernel: swptrace(upstart): map (swpentry: 32593, uaddr: 94121589612544)
+2020-04-09T14:36:05.361100+09:00 ubuntu kernel: swptrace(upstart): map (swpentry: 25327, uaddr: 140016003235840)
+2020-04-09T14:36:05.363521+09:00 ubuntu kernel: swptrace(upstart): map (swpentry: 32593, uaddr: 94121589612544)
