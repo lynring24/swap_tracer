@@ -116,9 +116,9 @@ if __name__ == '__main__':
    exe_cmd()
    set_up_path()
    awk_log()
-   if hasTarget :
-      extract_malloc()
-   extract_swap()
-   merge()
-   cluster()
+   # if hasTarget :
+   #    extract_malloc()
+   # extract_swap()
+   # merge()
+   # cluster()
    # run_flask() 
