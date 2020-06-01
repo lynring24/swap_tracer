@@ -77,7 +77,5 @@ LOG_ROOT
 + driver 
 + driver/templates
 + driver/unittest (for checkup)
-+ demo/log
-+ demo/code
-+ demo/plot
++ demo
 

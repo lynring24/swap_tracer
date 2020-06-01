@@ -24,7 +24,7 @@ def extract_swap():
         # for map.timestamp faster than in.timestamp && map.swpentry == in.swpentry in[anchor] = map.timestamp
         group = rsyslog.groupby('swpentry')['timestamp'].unique()
         group = group[group.apply(lambda x: len(x)>1)]
-        group.to_frame.to_csv(get_path('head')+'/duplicated_entries.csv')
+        group.to_frame().to_csv(get_path('head')+'/duplicated_entries.csv')
         # anchor the related timestamp
 
         print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
