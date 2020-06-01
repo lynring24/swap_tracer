@@ -47,6 +47,9 @@ def check_option():
     print " * public IP      :%s "%get_ip()
     print " * port           :%s "%str(get_port())
     print "---------------------------------------------------------------\n"
+    with open(get_path('root')+'/option.dat','w') as tag:
+         tag.write('[Option]\n %s, %s, %s, %s, %s\n' %(get_command(), get_mem_limit(), get_path('root'), get_ip(), str(get_port()) ))
+    tag.close()
 
 
 def exe_cmd():
@@ -66,7 +69,7 @@ def exe_cmd():
 
 
 def __awk_log(head, error): 
-    	awk_part = head + ' | '+'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace\(.*\)/ {if($1>start){print $0}}\' > '+ get_path('awk')
+    	awk_part = head + ' | '+'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\' > '+ get_path('awk')
     	print "\n$ "+ awk_part+'\n'
     	os.system(awk_part)
 	if is_false_generated(get_path('awk')):
@@ -118,7 +121,7 @@ if __name__ == '__main__':
    awk_log()
    # if hasTarget :
    #    extract_malloc()
-   # extract_swap()
+   extract_swap()
    # merge()
    # cluster()
    # run_flask() 

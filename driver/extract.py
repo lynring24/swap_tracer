@@ -1,4 +1,5 @@
 from utility import *
+import csv
 
 def isNumber(s):
   try:
@@ -14,41 +15,26 @@ def extract_swap():
 	print "$ extract swap"
         merge = open(get_path('merge'), 'a+')
 	with open(get_path('awk'), 'r') as src:
-	      for line in src:
-		  extracted = parse_swap(line)
-		  if extracted is not None:
-		     merge.write("%s, %s \n"%(str(extracted[0]), extracted[1]))
+             csvreader = csv.reader(src, delimiter=' ')
+             for line in csvreader:
+                 time = string_to_date(line[0])
+                 delta_t = time - get_time()
+                 if delta_t < timedelta(0):
+                    return 
+                 ustime = delta_t.total_seconds() #usec
+                 cmd = line[-4]
+                 mode = line[-3]
+                 swpentry = line[-2]
+                 vma = line[-1]
+                 merge.write("%s, %s, %s, %s, %s\n"%(str(ustime), cmd, mode, swpentry, vma))
 	#if ISABSTRACT is used, release last tracked state
 	merge.close()
+        if is_false_generated(get_path('merge')):
+            raise BaseException 
     except BaseException as ex:
            print ex
            clean_up_and_exit(get_path('merge'), 'extract')
           
-
-def parse_swap(line):
-# if matches pattern, name and generated after(time)
-    regex = re.compile(get_pattern('log'))
-    matched = regex.search(line)
-  
-    if matched is None:
-       return None
-   
-    comm = matched.group(2).strip()
-    if comm not in get_command():
-       return None
-    vma = matched.group(3)
-    vma =  vma[ vma.rfind(':')+1 : vma.find(')')].strip()
-    #vma = int(vma)/get_page_size()
-    vma = int(vma)
-    date = matched.group(1)
-    time = string_to_date(date)
-    delta_t = time - get_time()
-    if delta_t < timedelta(0):
-       return None
-    ustime = delta_t.total_seconds()
-    return [ustime, vma]
-
-
 
 def parse_malloc(line): 
     pattern="(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"

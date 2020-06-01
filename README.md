@@ -16,14 +16,24 @@ In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/m
 
 ## How To Use
 ### Setup
+1. disable **/etc/rsyslog.conf** option
 ```
-$ sh setup.sh
+# Use traditional timestamp format.
+# To enable high percision timestamps, comment out the following line
+#
+# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat <- Here
+```
+2. run script 
+```
+# run setdup
+$ sh setup
 
 # to check setup
 $ echo $SWPTRACE
 $ source ~/.bashrc
 
 ```
+
 #### PATH SETTING 
 Before using this swap tracer, modify **driver/configure.json** if needed.
 This will be a default setting.

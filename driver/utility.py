@@ -13,7 +13,7 @@ def set_up() :
     configure["TIME"] = datetime.now()
     # configure pattern
     configure['PATTERN'] = dict() 
-    configure['PATTERN']['log']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[,\.]\d{6})[-\+]\d{2}:?\d{2} .*swptrace\((.+)\): map (\(swpentry: \d+, uaddr: \d+\))'
+    configure['PATTERN']['log']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[,\.]\d{6})[-\+]\d{2}:?\d{2}\tswptrace\t.+\t[map|in|out]\t\d+\t\d+'
     configure['PATTERN']['hook'] = "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
     configure['PATTERN']['rsyslog']='%Y-%m-%dT%H:%M:%S.%f'
     configure['PATTERN']['dmesg']='%Y-%m-%dT%H:%M:%S,%f'
@@ -57,7 +57,7 @@ def get_sub_path_by_id(id):
 
 def set_up_path():
     configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
-    configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.log'
+    configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
     for side in area:
         configure['PATH'][side] = configure['PATH']['head'] + '/' + side + '.csv'
     os.system('sudo mkdir -p ' + configure['PATH']["root"] )
@@ -164,9 +164,9 @@ def is_false_generated(x, fname=None):
 
 def string_to_date(timestamp):
     try: 
-       timestamp = datetime.strptime(timestamp, get_pattern('rsyslog'))
+        timestamp = datetime.strptime(timestamp[:-5], get_pattern('rsyslog'))
     except ValueError:
-       timestamp = datetime.strptime(timestamp, get_pattern('dmesg'))
+        timestamp = datetime.strptime(timestamp[:-5], get_pattern('dmesg'))
        
     return timestamp
 
