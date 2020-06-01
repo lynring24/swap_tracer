@@ -1,5 +1,6 @@
 from utility import *
 import csv
+import pandas as pd
 
 def isNumber(s):
   try:
@@ -12,23 +13,16 @@ def isNumber(s):
 def extract_swap():
     global area_subs
     try:
-	print "$ extract swap"
-        merge = open(get_path('merge'), 'a+')
-	with open(get_path('awk'), 'r') as src:
-             csvreader = csv.reader(src, delimiter=' ')
-             for line in csvreader:
-                 time = string_to_date(line[0])
-                 delta_t = time - get_time()
-                 if delta_t < timedelta(0):
-                    return 
-                 ustime = delta_t.total_seconds() #usec
-                 cmd = line[-4]
-                 mode = line[-3]
-                 swpentry = line[-2]
-                 vma = line[-1]
-                 merge.write("%s, %s, %s, %s, %s\n"%(str(ustime), cmd, mode, swpentry, vma))
-	#if ISABSTRACT is used, release last tracked state
-	merge.close()
+	print "$ extract ryslog log"
+        rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter='\s+')
+        if rsyslog.shape[1] > 6 : 
+            rsyslog.columns = ['timestamp', 'server', 'dtime', 'swptrace' , 'cmd', 'mode', 'swpentry', 'address']
+        else:
+            rsyslog.columns = ['timestamp', 'swptrace' , 'cmd', 'mode', 'swpentry', 'address']
+        rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
+        rsyslog = rsyslog[rsyslog.timestamp>= 0.0]
+        print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
+        rsyslog[['timestamp', 'cmd', 'mode', 'swpentry', 'address']].to_csv(get_path('merge'))
         if is_false_generated(get_path('merge')):
             raise BaseException 
     except BaseException as ex:
