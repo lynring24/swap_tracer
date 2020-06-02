@@ -22,11 +22,11 @@ def extract_swap():
         rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
         rsyslog = rsyslog[rsyslog.timestamp>= 0.0]
         # for map.timestamp faster than in.timestamp && map.swpentry == in.swpentry in[anchor] = map.timestamp
-        group = rsyslog.groupby('swpentry')['timestamp'].unique()
+        group = rsyslog[rsyslog['mode']!='out'].groupby('swpentry')['timestamp'].unique()
         group = group[group.apply(lambda x: len(x)>1)]
         group.to_frame().to_csv(get_path('head')+'/duplicated_entries.csv')
         # anchor the related timestamp
-
+        
         print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
         rsyslog[['timestamp', 'cmd', 'mode', 'swpentry', 'address']].to_csv(get_path('merge'))
         if is_false_generated(get_path('merge')):
