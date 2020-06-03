@@ -18,18 +18,18 @@ def extract_swap():
         max_column = columns.shape[1]
         rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter='\s+', usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
 
-        # if rsyslog.shape[1] > 6 : 
-        #    rsyslog.columns = ['timestamp', 'server', 'dtime', 'swptrace' , 'cmd', 'mode', 'swpentry', 'address']
-        # else:
-        #    rsyslog.columns = ['timestamp', 'swptrace' , 'cmd', 'mode', 'swpentry', 'address']
         rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
         rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
         rsyslog = rsyslog[rsyslog.timestamp>= 0.0]
+        rsyslog['address'] = rsyslog['address'].appy(lambda x : x/get_size('block')) 
         # for map.timestamp faster than in.timestamp && map.swpentry == in.swpentry in[anchor] = map.timestamp
         group = rsyslog.groupby('swpentry')['timestamp'].unique()
         group = group[group.apply(lambda x: len(x)>1)]
         group.to_frame().to_csv(get_path('head')+'/duplicated_entries.csv')
         # anchor the related timestamp
+        group = rsyslog.groupby('address')['timestamp'].unique()
+        group = group[group.apply(lambda x: len(x)>1)]
+        group.to_frame().to_csv(get_path('head')+'/duplicated_address.csv')
         
         print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
         rsyslog[['timestamp', 'cmd', 'mode', 'swpentry', 'address']].to_csv(get_path('merge'))
