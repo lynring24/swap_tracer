@@ -5,7 +5,7 @@ import subprocess
 from requests import get
 from scan import scan_malloc
 from merge import merge
-from model import cluster
+from model import classify
 
 
 enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False}
@@ -89,8 +89,8 @@ def awk_log():
 	__awk_log('cat '+get_path('rsyslog'), 'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\'' , IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
-	__awk_log( 'dmesg --time-format iso', 'grep swptrace', BaseException)
-    except BaseException as ex:
+	__awk_log( 'dmesg --time-format iso', 'grep swptrace', FileNotFoundError )
+    except:
         print "[Failure] fail to extract log" 
 	clean_up_and_exit(get_path('head'), 'awk_log')
 
@@ -123,7 +123,6 @@ if __name__ == '__main__':
    awk_log()
    # if enable_argv['target'] :
    #    extract_malloc()
-   # extract_swap()
+   extract_swap()
    # merge()
-   # cluster()
    # run_flask() 
