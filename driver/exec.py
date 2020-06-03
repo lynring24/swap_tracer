@@ -6,7 +6,9 @@ from requests import get
 from scan import scan_malloc
 from merge import merge
 from model import cluster
-#from split import split
+
+
+enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False}
 
 def config_input():
     global hasTarget
@@ -17,18 +19,23 @@ def config_input():
        for arg in sys.argv[1:]:
           pos = arg.find('=')+1
           item = arg[pos:]
-          if arg.find('--mem=') > NOTEXIST:
+          if arg.find('--mem') > NOTEXIST:
+             enable_argv['mem'] = True
       	     set_mem_limit(item)
           elif arg.find('--cmd') > NOTEXIST:
+             enable_argv['cmd'] = True
        	     set_command('%s'%item) 
           elif arg.find('--ip') > NOTEXIST:
+             enable_argv['ip'] = True
        	     set_ip(item)
           elif arg.find('--port') > NOTEXIST:
+             enable_argv['port'] = True
        	     set_port(item)
           elif arg.find('--target') > NOTEXIST:
-             hasTarget = True
+             enable_argv['target'] = True
              set_path('target', item) 
           elif arg.find('--log') > NOTEXIST:
+             enable_argv['log'] = True
              set_path('root', item)
           else:
              print '[error] invalid option %s'%arg
@@ -39,17 +46,14 @@ def config_input():
 
 def check_option():
     print "\n---------------------------------------------------------------"
-    if hasTarget == True:
-       print " * target         :%s "%get_path('target')
-    print " * command        :%s "%get_command()
-    print " * mem lim(Mib)   :%s "%get_mem_limit()
-    print " * log            :%s "%get_path('root')
-    print " * public IP      :%s "%get_ip()
-    print " * port           :%s "%str(get_port())
+    if enable_argv['target'] == True:
+       print " * target         : %s "%get_path('target')
+    print " * command        : %s "%get_command()
+    print " * mem lim(Mib)   : %s "%get_mem_limit()
+    print " * log            : %s "%get_path('root')
+    print " * public IP      : %s "%get_ip()
+    print " * port           : %s "%str(get_port())
     print "---------------------------------------------------------------\n"
-    with open(get_path('root')+'/option.dat','w') as tag:
-         tag.write('[Option]\n %s, %s, %s, %s, %s\n' %(get_command(), get_mem_limit(), get_path('root'), get_ip(), str(get_port()) ))
-    tag.close()
 
 
 def exe_cmd():
@@ -61,9 +65,12 @@ def exe_cmd():
        os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
        os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
     top=get_path('root')
-    if hasTarget:
+    if enable_argv['target']:
        top=top+"/mod"
-    exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
+    if enable_argv['mem'] == True: 
+        exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
+    else:
+        exe_instr='cd %s; %s '%(top, str(get_mem_limit()) , get_command() )
     print "\n$ "+ exe_instr
     eval_result = os.system(exe_instr)
 
@@ -71,7 +78,8 @@ def exe_cmd():
 def __awk_log(head, error): 
     	awk_part = head + ' | '+'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\' > '+ get_path('awk')
     	print "\n$ "+ awk_part+'\n'
-    	os.system(awk_part)
+        os.system( awk_part )
+    	os.system( head + ' | '+'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/pageout/ {if($1>start){print $0}}\' > '+ get_path('head')+'/pageout.csv')
 	if is_false_generated(get_path('awk')):
 		raise error
 
@@ -80,12 +88,14 @@ def awk_log():
     # awk parts from log only after the execution
     try:
 	__awk_log('cat '+get_path('rsyslog'),IOError)
+
     except IOError:
         print "rsyslog miss message, try dmesg"
 	#clean_up(get_path('rsyslog'))
         #__awk_log('dmesg -T', BaseException)
         instr ='dmesg --time-format iso | grep swptrace > '+get_path('awk')
         os.system(instr)
+        os.system ( 'dmesg --time-format iso | grep pageout > '+get_path('head')+'/pageout.csv' )
 	print "\n$ %s \n"%instr
     except BaseException as ex:
         print ex
@@ -109,19 +119,21 @@ def run_flask():
          os.system('cd $SWPTRACE ; flask run')
      
 
-if __name__ == '__main__':
-   
+if __name__ == '__main__': 
    set_up()
    config_input()
    check_option()
-   if hasTarget!=False:
-      scan_malloc()
-   exe_cmd()
-   set_up_path()
-   awk_log()
-   # if hasTarget :
+   # if enable_argv['target'] == True:
+   #    scan_malloc()
+   # exe_cmd()
+   # set_up_path()
+   # with open(get_path('head')+'/option.dat','w') as tag:
+   #      tag.write('[Option]\n %s, %s, %s, %s, %s\n' %(get_command(), get_mem_limit(), get_path('head'), get_ip(), str(get_port()) ))
+   # tag.close()
+   # awk_log()
+   # if enable_argv['target'] :
    #    extract_malloc()
-   extract_swap()
+   # extract_swap()
    # merge()
    # cluster()
    # run_flask() 
