@@ -7,13 +7,12 @@ from datetime import datetime, timedelta
 import json
 
 
-def set_up() :
+def initialize() :
     global configure
     configure = dict()
     configure["TIME"] = datetime.now()
     # configure pattern
     configure['PATTERN'] = dict() 
-    configure['PATTERN']['log']= '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[,\.]\d{6})[-\+]\d{2}:?\d{2}\tswptrace\t.+\t[map|in|out]\t\d+\t\d+'
     configure['PATTERN']['hook'] = "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
     configure['PATTERN']['rsyslog']='%Y-%m-%dT%H:%M:%S.%f'
     configure['PATTERN']['dmesg']='%Y-%m-%dT%H:%M:%S,%f'
@@ -55,13 +54,16 @@ def get_sub_path_by_id(id):
     return get_path(area[id])
 
 
-def set_up_path():
+def create_directory():
     configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
     for side in area:
         configure['PATH'][side] = configure['PATH']['head'] + '/' + side + '.csv'
     os.system('sudo mkdir -p ' + configure['PATH']["root"] )
     os.system('sudo mkdir -p ' + configure['PATH']['head'])
+    with open(get_path('head')+'/option.dat','w') as tag:
+        tag.write('[Option]\n %s, %s, %s, %s, %s\n' %(get_command(), get_mem_limit(), get_path('head'), get_ip(), str(get_port())) )
+    tag.close()
 
 
 def set_ip(value):
@@ -82,7 +84,6 @@ def set_command(value):
 
 def set_mem_limit(value):
     configure['MEM_LIMIT'] = value
- 
 
 
 def set_path(path, value):

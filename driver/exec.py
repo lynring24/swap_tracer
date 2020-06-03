@@ -10,7 +10,7 @@ from model import cluster
 
 enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False}
 
-def config_input():
+def config_option():
     global hasTarget
     hasTarget = False
     if len(sys.argv) > 1: 
@@ -56,7 +56,7 @@ def check_option():
     print "---------------------------------------------------------------\n"
 
 
-def exe_cmd():
+def execute():
     rsyslog = open('/etc/rsyslog.conf').read()
     if "# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat" in rsyslog:
        print "rsyslog timestamping in RFC 3339 format"
@@ -75,11 +75,10 @@ def exe_cmd():
     eval_result = os.system(exe_instr)
 
 
-def __awk_log(head, error): 
-    	awk_part = head + ' | '+'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\' > '+ get_path('awk')
+def __awk_log(logfile, option, error): 
+    	awk_part = logfile + ' | ' + option + ' > '+ get_path('awk')
     	print "\n$ "+ awk_part+'\n'
-        os.system( awk_part )
-    	os.system( head + ' | '+'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/pageout/ {if($1>start){print $0}}\' > '+ get_path('head')+'/pageout.csv')
+        os.system(awk_part)
 	if is_false_generated(get_path('awk')):
 		raise error
 
@@ -87,18 +86,12 @@ def __awk_log(head, error):
 def awk_log():
     # awk parts from log only after the execution
     try:
-	__awk_log('cat '+get_path('rsyslog'),IOError)
-
+	__awk_log('cat '+get_path('rsyslog'), 'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\'' , IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
-	#clean_up(get_path('rsyslog'))
-        #__awk_log('dmesg -T', BaseException)
-        instr ='dmesg --time-format iso | grep swptrace > '+get_path('awk')
-        os.system(instr)
-        os.system ( 'dmesg --time-format iso | grep pageout > '+get_path('head')+'/pageout.csv' )
-	print "\n$ %s \n"%instr
+	__awk_log( 'dmesg --time-format iso', 'grep swptrace', BaseException)
     except BaseException as ex:
-        print ex
+        print "[Failure] fail to extract log" 
 	clean_up_and_exit(get_path('head'), 'awk_log')
 
 
@@ -120,17 +113,14 @@ def run_flask():
      
 
 if __name__ == '__main__': 
-   set_up()
-   config_input()
+   initialize()
+   config_option()
    check_option()
    # if enable_argv['target'] == True:
    #    scan_malloc()
-   # exe_cmd()
-   # set_up_path()
-   # with open(get_path('head')+'/option.dat','w') as tag:
-   #      tag.write('[Option]\n %s, %s, %s, %s, %s\n' %(get_command(), get_mem_limit(), get_path('head'), get_ip(), str(get_port()) ))
-   # tag.close()
-   # awk_log()
+   execute()
+   create_directory()
+   awk_log()
    # if enable_argv['target'] :
    #    extract_malloc()
    # extract_swap()
