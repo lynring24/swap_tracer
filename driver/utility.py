@@ -165,9 +165,9 @@ def is_false_generated(x, fname=None):
 
 def string_to_date(timestamp):
     try: 
-        timestamp = datetime.strptime(timestamp[:-5], get_pattern('rsyslog'))
+        timestamp = datetime.strptime(timestamp[:-6], get_pattern('rsyslog'))
     except ValueError:
-        timestamp = datetime.strptime(timestamp[:-5], get_pattern('dmesg'))
+        timestamp = datetime.strptime(timestamp[:-6], get_pattern('dmesg'))
        
     return timestamp
 
