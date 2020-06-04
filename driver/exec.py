@@ -5,7 +5,7 @@ import subprocess
 from requests import get
 from scan import scan_malloc
 from merge import merge
-from model import classify
+# from model import classify
 
 
 enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False}

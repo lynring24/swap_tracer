@@ -46,8 +46,8 @@ def initialize() :
     
     
 
-area = ['total','merge', 'labeled']
-#area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
+# area = ['total','merge', 'labeled']
+# area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
 
 
 def get_sub_path_by_id(id):
@@ -57,8 +57,9 @@ def get_sub_path_by_id(id):
 def create_directory():
     configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
-    for side in area:
-        configure['PATH'][side] = configure['PATH']['head'] + '/' + side + '.csv'
+    configure['PATH']['merge'] = configure['PATH']['head'] +'/merge.csv'
+    # for side in area:
+    #     configure['PATH'][side] = configure['PATH']['head'] + '/' + side + '.csv'
     os.system('sudo mkdir -p ' + configure['PATH']["root"] )
     os.system('sudo mkdir -p ' + configure['PATH']['head'])
     with open(get_path('head')+'/option.dat','w') as tag:

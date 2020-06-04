@@ -21,23 +21,26 @@ def extract_swap():
         rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
         rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
         rsyslog = rsyslog[rsyslog.timestamp>= 0.0]
-        rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x, 16)/get_size('block')) 
+        rsyslog['address'] = rsyslog['address'].apply(lambda x : str(int(x, 16)/get_size('block'))) 
+        
+        print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
+        rsyslog.to_csv(get_path('merge'))
         # for map.timestamp faster than in.timestamp && map.swpentry == in.swpentry in[anchor] = map.timestamp
+        print "$ extract duplicated entries"
         group = rsyslog.groupby('swpentry')['timestamp'].unique()
         group = group[group.apply(lambda x: len(x)>1)]
         group.to_frame().to_csv(get_path('head')+'/duplicated_entries.csv')
         # anchor the related timestamp
+        print "$ extract duplicated address"
         group = rsyslog.groupby('address')['timestamp'].unique()
         group = group[group.apply(lambda x: len(x)>1)]
         group.to_frame().to_csv(get_path('head')+'/duplicated_address.csv')
         
-        print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
-        rsyslog[['timestamp', 'cmd', 'mode', 'swpentry', 'address']].to_csv(get_path('merge'))
         if is_false_generated(get_path('merge')):
-            raise BaseException 
-    except BaseException as ex:
-           print ex
-           clean_up_and_exit(get_path('merge'), 'extract')
+            raise FileNotFoundError 
+    except FileNotFoundError:
+           print "False generate 'merge.csv'"
+          # clean_up_and_exit(get_path('merge'), 'extract')
           
 
 def parse_malloc(line): 
