@@ -5,7 +5,7 @@ import subprocess
 from requests import get
 from scan import scan_malloc
 from merge import merge
-# from model import classify
+from plot import draw_png
 
 
 enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False}
@@ -124,5 +124,6 @@ if __name__ == '__main__':
    # if enable_argv['target'] :
    #    extract_malloc()
    extract_swap()
+   draw_png(get_path('merge'))
    # merge()
    # run_flask() 
