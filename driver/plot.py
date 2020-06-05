@@ -6,23 +6,21 @@ if os.environ.get('DISPLAY','') == '':
     mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-# timestamp, moode, vma 
-logfile = "/home/hrchung/benchmarks/linear/2020-06-04T01:22:03.960323/merge.csv"
+def draw_png(filename):
+    csvfile = pd.read_csv(filename)
 
-csvfile = pd.read_csv(logfile)
+    labels = csvfile['mode'].unique() 
 
-labels = csvfile['mode'].unique() 
-color = {'out':'blue', 'in': 'orange', 'map':'green', 'writepage':'brown'}
+    fig, ax = plt.subplots()
 
-fig, ax = plt.subplots()
+    groups = csvfile.groupby('mode')
 
-for label in labels:
-    data = csvfile[csvfile['mode']==label]
-    print data.shape
-    ax.plot(data['timestamp'].to_numpy(), data['address'].to_numpy(), label=label, color=color.get('label'))
-ax.legend(loc='best')
+    for name, group in groups:
+        ax.plot(group.timestamp, group.address, label=name, marker='o', linestyle='', ms=10)
+    ax.legend(numpoints=1)
+    ax.grid(True)
 
-plt.xlabel('timestamp (usec)')
-plt.ylabel('virtual page number')
-plt.savefig(logfile[:-9]+'scatter.pdf',format='pdf', dpi=150)
-# plt.show()
+    plt.xlabel('timestamp (usec)')
+    plt.ylabel('virtual page number')
+    plt.savefig(logfile[:-9]+'scatter.png',format='png')
+    # plt.show()
