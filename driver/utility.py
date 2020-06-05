@@ -13,7 +13,6 @@ def initialize() :
     configure["TIME"] = datetime.now()
     # configure pattern
     configure['PATTERN'] = dict() 
-    configure['PATTERN']['hook'] = "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6})::(.*):(\d+):(.*)\(\)(.*)=(.*)\((.*)\)"
     configure['PATTERN']['rsyslog']='%Y-%m-%dT%H:%M:%S.%f'
     configure['PATTERN']['dmesg']='%Y-%m-%dT%H:%M:%S,%f'
     configure['PATTERN']['date']='%Y-%m-%dT%H:%M:%S[,.]%f'
@@ -28,7 +27,7 @@ def initialize() :
     configure['PATH'] = dict()
     configure['PATH']['root'] = os.getcwd()
     configure['PATH']['target'] = os.getcwd()
-    configure['PATH']['hook'] = os.getcwd()+"/mod/hook.log"
+    configure['PATH']['hook'] = os.getcwd()+"/mod/hook.csv"
     if platform.dist()[0] == 'Ubuntu':
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
