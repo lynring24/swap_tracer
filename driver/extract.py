@@ -20,8 +20,7 @@ def extract_swap():
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0]
-    rsyslog['address'] = rsyslog['address'].apply(lambda x : str(int(x, 16)/get_size('block'))) 
-    rsyslog['swpentry'] = rsyslog['swpentry'].apply(lambda x : str(x)) 
+    rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x, 16)/get_size('block'))
     
     print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
     rsyslog.to_csv(get_path('merge'))

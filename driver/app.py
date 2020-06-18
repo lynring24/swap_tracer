@@ -5,7 +5,7 @@ import plotly
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import sys, os, glob
-import csv
+import pandas
 import pdfkit 
 from utility import *
 

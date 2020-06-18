@@ -38,6 +38,6 @@ def cluster():
              writer = csv.writer(labeled, delimiter=',')
 	     for idx in range (0, len(lines)): 
                  lines[idx].insert(0, label[idx])
-                 writer.writerow(lines[idx])
-       
-       
+def classify():       
+
+

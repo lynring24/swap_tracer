@@ -89,7 +89,7 @@ def awk_log():
 	__awk_log('cat '+get_path('rsyslog'), 'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\'' , IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
-	__awk_log( 'dmesg --time-format iso', 'grep swptrace', FileNotFoundError )
+	__awk_log( 'dmesg --time-format iso', 'grep swptrace', RuntimeError )
     except:
         print "[Failure] fail to extract log" 
 	clean_up_and_exit(get_path('head'), 'awk_log')
@@ -109,7 +109,7 @@ def run_flask():
     except OSError:
       if get_ip() != '0.0.0.0' and get_port() != '5000':
          print "[warning] invalid IP or port try 0.0.0.0:5000"
-         os.system('cd $SWPTRACE ; flask run')
+         os1G.system('cd $SWPTRACE ; flask run')
      
 
 if __name__ == '__main__': 
