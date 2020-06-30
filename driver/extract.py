@@ -26,12 +26,12 @@ def extract_swap():
     rsyslog.to_csv(get_path('merge'))
     # for map.timestamp faster than in.timestamp && map.swpentry == in.swpentry in[anchor] = map.timestamp
     print "$ extract duplicated entries"
-    group = rsyslog.groupby('swpentry')['timestamp'].unique()
+    group = rsyslog.groupby('swpentry')['mode'].unique()
     group = group[group.apply(lambda x: len(x)>1)]
     group.to_frame().to_csv(get_path('head')+'/duplicated_entries.csv')
     # anchor the related timestamp
     print "$ extract duplicated address"
-    group = rsyslog.groupby('address')['timestamp'].unique()
+    group = rsyslog.groupby('address')['mode'].unique()
     group = group[group.apply(lambda x: len(x)>1)]
     group.to_frame().to_csv(get_path('head')+'/duplicated_address.csv')
         
