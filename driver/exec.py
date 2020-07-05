@@ -5,7 +5,7 @@ import subprocess
 from requests import get
 from scan import scan_malloc
 from merge import merge
-from plot import draw_png
+from plot import plot_out
 
 
 enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False}
@@ -67,10 +67,10 @@ def execute():
     top=get_path('root')
     if enable_argv['target']:
        top=top+"/mod"
-    if enable_argv['mem'] == True: 
+    if enable_argv['mem']: 
         exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
     else:
-        exe_instr='cd %s; %s '%(top, str(get_mem_limit()) , get_command() )
+        exe_instr='cd %s; %s '%(top, get_command())
     print "\n$ "+ exe_instr
     eval_result = os.system(exe_instr)
 
@@ -116,14 +116,13 @@ if __name__ == '__main__':
    initialize()
    config_option()
    check_option()
-   # if enable_argv['target'] == True:
-   #    scan_malloc()
+   if enable_argv['target']:
+       scan_malloc()
    execute()
    create_directory()
    awk_log()
-   # if enable_argv['target'] :
-   #    extract_malloc()
+   if enable_argv['target'] :
+       extract_malloc()
    extract_swap()
-   draw_png(get_path('merge'))
-   # merge()
+   plot_out(get_path('head'))
    # run_flask() 

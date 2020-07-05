@@ -5,7 +5,6 @@ def scan_malloc():
     try: 
 	DRIVER=os.environ['SWPTRACE']
 	if os.path.isfile(DRIVER+'/brew') == False:
-	   print "$ flex brew " 
 	   instr="cd %s; make ; cd %s;"%(DRIVER, get_path('root'))
 	   os.system(instr)
 
@@ -29,24 +28,31 @@ def scan_malloc():
 	     print "[ERROR] invalid target"
 	     exit(-1) 
 	    
-	moddir = get_path('root')+"/mod"
-	print "mod dir :" +moddir
-	if moddir[:-1] != '/':
-	   moddir = moddir+"/"
-	instr = "mkdir -p %s"%moddir
-	os.system(instr)
-	os.system('cp %s/hmalloc.* %s'%(DRIVER, moddir))
-	    # check if sub directory exists
-	for dir in dpath:
-	    os.system("sudo mkdir -p %s"%dir)
-	    
-	for file in fpath :
-	    fname = file.replace(target, moddir)
-	    os.system("$SWPTRACE/brew < %s > %s"%(file, fname))
-	    
-	print "$ cd %s; make"%moddir
-	if os.system("cd  %s; make;"%moddir) != 0: 
-           raise Exception('[Fauilure] make in %s'%__file__)
+	mod_path = get_path('root')
+        if mod_path[-1] != '/':
+            mod_path = mod_path+"/mod"
+        
+        if os.path.isdir(mod_path):
+            print "[DEBUG] Modified Target Exist"
+        else: 
+            print "$ mkdir {}".format(mod_path)
+            instr = "mkdir -p %s"%mod_path
+            os.system(instr)
+
+            print "$ copy target"
+            os.system('cp %s/hmalloc.* %s'%(DRIVER, mod_path))
+                # check if sub directory exists
+            for dir in dpath:
+                os.system("sudo mkdir -p %s"%dir)
+                
+            print "$ brew target"
+            for file in fpath :
+                fname = file.replace(target, mod_path)
+                os.system("$SWPTRACE/brew < %s > %s"%(file, fname))
+                
+            print "$ cd %s; make"%mod_path
+            if os.system("cd  %s; make;"%mod_path) != 0: 
+               raise Exception('[Fauilure] make in %s'%__file__)
     except:
        exit(1)
 

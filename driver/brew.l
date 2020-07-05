@@ -14,17 +14,20 @@ using namespace std;
 .*malloc.*;  {
       string request = yytext ;
       request = request.replace(request.find("malloc"), string("malloc").size(), "hmalloc"); 
-      // cout << request << endl;
+      const regex re ("[\t ]*(.*)[\t ]*=.*malloc(.*)");
+      cmatch matched;
+
+      regex_search(yytext, matched, re); 
+      string info = matched[2].str();
+      cout << "// Before" << info <<endl;
+      info.insert(info.find_first_of('(')+1 ," __FILE__, __LINE__, __FUNCTION__, \"" + matched[1].str() + "\", " );
+
+      request = request.replace(request.find(matched[2].str()), matched[2].str().length(), info);
+      cout << request << endl; 
+
       //[a-zA-Z0-9_] : variable name rule
       //const regex re2("((int|char|double|float|[a-zA-Z0-9_]+))?.*(\*)?.*([a-zA-Z0-9_]+).*=.*malloc.*");
 
-      const regex re ("[\t ]*(.*)[\t ]*=.*malloc.*");
-      //const regex re ("(.*)=.*malloc.*");
-      cmatch matched;
-
-      regex_search(yytext, matched, re);
-      request.insert(request.rfind('(')+1, "__FILE__, __LINE__, __FUNCTION__, \"" + matched[1].str() + "\" , ");
-      cout << request << endl; 
         
  }
 

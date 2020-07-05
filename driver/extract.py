@@ -25,17 +25,13 @@ def extract_swap():
     print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
     rsyslog.to_csv(get_path('merge'))
     # for map.timestamp faster than in.timestamp && map.swpentry == in.swpentry in[anchor] = map.timestamp
-    print "$ extract duplicated entries"
-    group = rsyslog.groupby('swpentry')['mode'].unique()
-    group = group[group.apply(lambda x: len(x)>1)]
-    group.to_frame().to_csv(get_path('head')+'/duplicated_entries.csv')
     # anchor the related timestamp
     print "$ extract duplicated address"
-    group = rsyslog.groupby('address')['mode'].unique()
-    group = group[group.apply(lambda x: len(x)>1)]
-    group.to_frame().to_csv(get_path('head')+'/duplicated_address.csv')
-        
-          
+    swap_in = rsyslog[rsyslog['mode']=='in'][['timestamp', 'address']]
+    page_write = rsyslog[rsyslog['mode']=='out'][['timestamp', 'address']]
+    joined = pd.merge(swap_in, page_write, on='address', how='outer').dropna()
+    joined[joined['timestamp_x'] < joined['timestamp_y']].to_csv('{}/duplicated_address.csv'.format(get_path('head')))
+         
 
 
 def extract_malloc():
