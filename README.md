@@ -16,22 +16,37 @@ In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/m
 
 ## How To Use
 ### Setup
-1. disable **/etc/rsyslog.conf** option
+1. Disable **/etc/rsyslog.conf** option
 ```
 # Use traditional timestamp format.
 # To enable high percision timestamps, comment out the following line
 #
 # $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat <- Here
 ```
-2. run script 
+2. Run script and compile  
 ```
-# run setdup
+# run setup
+$ cd /PATH_TO_SWPTRACER_DIR/
 $ sh setup
 
 # to check setup
 $ echo $SWPTRACE
 $ source ~/.bashrc
 
+$ cd driver
+$ make 
+```
+3. [Optional] Adding the linkage for profiling
+For the profiling, please include the linkage(**-L. -lhmalloc**) to the Makefile of your target source 
+For example, 
+```
+martix_multiplication:
+	gcc matrix.c -lm -o matrix_multiplication
+```
+should be
+```
+matrix_multiplication:
+	gcc matrix.c -lm -L. -lhmalloc -o matrix_multiplication
 ```
 
 #### PATH SETTING 

@@ -19,7 +19,6 @@ using namespace std;
 
       regex_search(yytext, matched, re); 
       string info = matched[2].str();
-      cout << "// Before" << info <<endl;
       info.insert(info.find_first_of('(')+1 ," __FILE__, __LINE__, __FUNCTION__, \"" + matched[1].str() + "\", " );
 
       request = request.replace(request.find(matched[2].str()), matched[2].str().length(), info);
@@ -35,7 +34,6 @@ using namespace std;
 
 int main (int argc, char ** argv) {
     // lines, libraries that should be included should be injected here
-	cout << "# include \"hmalloc.c\" "<< endl;
 	int result = yylex();
     return 0;
 }

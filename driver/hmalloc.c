@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "hmalloc.h"
 #include <time.h>
 #include <sys/time.h>
 #include <assert.h>
@@ -8,7 +7,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define  PATH_MAX 50 
+#define  PATH_MAX 200 
 
 void* hmalloc(const char * filen, const int line, const char * funcn, char * argn, size_t size) {
 	void * res = malloc (size);
@@ -27,6 +26,8 @@ void* hmalloc(const char * filen, const int line, const char * funcn, char * arg
         //hook.log under /moddir
         strcat(cwd, "/hook.csv");
         pFile = fopen(cwd, "a+");
+	if (pFile == NULL)
+	   perror("[Error] while creating hook.csv");
         	
   	// timestamp, filename, line_number, function, variable, address, size
         fprintf(pFile, "%04d-%02d-%02dT%02d:%02d:%02d.%06ld %s %u %s %s %p %lu\n",
