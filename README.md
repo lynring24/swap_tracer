@@ -46,7 +46,8 @@ martix_multiplication:
 should be
 ```
 matrix_multiplication:
-	gcc matrix.c -lm -L. -lhmalloc -o matrix_multiplication
+	# gcc matrix.c -lm -L. -lhmalloc -o matrix_multiplication
+	# gcc -o matrix malloc.c -g -lm -Wl,--no-as-needed -ldl
 ```
 
 #### PATH SETTING 

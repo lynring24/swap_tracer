@@ -4,7 +4,6 @@ from extract import extract_swap, extract_malloc
 import subprocess
 from requests import get
 from scan import scan_malloc
-from merge import merge
 from plot import plot_out
 
 

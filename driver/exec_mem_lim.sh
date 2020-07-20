@@ -22,4 +22,8 @@ sudo bash -c "echo $MEMLIM > $MEMCG_DIR/memory.limit_in_bytes"
 
 eval "$COMM"
 
-#sudo rmdir $MEMCG_DIR
+# while read -r pid; do
+#	sudo bash -c "echo $pid > $MEMCG_ORIG_DIR/tasks"
+# done < "$MEMCG_DIR"/tasks
+
+# sudo rmdir $MEMCG_DIR

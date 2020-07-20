@@ -18,7 +18,7 @@ def extract_swap():
     rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter='\s+', usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
-    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
+    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-6]) - get_time()).total_seconds())
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0]
     rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x, 16)/get_size('block'))
     
@@ -36,11 +36,11 @@ def extract_swap():
 
 def extract_malloc():
     print "$ extract memory allocation"
-    alloclog = pd.read_csv(get_path('hook'), header=None,  delimiter='\s+')
-    alloclog.columns['timestamp', 'file','line','func','var', 'address', 'size']
-    alloclog['timestamp'] = alloclog['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
-    alloclog = alloclog[alloclog.timestamp>= 0.0]
-    alloclog['address'] = alloclog['address'].apply(lambda x : str(int(x, 16)/get_size('block'))) 
+    alloc_log = pd.read_csv(get_path('hook'), header=None,  delimiter='\s+')
+    alloc_log.columns = ['timestamp', 'file','line','func','var', 'address', 'size']
+    alloc_log['timestamp'] = alloc_log['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
+    alloc_log = alloc_log[alloc_log.timestamp>= 0.0]
+    alloc_log['address'] = alloc_log['address'].apply(lambda x : str(int(x, 16)/get_size('block'))) 
 
 
 

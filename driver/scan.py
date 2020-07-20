@@ -40,16 +40,23 @@ def scan_malloc():
             os.system(instr)
 
             print "$ copy target"
-            os.system('cp %s/hmalloc.* %s'%(DRIVER, mod_path))
-                # check if sub directory exists
+            
+            # check if sub directory exists
             for dir in dpath:
                 os.system("sudo mkdir -p %s"%dir)
                 
             print "$ brew target"
             for file in fpath :
-                fname = file.replace(target, mod_path)
-                os.system("$SWPTRACE/brew < %s > %s"%(file, fname))
-                
+                if "*.h" not in file:
+                    fname = file.replace(target, mod_path)
+                    if ".c" in fname:
+                        os.system("$SWPTRACE/brew < %s > %s"%(file, fname))
+                    else:
+                        os.system("cp {} {}".format(file, fname))
+
+            # os.system('cp %s/libhmalloc.a %s'%(DRIVER, mod_path))
+            os.system('cp %s/hmalloc.* %s'%(DRIVER, mod_path))
+
             print "$ cd %s; make"%mod_path
             if os.system("cd  %s; make;"%mod_path) != 0: 
                raise Exception('[Fauilure] make in %s'%__file__)

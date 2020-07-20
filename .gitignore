@@ -11,4 +11,4 @@ driver/hook/a.out
 driver/hook/lex.yy.c
 driver/hook/brew
 driver/hook/hook
-
+driver/cscope.*

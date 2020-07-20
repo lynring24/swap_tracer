@@ -33,8 +33,10 @@ using namespace std;
 %%
 
 int main (int argc, char ** argv) {
-    // lines, libraries that should be included should be injected here
-	int result = yylex();
+    // lines, libraries that should be included should be injected her
+    // cout << "#include \"hmalloc.c\" " <<endl;
+    cout << "#include \"hmalloc.h\" " <<endl;
+    int result = yylex();
     return 0;
 }
 
