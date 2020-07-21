@@ -1,7 +1,7 @@
 # swptracer
 ![ swptracer](./icon.png)
 
- **swptracer** is an effective tool to visualize the change(swap) in memory and analyze it after executing the program. Currently, swap in/out and do_swap has been marked.
+ **swptracer** is an effective tool to visualize the change(swap) in memory and analyze it after executing the program. Memory movement (swap in, out) could be tracked and summarized by swptracer.   
 
 ## Environment/Requirement
 + os : centos 7 ( linux series are available. )
@@ -26,7 +26,7 @@ In kernel directory adapt patch file. It will add lines to mm/page_io.c and mm/m
 2. Run script and compile  
 ```
 # run setup
-$ cd /PATH_TO_SWPTRACER_DIR/
+$ cd /PATH_TO_SWPTRACER_ROOT/
 $ sh setup
 
 # to check setup
@@ -50,29 +50,13 @@ matrix_multiplication:
 	# gcc -o matrix malloc.c -g -lm -Wl,--no-as-needed -ldl
 ```
 
-#### PATH SETTING 
-Before using this swap tracer, modify **driver/configure.json** if needed.
-This will be a default setting.
+### Execution
 
 ```
-{
-        "MEM_LIMIT"  : memory limit in MiB,
-	"COMMAND"    : command to run,
-        "PUBLIC"  : {
-              "IP"   : public ip you need,
-              "PORT" : port number,
-        },
-	"PATH": {
-		"LOG_ROOT": path for log directory, MUST BE ABSOLUTE PATH 
-	}
-}
-```
-### run  
+$ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> <--ip=public ip> <--port=port number> <--log="/Absolute_path_for_log_dir/"> 
 
-```
-$ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> <--ip=public ip> <--port=port number> 
+# <> is optional
 
-# <options> are for quick setup.
 ```
 
 ### OUTPUT
@@ -80,18 +64,14 @@ $ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> <--ip=public ip>
 LOG_ROOT
 |
 | YYYY-MM-DDTHH:MM:SS.msec
-          |  awk.log  
-          |  extracted.log
+          |  LOG_FILES.csv
 ```
 ### plot
 
 ![plot](./example.gif)
 
-
 ## Directory 
 + swptracer.patch
 + driver 
 + driver/templates
-+ driver/unittest (for checkup)
 + demo
-

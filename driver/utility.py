@@ -5,12 +5,12 @@ import shutil
 from uptime import uptime
 from datetime import datetime, timedelta
 import json
+import resource
 
 
 def initialize() :
     global configure
     configure = dict()
-    configure["TIME"] = datetime.now()
     # configure pattern
     configure['PATTERN'] = dict() 
     configure['PATTERN']['rsyslog']='%Y-%m-%dT%H:%M:%S.%f'
@@ -20,9 +20,7 @@ def initialize() :
     configure['PATTERN']['block']='(\d+.\d{6}) (.+)'
     configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}[,\.]\d{6}) (.+)'
     # configure size
-    configure['SIZE'] = dict()
-    configure['SIZE']['block'] = 1024
-    configure['SIZE']['page'] = 4096
+    configure['SIZE'] =  resource.getpagesize()
     # configure path 
     configure['PATH'] = dict()
     configure['PATH']['root'] = os.getcwd()
@@ -40,7 +38,9 @@ def initialize() :
     configure['PUBLIC'] = dict()
     configure['PUBLIC']['IP'] = '0.0.0.0'
     configure['PUBLIC']['PORT'] = 5000
-    configure['CLASS'] = 4
+
+    # configure time
+    configure["TIME"] = datetime.now()
    
     
     
@@ -123,8 +123,6 @@ def datetime_to_string(x):
 def get_path(x):
     return configure['PATH'].get(x)
 
-def get_page_size():
-    return configure['SIZE']["page"]
 
 def get_command():
     return configure["COMMAND"]
@@ -147,8 +145,8 @@ def get_threshold():
     return configure["THRESHOLD"] 
 
 
-def get_size(x):
-    return configure['SIZE'].get(x)
+def get_page_size():
+    return configure['SIZE']
 
 
 def get_mem_limit():

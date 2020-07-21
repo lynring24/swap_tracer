@@ -48,7 +48,8 @@ def check_option():
     if enable_argv['target'] == True:
        print " * target         : %s "%get_path('target')
     print " * command        : %s "%get_command()
-    print " * mem lim(Mib)   : %s "%get_mem_limit()
+    if enable_argv['mem']:
+        print " * mem lim(Mib)   : %s "%get_mem_limit()
     print " * log            : %s "%get_path('root')
     print " * public IP      : %s "%get_ip()
     print " * port           : %s "%str(get_port())
@@ -66,12 +67,16 @@ def execute():
     top=get_path('root')
     if enable_argv['target']:
        top=top+"/mod"
+       # os.system('rm {}'.format(top+'/hook.csv'))
     if enable_argv['mem']: 
         exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
     else:
-        exe_instr='cd %s; %s '%(top, get_command())
+        exe_instr='cd {}; {} ;'.format(top, get_command())
+        # exe_instr='cd {}; {} ; mv hook.csv {}'.format(top, get_command(),get_path('head')+'./hook.csv')
     print "\n$ "+ exe_instr
     eval_result = os.system(exe_instr)
+    if eval_result!= 0: 
+        os.system('rm -rf {}'.format(get_path('root')+'/mod'))
 
 
 def __awk_log(logfile, option, error): 
@@ -123,5 +128,5 @@ if __name__ == '__main__':
    if enable_argv['target'] :
        extract_malloc()
    extract_swap()
-   plot_out(get_path('head'))
+   plot_out(get_path('head'), enable_argv['target'])
    # run_flask() 

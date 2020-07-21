@@ -21,7 +21,7 @@ def scan_malloc():
         elif os.path.isdir(target):
              for root, directories, filenames in os.walk(target):
 		 for directory in directories:
-	 	     dpath.append(os.path.join(root, directory))
+                     dpath.append(os.path.join(root, directory))
 		 for filename in filenames:
 	 	     fpath.append(os.path.join(root, filename))
 	else:
