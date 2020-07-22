@@ -66,7 +66,7 @@ def execute():
        os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
     top=get_path('root')
     if enable_argv['target']:
-       top=top+"/mod"
+       top=top+"/clone"
        # os.system('rm {}'.format(top+'/hook.csv'))
     if enable_argv['mem']: 
         exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )

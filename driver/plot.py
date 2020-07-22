@@ -51,9 +51,11 @@ def plot_out(dir_path, mean_time, track_allocation=False):
         summary_str = summary_str + "\n * memory {} # : {}".format(labels[name], len(group.index)) 
     summary_str = summary_str + "\n * average existence time in memory (usec) : {}".format(mean_time)
 
-    axis.annotate(summary_str, xy=(0.5, 0), xycoords=('axes fraction', 'figure fraction'), xytext=(0, 10), textcoords='offset points', size=14, ha='center', va='bottom')
+    # axis.annotate(summary_str, xy=(0.5, 0), xycoords=('axes fraction', 'figure fraction'), xytext=(0, 10), textcoords='offset points', size=14, ha='center', va='bottom')
 
-    # axis.legend(loc='best')
+    axis.legend()
+    # plt.text(6, 15, summary_str)
+    plt.text(6, 24, summary_str)
 
     axis.grid(True)
     axis.set_title('VPN by timeline')

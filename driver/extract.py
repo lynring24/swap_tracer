@@ -1,7 +1,7 @@
 from utility import *
 import csv
 import pandas as pd
-from math import ceil
+from math import ceil, isnan
 
 
 def get_swap_extracted():
@@ -35,6 +35,8 @@ def get_swap_extracted():
     print "> memory write back # : {}".format(len(rsyslog[rsyslog['mode']=='pageout'].index))
     print "> average exist time in memory (usec) : {} ".format(mean.mean())
     mean_time = mean.mean()
+    if mean_time.isnull().values.any:
+        mean_time = 0
     return mean_time 
         
 
@@ -43,7 +45,7 @@ def get_swap_extracted():
 
 def extract_malloc():
     print "$ extract memory allocation"
-    allocations = pd.read_csv(get_path('hook'), header=None,  delimiter='\s+')
+    allocations = pd.read_csv('{}/hook.csv'.format(get_path('clone')), header=None,  delimiter='\s+')
 
     allocations.columns = ['timestamp', 'file','line','func','var', 'address', 'end']
     allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())

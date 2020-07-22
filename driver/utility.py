@@ -25,7 +25,6 @@ def initialize() :
     configure['PATH'] = dict()
     configure['PATH']['root'] = os.getcwd()
     configure['PATH']['target'] = os.getcwd()
-    configure['PATH']['hook'] = os.getcwd()+"/mod/hook.csv"
     if platform.dist()[0] == 'Ubuntu':
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
@@ -54,12 +53,11 @@ def get_sub_path_by_id(id):
 
 
 def create_directory():
+    configure['PATH']['clone'] = configure['PATH']['target']+"/clone"
     configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
     configure['PATH']['merge'] = configure['PATH']['head'] +'/merge.csv'
-    # for side in area:
-    #     configure['PATH'][side] = configure['PATH']['head'] + '/' + side + '.csv'
-    os.system('sudo mkdir -p ' + configure['PATH']["root"] )
+
     os.system('sudo mkdir -p ' + configure['PATH']['head'])
     with open(get_path('head')+'/option.dat','w') as tag:
         tag.write('[Option]\n %s, %s, %s, %s, %s\n' %(get_command(), get_mem_limit(), get_path('head'), get_ip(), str(get_port())) )
@@ -106,8 +104,8 @@ def set_time():
     configure["TIME"]
 
 
-def is_valid_ms(line):
-    matched= re.compile(configure["PATTERN"].get("block")).search(line)
+def is_log_path(line):
+    matched= re.compile('*{}*'.format(get_pattern('rsyslog'))).search(line)
     return matched
 
 
@@ -151,7 +149,6 @@ def get_page_size():
 
 def get_mem_limit():
     return configure['MEM_LIMIT']
-
 
 def get_pattern(x):
     return configure['PATTERN'].get(x)
