@@ -53,7 +53,8 @@ matrix_multiplication:
 ### Execution
 
 ```
-$ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> <--ip=public ip> <--port=port number> <--log="/Absolute_path_for_log_dir/"> 
+$ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> \
+	<--ip=public ip> <--port=port number> <--log="/Absolute_path_for_log_dir/"> 
 
 # <> is optional
 
