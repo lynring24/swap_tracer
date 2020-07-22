@@ -1,6 +1,6 @@
 from pprint import pprint 
 from utility import * 
-from extract import extract_swap, extract_malloc
+from extract import get_swap_extracted, extract_malloc
 import subprocess
 from requests import get
 from scan import scan_malloc
@@ -127,6 +127,7 @@ if __name__ == '__main__':
    awk_log()
    if enable_argv['target'] :
        extract_malloc()
-   extract_swap()
-   plot_out(get_path('head'), enable_argv['target'])
+       os.system('rm {}'.format(get_path('root')+'/mod/hook.csv'))
+   mean_time = get_swap_extracted()
+   plot_out(get_path('head'), mean_time, enable_argv['target'])
    # run_flask() 

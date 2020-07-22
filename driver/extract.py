@@ -4,7 +4,7 @@ import pandas as pd
 from math import ceil
 
 
-def extract_swap():
+def get_swap_extracted():
     print "$ extract ryslog log"
     columns = pd.read_csv(get_path('awk'), header=None, delimiter='\s+', nrows=1)
     max_column = columns.shape[1]
@@ -33,7 +33,10 @@ def extract_swap():
     print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='in'].index))
     print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))
     print "> memory write back # : {}".format(len(rsyslog[rsyslog['mode']=='pageout'].index))
-    print "> average exist time in memory (sec) : {} ".format(mean.mean())
+    print "> average exist time in memory (usec) : {} ".format(mean.mean())
+    mean_time = mean.mean()
+    return mean_time 
+        
 
 
          
@@ -48,6 +51,8 @@ def extract_malloc():
     allocations['address'] = allocations['address'].apply(lambda x : int(int(x, 16)/get_page_size()))
     allocations['end'] = allocations['end'].apply(lambda x : int (int(x, 16)/get_page_size()))
     allocations.to_csv(get_path('head')+'/hook.csv')
+    
+
 
 
 

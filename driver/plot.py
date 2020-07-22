@@ -25,16 +25,15 @@ class Tracker(object):
 
 
 
-def plot_out(dir_path, track_allocation=False):
+def plot_out(dir_path, mean_time, track_allocation=False):
     print "$ generate plot png"
 
-    swap_trace = pd.read_csv(dir_path+"/merge.csv")
-    labels = swap_trace['mode'].unique() 
     fig, axis = plt.subplots()
+
+    swap_trace = pd.read_csv(dir_path+"/merge.csv")
     groups = swap_trace[swap_trace['mode']!='map'].groupby('mode')
-    labels={'in':'swap-in', 'out':'swap-out', 'map':'page-fault', 'writepage':'file I/O'}
-    for name, group in groups:
-        axis.plot(group.timestamp.astype(str), group.address.astype(str), label=labels[name], marker='o', linestyle='', ms=2)
+
+    summary_str = "\n[Summary]\n"
 
     # add allocation trace if needed
     if track_allocation:
@@ -42,11 +41,22 @@ def plot_out(dir_path, track_allocation=False):
         allocations=pd.read_csv(dir_path+"/hook.csv")
         tracker = Tracker(axis, allocations[['timestamp','address' ,'end']].values.tolist())
         tracker.run()
+        summary_str = summary_str + "\n * memory allocation # :{}".format(len(allocations.index))
 
-    #ax.legend(numpoints=1)
-    axis.legend(loc='best')
+    # add rsyslogs to plot 
+    labels={'in':'swap-in', 'out':'swap-out', 'map':'page-fault', 'writepage':'file I/O'}
+
+    for name, group in groups:
+        axis.plot(group.timestamp.astype(str), group.address.astype(str), label=labels[name], marker='o', linestyle='', ms=2)
+        summary_str = summary_str + "\n * memory {} # : {}".format(labels[name], len(group.index)) 
+    summary_str = summary_str + "\n * average existence time in memory (usec) : {}".format(mean_time)
+
+    axis.annotate(summary_str, xy=(0.5, 0), xycoords=('axes fraction', 'figure fraction'), xytext=(0, 10), textcoords='offset points', size=14, ha='center', va='bottom')
+
+    # axis.legend(loc='best')
+
     axis.grid(True)
-    axis.set_title('time - virtual page number')
+    axis.set_title('VPN by timeline')
     axis.set_xlabel('timestamp (usec)')
     axis.set_ylabel('virtual page number')
     axis.set_xscale('log')
