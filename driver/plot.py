@@ -30,7 +30,7 @@ def plot_out(dir_path, mean_time, track_allocation=False):
 
     fig, axis = plt.subplots()
 
-    swap_trace = pd.read_csv(dir_path+"/merge.csv")
+    swap_trace = pd.read_csv(dir_path+"/rsyslog.csv")
     groups = swap_trace[swap_trace['mode']!='map'].groupby('mode')
 
     summary_str = "\n[Summary]\n"

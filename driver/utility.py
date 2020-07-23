@@ -44,7 +44,7 @@ def initialize() :
     
     
 
-# area = ['total','merge', 'labeled']
+# area = ['total','rsyslog', 'labeled']
 # area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
 
 
@@ -56,7 +56,7 @@ def create_directory():
     configure['PATH']['clone'] = configure['PATH']['target']+"/clone"
     configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
-    configure['PATH']['merge'] = configure['PATH']['head'] +'/merge.csv'
+    configure['PATH']['rsyslog'] = configure['PATH']['head'] +'/rsyslog.csv'
 
     os.system('sudo mkdir -p ' + configure['PATH']['head'])
     with open(get_path('head')+'/option.dat','w') as tag:
