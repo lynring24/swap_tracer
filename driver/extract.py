@@ -1,6 +1,7 @@
 from utility import *
 import csv
 import pandas as pd
+import numpy as np
 from math import ceil, isnan
 
 
@@ -35,7 +36,7 @@ def get_swap_extracted():
     print "> memory write back # : {}".format(len(rsyslog[rsyslog['mode']=='pageout'].index))
     print "> average exist time in memory (usec) : {} ".format(mean.mean())
     mean_time = mean.mean()
-    if mean_time.isnull().values.any:
+    if np.isnan(mean_time):
         mean_time = 0
     return mean_time 
         
