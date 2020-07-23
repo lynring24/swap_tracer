@@ -55,7 +55,7 @@ def plot_out(dir_path, mean_time, track_allocation=False):
 
     axis.legend()
     # plt.text(6, 15, summary_str)
-    plt.text(6, 24, summary_str)
+    plt.text(6, 30, summary_str)
 
     axis.grid(True)
     axis.set_title('VPN by timeline')

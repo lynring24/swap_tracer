@@ -7,7 +7,7 @@ from scan import scan_malloc
 from plot import plot_out
 
 
-enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False}
+enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False, 'abstract' : False}
 
 def config_option():
     global hasTarget
@@ -36,6 +36,8 @@ def config_option():
           elif arg.find('--log') > NOTEXIST:
              enable_argv['log'] = True
              set_path('root', item)
+          elif arg.find('--abstract') > NOTEXIST:
+             enable_argv['abstract'] = True
           else:
              print '[error] invalid option %s'%arg
              print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--ip=PUBLIC_IP> <--port=PORT_TO_USE>"
