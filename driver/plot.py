@@ -61,8 +61,8 @@ def plot_out(dir_path, mean_time, track_allocation=False):
     axis.set_title('VPN by timeline')
     axis.set_xlabel('timestamp (usec)')
     axis.set_ylabel('virtual page number')
-    axis.set_xscale('log')
-    axis.set_yscale('log')
+    # axis.set_xscale('log')
+    # axis.set_yscale('log')
 
     # output
     plt.savefig(dir_path+"/plot.png",format='png')
