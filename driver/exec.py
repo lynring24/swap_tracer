@@ -40,7 +40,7 @@ def config_option():
              enable_argv['abstract'] = True
           else:
              print '[error] invalid option %s'%arg
-             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--ip=PUBLIC_IP> <--port=PORT_TO_USE>"
+             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--ip=PUBLIC_IP> <--port=PORT_TO_USE> <--abstract=Ture>"
              sys.exit(1)
 
 
@@ -130,6 +130,6 @@ if __name__ == '__main__':
    if enable_argv['target'] :
        extract_malloc()
        os.system('rm {}'.format(get_path('clone')+'/hook.csv'))
-   mean_time = get_swap_extracted()
+   mean_time = get_swap_extracted(enable_argv['abstract'])
    plot_out(get_path('head'), mean_time, enable_argv['target'])
    # run_flask() 

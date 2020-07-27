@@ -4,22 +4,19 @@ import pandas as pd
 import numpy as np
 from math import ceil, isnan
 
+MICROSECOND = 1000000
 
-def get_swap_extracted():
+def get_swap_extracted(use_abstract=False):
     print "$ extract ryslog log"
     columns = pd.read_csv(get_path('awk'), header=None, delimiter='\s+', nrows=1)
     max_column = columns.shape[1]
     rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter='\s+', usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
-    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-6]) - get_time()).total_seconds())
-    rsyslog = rsyslog[rsyslog.timestamp>= 0.0]
-    rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x, 16)/get_page_size())
+    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-6]) - get_time()).total_seconds() * MICROSECOND)
+    rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
-    print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
-    rsyslog.to_csv(get_path('merge'))
-    # for map.timestamp faster than in.timestamp && map.swpentry == in.swpentry in[anchor] = map.timestamp
-    # anchor the related timestamp
+    rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x, 16)/get_page_size())
 
     print "$ extract duplicated address"
     swap_in = rsyslog[rsyslog['mode']=='in'][['timestamp', 'address']]
@@ -28,11 +25,20 @@ def get_swap_extracted():
     joined = joined[joined['timestamp_x'] < joined['timestamp_y']]
     joined.to_csv('{}/duplicated_address.csv'.format(get_path('head')))
 
-    # timestamp_x, address , timstamp_y
+    #TODO : abstract data by msec instead of usec and get mean address value instead
+    if use_abstract:
+        print "$ generate abstracted file"
+        rsyslog['timestamp'] = rsyslog.apply(lambda row : round(row['timestamp']*1000, 3), axis =1)
+        abstract = rsyslog.groupby(['mode', 'timestamp'])['address'].mean().reset_index()
+        abstract.to_csv(get_path('rsyslog'), index=False)
+    else:
+        print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
+        rsyslog.to_csv(get_path('rsyslog'), index=False) 
+    
     print "\n[ Summary ]"
     mean = joined.apply(lambda row: row['timestamp_y'] - row['timestamp_x'], axis=1)
     mean_time = mean.mean()
-    if np.isnan(mean_time):
+    if mean_time.isnull().any():
         mean_time = 0
     print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='in'].index))
     print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))
@@ -55,7 +61,7 @@ def extract_malloc():
     allocations = pd.read_csv('{}/hook.csv'.format(get_path('clone')), header=None,  delimiter='\s+')
 
     allocations.columns = ['timestamp', 'file','line','func','var', 'address', 'end']
-    allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
+    allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds() * MICROSECOND) 
     allocations = allocations[allocations.timestamp>= 0.0]
     allocations['address'] = allocations['address'].apply(lambda x : int(int(x, 16)/get_page_size()))
     allocations['end'] = allocations['end'].apply(lambda x : int (int(x, 16)/get_page_size()))
