@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from math import ceil, isnan
 
+MICROSECOND = 1000000
 
 def get_swap_extracted(use_abstract=False):
     print "$ extract ryslog log"
@@ -12,7 +13,7 @@ def get_swap_extracted(use_abstract=False):
     rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter='\s+', usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
-    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-6]) - get_time()).total_seconds())
+    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-6]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
     rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x, 16)/get_page_size())
@@ -60,7 +61,7 @@ def extract_malloc():
     allocations = pd.read_csv('{}/hook.csv'.format(get_path('clone')), header=None,  delimiter='\s+')
 
     allocations.columns = ['timestamp', 'file','line','func','var', 'address', 'end']
-    allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds())
+    allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds() * MICROSECOND) 
     allocations = allocations[allocations.timestamp>= 0.0]
     allocations['address'] = allocations['address'].apply(lambda x : int(int(x, 16)/get_page_size()))
     allocations['end'] = allocations['end'].apply(lambda x : int (int(x, 16)/get_page_size()))
