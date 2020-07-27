@@ -1,6 +1,7 @@
 from utility import *
 import csv
 import pandas as pd
+import numpy as np
 from math import ceil, isnan
 
 
@@ -30,13 +31,13 @@ def get_swap_extracted():
     # timestamp_x, address , timstamp_y
     print "\n[ Summary ]"
     mean = joined.apply(lambda row: row['timestamp_y'] - row['timestamp_x'], axis=1)
+    mean_time = mean.mean()
+    if np.isnan(mean_time):
+        mean_time = 0
     print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='in'].index))
     print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))
     print "> memory write back # : {}".format(len(rsyslog[rsyslog['mode']=='pageout'].index))
-    print "> average exist time in memory (usec) : {} ".format(mean.mean())
-    mean_time = mean.mean()
-    if mean_time.isnull().values.any:
-        mean_time = 0
+    print "> average exist time in memory (usec) : {} ".format(mean_time)
     return mean_time 
         
 
@@ -44,6 +45,12 @@ def get_swap_extracted():
          
 
 def extract_malloc():
+    # TODO 
+    # check if hook exists
+    if os.path.isfile('{}/hook.csv'.format(get_path('clone'))) == False:
+        print "[Skip] Memory allocation not found"
+        return 
+
     print "$ extract memory allocation"
     allocations = pd.read_csv('{}/hook.csv'.format(get_path('clone')), header=None,  delimiter='\s+')
 
