@@ -1,36 +1,46 @@
 diff --git a/mm/memory.c b/mm/memory.c
-index ab650c2..aaabc63 100644
+index ab650c21b..a50bb8a05 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2711,6 +2711,8 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
  		goto out;
  	}
  
-+	pr_info("swptrace(%s): map (swpentry: %lu, uaddr: %lu)\n",
-+		get_current()->comm, entry.val, vmf->address);
++        pr_info(" swptrace %s map %lu %lu\n",
++			get_current()->comm, entry.val, vmf->address);
  
  	delayacct_set_flag(DELAYACCT_PF_SWAPIN);
  	page = lookup_swap_cache(entry, vma, vmf->address);
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index 9f61dfec6..5ff3fdd10 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -2298,6 +2298,7 @@ static int __writepage(struct page *page, struct writeback_control *wbc,
+ {
+ 	struct address_space *mapping = data;
+ 	int ret = mapping->a_ops->writepage(page, wbc);
++	pr_info("swtrace %s writepage pageout %p\n",get_current()->comm, page_address(page));
+ 	mapping_set_error(mapping, ret);
+ 	return ret;
+ }
 diff --git a/mm/page_io.c b/mm/page_io.c
-index 2e8019d..9eab58a 100644
+index 2e8019d0e..a7202ed35 100644
 --- a/mm/page_io.c
 +++ b/mm/page_io.c
-@@ -282,6 +282,9 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
+@@ -282,6 +282,8 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
  	int ret;
  	struct swap_info_struct *sis = page_swap_info(page);
  
-+	// print info to file under /var
-+	pr_info("swptrace(%s): write %lu\n", get_current()->comm, page_private(page));
++	pr_info(" swptrace %s out %lu %p\n", get_current()->comm, page_private(page), page_to_virt(page));
 +
  	VM_BUG_ON_PAGE(!PageSwapCache(page), page);
  	if (sis->flags & SWP_FS) {
  		struct kiocb kiocb;
-@@ -356,6 +359,9 @@ int swap_readpage(struct page *page, bool synchronous)
+@@ -356,6 +358,8 @@ int swap_readpage(struct page *page, bool synchronous)
  	blk_qc_t qc;
  	struct gendisk *disk;
  
-+	/* page->private is its swap entry value*/
-+	pr_info("swptrace(%s): read %lu \n", get_current()->comm, page_private(page));
++	pr_info(" swptrace %s in %lu %p\n", get_current()->comm, page_private(page), page_to_virt(page));
 +
  	VM_BUG_ON_PAGE(!PageSwapCache(page) && !synchronous, page);
  	VM_BUG_ON_PAGE(!PageLocked(page), page);
