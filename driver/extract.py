@@ -38,7 +38,7 @@ def get_swap_extracted(use_abstract=False):
     print "\n[ Summary ]"
     mean = joined.apply(lambda row: row['timestamp_y'] - row['timestamp_x'], axis=1)
     mean_time = mean.mean()
-    if mean_time.isnull().any():
+    if mean_time.dtype != np.float64: 
         mean_time = 0
     print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='in'].index))
     print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))

@@ -47,7 +47,8 @@ def plot_out(dir_path, mean_time, track_allocation=False):
     labels={'in':'swap-in', 'out':'swap-out', 'map':'page-fault', 'writepage':'file I/O'}
 
     for name, group in groups:
-        axis.plot(group.timestamp.astype(str), group.address.astype(str), label=labels[name], marker='o', linestyle='', ms=2)
+        # axis.plot(group.timestamp.astype(str), group.address.astype(str), label=labels[name], marker='o', linestyle='', ms=2)
+        axis.plot(group.timestamp, group.address, label=labels[name], marker='o', linestyle='', ms=2)
         summary_str = summary_str + "\n * memory {} # : {}".format(labels[name], len(group.index)) 
     summary_str = summary_str + "\n * average existence time in memory (usec) : {}".format(mean_time)
 
@@ -66,5 +67,6 @@ def plot_out(dir_path, mean_time, track_allocation=False):
 
     # output
     plt.savefig(dir_path+"/plot.png",format='png')
-    # plt.show()
+    if os.environ.get('DISPLAY','') != '':
+    	plt.show()
 
