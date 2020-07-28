@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 import matplotlib as mpl
 from multiprocess import Pool, cpu_count
@@ -25,43 +26,52 @@ class Tracker(object):
 
 
 
-def plot_out(dir_path, track_allocation):
+def plot_out():
     print "$ generate plot png"
 
     fig, axis = plt.subplots()
 
-    swap_trace = pd.read_csv(dir_path+"/merge.csv")
-    groups = swap_trace[swap_trace['mode']!='map'].groupby('mode')
+    swap_trace = pd.read_csv(sys.argv[1])
+    swap_trace['timestamp'] = swap_trace.index
+    #swap_trace = swap_trace[swap_trace['cmd']=='linear']
+   
+    groups = swap_trace.groupby('mode')
+    #groups = swap_trace[swap_trace['mode']!='map'].groupby('mode')
+    # out = swap_trace[swap_trace['mode']=='out']
 
     # add allocation trace if needed
-    if track_allocation:
-        print "$ generate allocation trace"
-        allocations=pd.read_csv(dir_path+"/hook.csv")
-        tracker = Tracker(axis, allocations[['timestamp','address' ,'end']].values.tolist())
-        tracker.run()
-
     # add rsyslogs to plot 
     labels={'in':'swap-in', 'out':'swap-out', 'map':'page-fault', 'writepage':'file I/O'}
+    colors={'in':'red', 'out':'blue', 'map':'green', 'writepage':'green'}
 
     for name, group in groups:
-        axis.plot(group.timestamp.astype(str), group.address.astype(str), label=labels[name], marker='o', linestyle='', ms=2)
+	if name =='out':
+		axis.plot(group.timestamp, group.swpentry, label=labels[name], color=colors[name], marker='o', linestyle='', ms=5)
+        # axis.plot(group.timestamp, group.address, label=labels[name], color=colors[name], marker='o', linestyle='', ms=5)
+        # axis.plot(group.timestamp.astype(str), group.address.astype(str), label=labels[name], marker='o', linestyle='', ms=5)
 
+
+    #axis.plot(swap_trace.index, swap_trace.swpentry, label='swap cache #', color='blue', marker='o', linestyle='', ms=5)
+
+    
     # axis.annotate(summary_str, xy=(0.5, 0), xycoords=('axes fraction', 'figure fraction'), xytext=(0, 10), textcoords='offset points', size=14, ha='center', va='bottom')
 
     axis.legend()
     # plt.text(6, 15, summary_str)
 
     axis.grid(True)
-    axis.set_title('VPN by timeline')
-    axis.set_xlabel('timestamp (usec)')
-    axis.set_ylabel('virtual page number')
-    axis.set_xscale('log')
-    axis.set_yscale('log')
+    axis.set_title('Swap Out pattern by timeline')
+    #axis.set_title('VPN  access pattern by timeline')
+    axis.set_xlabel('timestamp')
+    axis.set_ylabel('Swap Cache Entry')
+    axis.set_xscale('linear')
+    axis.set_yscale('linear')
+
 
     # output
-    plt.savefig(dir_path+"/plot.png",format='png')
+    plt.savefig("./plot.png",format='png')
     plt.show()
 
 
 track_allocation=False
-plot_out('/mnt/c/Users/Admin/Desktop',track_allocation)
+plot_out()

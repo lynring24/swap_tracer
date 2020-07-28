@@ -25,45 +25,40 @@ class Tracker(object):
 
 
 
-def plot_out(dir_path, mean_time, track_allocation=False):
+def plot_out(dir_path, mean_time):
     print "$ generate plot png"
 
     fig, axis = plt.subplots()
 
-    swap_trace = pd.read_csv(dir_path+"/rsyslog.csv")
-    groups = swap_trace[swap_trace['mode']!='map'].groupby('mode')
+    rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
+    # TODO : Expand to Nanosecond Timestamp
+    rsyslog['timestamp'] = rsyslog.index
+    # TODO : Exclude not child thread infos  
+
+    # groups = rsyslog[rsyslog['mode']!='map'].groupby('mode')
+    groups = rsyslog.groupby('mode')
 
     summary_str = "\n[Summary]\n"
-
     # add allocation trace if needed
-    if track_allocation:
-        print "$ generate allocation trace"
-        allocations=pd.read_csv(dir_path+"/hook.csv")
-        tracker = Tracker(axis, allocations[['timestamp','address' ,'end']].values.tolist())
-        tracker.run()
-        summary_str = summary_str + "\n * memory allocation # :{}".format(len(allocations.index))
 
     # add rsyslogs to plot 
-    labels={'in':'swap-in', 'out':'swap-out', 'map':'page-fault', 'writepage':'file I/O'}
+    labels={'in':'swap-in','map':'page fault', 'out':'swap-out', 'writepage':'file I/O'}
+    colors={'in':'red', 'out':'blue', 'map':'green', 'writepage':'purple', 'allocation':'pink' }
 
     for name, group in groups:
-        # axis.plot(group.timestamp.astype(str), group.address.astype(str), label=labels[name], marker='o', linestyle='', ms=2)
-        axis.plot(group.timestamp, group.address, label=labels[name], marker='o', linestyle='', ms=2)
-        summary_str = summary_str + "\n * memory {} # : {}".format(labels[name], len(group.index)) 
+	if name == 'map':
+		axis.plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle='', ms=5)
+		summary_str = summary_str + "\n * memory {} # : {}".format(labels[name], len(group.index)) 
     summary_str = summary_str + "\n * average existence time in memory (usec) : {}".format(mean_time)
 
-    # axis.annotate(summary_str, xy=(0.5, 0), xycoords=('axes fraction', 'figure fraction'), xytext=(0, 10), textcoords='offset points', size=14, ha='center', va='bottom')
 
     axis.legend()
-    # plt.text(6, 15, summary_str)
-    plt.text(6, 30, summary_str)
+    plt.text(0.05, pow(10, 6), summary_str)
 
     axis.grid(True)
-    axis.set_title('VPN by timeline')
-    axis.set_xlabel('timestamp (usec)')
-    axis.set_ylabel('virtual page number')
-    # axis.set_xscale('log')
-    # axis.set_yscale('log')
+    axis.set_title('Virtual Page Number by timeline')
+    axis.set_xlabel('timestamp')
+    axis.set_ylabel('Virtual Page Number')
 
     # output
     plt.savefig(dir_path+"/plot.png",format='png')

@@ -35,9 +35,9 @@ void* hmalloc(const char * filen, const int line, const char * funcn, char * arg
         	
 	void * res = libc_malloc(size);
   	// timestamp, filename, line_number, function, variable, address, size
-        fprintf(pFile, "%04d-%02d-%02dT%02d:%02d:%02d.%06ld %s %u %s %s %p %p\n",
+        fprintf(pFile, "%04d-%02d-%02dT%02d:%02d:%02d.%06ld|%s|%u|%s|%s|%p|%ld\n",
 			localTime->tm_year + 1900, localTime->tm_mon + 1, localTime->tm_mday, localTime->tm_hour, localTime->tm_min, localTime->tm_sec, tv.tv_usec, 
-                        filen , line , funcn, argn, res, res+size);        
+                        filen , line , funcn, argn, res, size);        
         fclose(pFile);
 	//return libc_malloc(size);
 	return res;
