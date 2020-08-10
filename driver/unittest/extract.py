@@ -27,10 +27,6 @@ def extract():
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
-    #rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x, 16)/get_page_size())
-    # TODO : %lu is used for map, need to fix kernel
-
-    #rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x,16))
     rsyslog['address'] = rsyslog.apply(lambda row: int(row['address']) if row['mode']=='map' else int(row['address'],16), axis=1)
 
     print "$ extract duplicated address"
@@ -47,23 +43,19 @@ def extract():
 	    allocations.columns = ['timestamp', 'file','line','func','var', 'address', 'size']
 	    allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds() * MICROSECOND) 
 	    allocations = allocations[allocations.timestamp>= 0.0]
-	    #allocations['address'] = allocations['address'].apply(lambda x : int(int(x, 16)/get_page_size()))
-	    allocations['address'] = allocations['address'].apply(lambda x : int(x, 16))
+	    allocations['address'] = allocations['address'].apply(lambda x : int(x, 16) if x !='(nil)' else -1)
 
-	    #allocations['end'] = allocations['end'].apply(lambda x : int (int(x, 16)/get_page_size()))
-	    allocations.sort_values(by=['timestamp'], ascending=False)
+	    allocations=allocations.sort_values(by=['timestamp'], ascending=False)
     	    print "$ generate extracted file [%s, %s] "%(allocations.shape[0], allocations.shape[1])
 	    def get_var_info(timestamp, address):
 		info=''
 		for index, row in allocations.iterrows():
-		    #if row['timestamp'] < timestamp and row['address'] <= address and (address <= row['address'] + row['size']):
 		    if  row['timestamp'] < timestamp and row['address'] <= address and address <= (row['address'] + row['size']):
-		       # info=row.to_string(header=False,index=False)
 		       info='/'.join([row['file'],str(row['line']),row['func'],row['var']])
+		       print info
 		       break;
 		return info
 	    rsyslog['info']=rsyslog.apply(lambda row: get_var_info(row['timestamp'], row['address']), axis=1)
-	    #rsyslog['info']=rsyslog.apply(lambda row: get_var_info(row['timestamp'], row['address']), axis=1)
 				 
 
 
@@ -120,12 +112,6 @@ def initialize() :
     # configure time
     configure["TIME"] = datetime.now()
    
-    
-    
-
-# area = ['total','rsyslog', 'labeled']
-# area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
-
 
 def get_sub_path_by_id(id):
     return get_path(area[id])
@@ -190,8 +176,7 @@ def is_log_path(line):
 
 def get_time():
     #return string_to_date('2020-07-29T21:04:29.316294')
-    return string_to_date('2020-07-29T22:13:23.845396')
-
+    return string_to_date('2020-07-30T15:56:19.117761')
 
 def datetime_to_string(x):
     # needed for path, will print in rsyslog format
