@@ -46,7 +46,7 @@ def plot_out(dir_path, mean_time):
     colors={'in':'red', 'out':'blue', 'map':'green', 'writepage':'purple', 'allocation':'pink' }
 
     for name, group in groups:
-	if name == 'map':
+	if name != 'rmap_walk':
 		axis.plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle='', ms=5)
 		summary_str = summary_str + "\n * memory {} # : {}".format(labels[name], len(group.index)) 
     summary_str = summary_str + "\n * average existence time in memory (usec) : {}".format(mean_time)

@@ -92,7 +92,7 @@ def __awk_log(logfile, option, error):
 def awk_log():
     # awk parts from log only after the execution
     try:
-	__awk_log('cat '+get_path('rsyslog'), 'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\'' , IOError)
+	__awk_log('cat /var/log/syslog', 'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\'' , IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
 	__awk_log( 'dmesg --time-format iso', 'grep swptrace', RuntimeError )
