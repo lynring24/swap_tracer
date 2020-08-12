@@ -19,6 +19,7 @@ def initialize() :
     
     configure['PATTERN']['block']='(\d+.\d{6}) (.+)'
     configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}[,\.]\d{6}) (.+)'
+    configure['DELIMETER'] = '\s+'
     # configure size
     configure['SIZE'] =  resource.getpagesize()
     # configure path 
@@ -152,6 +153,9 @@ def get_mem_limit():
 
 def get_pattern(x):
     return configure['PATTERN'].get(x)
+
+def get_delimeter():
+    return configure['DELIMETER']
  
 
 def is_false_generated(x, fname=None):

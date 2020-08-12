@@ -8,9 +8,9 @@ MICROSECOND = 1000000
 
 def get_swap_extracted(use_abstract=False):
     print "$ extract ryslog log"
-    columns = pd.read_csv(get_path('awk'), header=None, delimiter='|', nrows=1)
+    columns = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), nrows=1)
     max_column = columns.shape[1]
-    rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter='|', usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
+    rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
@@ -58,7 +58,7 @@ def extract_malloc():
         return 
 
     print "$ extract memory allocation"
-    allocations = pd.read_csv('{}/hook.csv'.format(get_path('clone')), header=None,  delimiter='|')
+    allocations = pd.read_csv('{}/hook.csv'.format(get_path('clone')), header=None,  delimiter=get_delimeter())
 
     allocations.columns = ['timestamp', 'file','line','func','var', 'address', 'end']
     allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds() * MICROSECOND) 
