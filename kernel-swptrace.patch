@@ -12,7 +12,7 @@ index ab650c21b..4b4433519 100644
 +{
 +        long *entry = arg;
 +	pr_info("swptrace %s map %lu %p\n",
-+			get_current()->comm, *entry, page_to_virt(page));
++			get_current()->comm, *entry, addr);
 +	return true;	
 +}
 +
