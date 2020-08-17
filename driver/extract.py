@@ -7,6 +7,9 @@ from math import ceil, isnan
 MICROSECOND = 1000000
 
 def get_swap_extracted(use_abstract=False):
+    # swap rsyslog cluster -> [ start  end ] : if start, end -> draw as a cluster 
+    
+
     print "$ extract ryslog log"
     columns = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), nrows=1)
     max_column = columns.shape[1]

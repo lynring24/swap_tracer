@@ -5,6 +5,6 @@ cufflinks
 uptime
 numpy
 requests
-# flex 
 pdfkit
-# wkhtmltopdf
+matplotlib
+multiprocess

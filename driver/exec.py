@@ -71,9 +71,9 @@ def execute():
        top=top+"/clone"
        # os.system('rm {}'.format(top+'/hook.csv'))
     if enable_argv['mem']: 
-        exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\" & ps'%(top, str(get_mem_limit()) , get_command() )
+        exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
     else:
-        exe_instr='{} & ps'.format(get_command())
+        exe_instr=get_command()
         # exe_instr='cd {}; {} ; mv hook.csv {}'.format(top, get_command(),get_path('head')+'./hook.csv')
     print "\n$ "+ exe_instr
     eval_result = os.system(exe_instr)
