@@ -42,11 +42,12 @@ def plot_out(dir_path, mean_time):
     # add allocation trace if needed
 
     # add rsyslogs to plot 
-    labels={'in':'swap-in','map':'page fault', 'out':'swap-out', 'writepage':'file I/O'}
-    colors={'in':'red', 'out':'blue', 'map':'green', 'writepage':'purple', 'allocation':'pink' }
+    modes = ['fault', 'map', 'out']
+    labels={'in':'swap-in','map':'memory map', 'fault':'page fault','out':'swap-out', 'writepage':'file I/O'}
+    colors={'in':'red', 'out':'blue', 'map':'green', 'fault':'purple', 'allocation':'pink' }
 
     for name, group in groups:
-	if name != 'rmap_walk':
+	if name in modes:
 		axis.plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle='', ms=5)
 		summary_str = summary_str + "\n * memory {} # : {}".format(labels[name], len(group.index)) 
     summary_str = summary_str + "\n * average existence time in memory (usec) : {}".format(mean_time)

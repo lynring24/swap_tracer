@@ -19,7 +19,8 @@ def get_swap_extracted(use_abstract=False):
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
-    rsyslog['address'] = rsyslog.apply(lambda row : int(row['address'], 16)/get_page_size() if ( row['mode']!='ahead' and row['mode']!='in') else row['address'], axis=1)
+    modes = ['out', 'fault', 'map']
+    rsyslog['address'] = rsyslog.apply(lambda row : int(row['address'], 16)/get_page_size() if row['mode'] in modes else row['address'], axis=1)
  
 
     print "$ extract duplicated address"
