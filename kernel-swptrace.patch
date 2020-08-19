@@ -1,5 +1,5 @@
 diff --git a/mm/memory.c b/mm/memory.c
-index ab650c21b..30c30399a 100644
+index ab650c21b..320bd3336 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2667,6 +2667,27 @@ void unmap_mapping_range(struct address_space *mapping,
@@ -49,15 +49,16 @@ index ab650c21b..30c30399a 100644
  	if (mem_cgroup_swap_full(page) ||
  	    (vma->vm_flags & VM_LOCKED) || PageMlocked(page))
  		try_to_free_swap(page);
-@@ -2875,6 +2901,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+@@ -2875,6 +2901,8 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
  unlock:
  	pte_unmap_unlock(vmf->pte, vmf->ptl);
  out:
 +
++	rmap_walk_swapanon(page, entry.val);
  	return ret;
  out_nomap:
  	mem_cgroup_cancel_charge(page, memcg, false);
-@@ -2887,6 +2914,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+@@ -2887,6 +2915,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
  		unlock_page(swapcache);
  		put_page(swapcache);
  	}
@@ -157,14 +158,14 @@ index 76c8dfd3a..d6d26346d 100644
  			break;
  	}
 diff --git a/mm/swap_state.c b/mm/swap_state.c
-index 85245fdec..447d46a08 100644
+index 85245fdec..10b59c237 100644
 --- a/mm/swap_state.c
 +++ b/mm/swap_state.c
 @@ -560,6 +560,8 @@ struct page *swap_cluster_readahead(swp_entry_t entry, gfp_t gfp_mask,
  		end_offset = si->max - 1;
  
  	blk_start_plug(&plug);
-+	printk("swptrace %s cluster_ahead_info %lu %lu\n", get_current()->comm, swp_entry(swp_type(entry), start_offset), swp_entry(swp_type(entry), end_offset));
++	printk("swptrace %s ahead %lu %lu\n", get_current()->comm, swp_entry(swp_type(entry), start_offset), swp_entry(swp_type(entry), end_offset));
 +
  	for (offset = start_offset; offset <= end_offset ; offset++) {
  		/* Ok, do the async read-ahead now */
@@ -181,7 +182,7 @@ index 85245fdec..447d46a08 100644
  		goto skip;
  
  	blk_start_plug(&plug);
-+	printk("swptrace %s vma_ahead_info %lu %lu\n", get_current()->comm, ra_info.win, ra_info.nr_pte, ra_info.ptes[0]);
++	printk("swptrace %s ahead %lu %lu\n", get_current()->comm, ra_info.ptes, (ra_info.ptes + ra_info.nr_pte));
 +
  	for (i = 0, pte = ra_info.ptes; i < ra_info.nr_pte;
  	     i++, pte++) {
