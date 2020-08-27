@@ -11,31 +11,19 @@ def build(n_clusters, df):
     return kmeans, Z 
 
 
-def cluster():
-    with open(get_path('total'), 'r+') as file:
-        reader = csv.reader(file, delimiter=',')
-        data = dict()
-        lines = []
-        for line in reader:
-            data.setdefault('time', []).append(line[0])
-            data.setdefault('vas', []).append(line[1])
-            lines.append(line)
-        df = DataFrame(data, columns=['time', 'vas'])
+
+def cluster(dir_path):
+    
+    rsyslog.pd.read_csv(dir_path+"/rsyslog.csv")
         
-        inertias= []
-        diff = pow(2,30) 
-        threshold = pow(2,10)
+    inertias= []
+    threshold = pow(2,10)
 
-        for num in xrange(1, 5):
-            kmeans, label = build(num, df)
-            inertias.append(kmeans.inertia_)             
-            if num != 1 and  inertias[num-1] - inertias[num-2] < threshold:
-               break;
+    for num in xrange(1, 5):
+        kmeans, label = build(num, rsyslog)
+        inertias.append(kmeans.inertia_)             
+        if num != 1 and  inertias[num-1] - inertias[num-2] < threshold:
+           break;
 
-        opt = inertias.index(min(inertias))+1 
-        set_class(opt)
-        with open(get_path('labeled'), 'w') as labeled:
-             writer = csv.writer(labeled, delimiter=',')
-	     for idx in range (0, len(lines)): 
-                 lines[idx].insert(0, label[idx])
-                 writer.writerow(lines[idx])
+    opt = inertias.index(min(inertias))+1 
+

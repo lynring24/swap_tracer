@@ -32,8 +32,7 @@ def plot_out(dir_path, mean_time):
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     # TODO : Expand to Nanosecond Timestamp
-    rsyslog['timestamp'] = rsyslog.index
-    # TODO : Exclude not child thread infos  
+    # rsyslog['timestamp'] = rsyslog.index
 
     # groups = rsyslog[rsyslog['mode']!='map'].groupby('mode')
     groups = rsyslog.groupby('mode')
@@ -42,10 +41,10 @@ def plot_out(dir_path, mean_time):
     # add allocation trace if needed
 
     # add rsyslogs to plot 
-    modes = ['fault', 'map', 'out']
+    modes = ['out']
     labels={'in':'swap-in','map':'memory map', 'fault':'page fault','out':'swap-out', 'writepage':'file I/O'}
     colors={'in':'red', 'out':'blue', 'map':'green', 'fault':'purple', 'allocation':'pink' }
-    zorders={'fault':10, 'map':5, 'out':0}
+    zorders={'fault':5, 'map':10, 'out':0}
 
     for name, group in groups:
 	if name in modes:
@@ -58,9 +57,9 @@ def plot_out(dir_path, mean_time):
     plt.text(0.05, pow(10, 6), summary_str)
 
     axis.grid(True)
-    axis.set_title('Virtual Page Number by timeline')
+    axis.set_title('Virtal Address by timeline')
     axis.set_xlabel('timestamp')
-    axis.set_ylabel('Virtual Page Number')
+    axis.set_ylabel('Virtal Address')
 
     # output
     plt.savefig(dir_path+"/plot.png",format='png')

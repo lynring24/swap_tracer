@@ -20,11 +20,11 @@ def get_swap_extracted(use_abstract=False):
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
     modes = ['out', 'fault', 'map']
-    rsyslog['address'] = rsyslog.apply(lambda row : int(row['address'], 16)/get_page_size() if row['mode'] in modes else row['address'], axis=1)
+    # rsyslog['address'] = rsyslog.apply(lambda row : int(row['address'], 16) if row['mode'] in modes else row['address'], axis=1)
  
 
     print "$ extract duplicated address"
-    swap_in = rsyslog[rsyslog['mode']=='in'][['timestamp', 'address']]
+    swap_in = rsyslog[rsyslog['mode']=='map'][['timestamp', 'address']]
     page_write = rsyslog[rsyslog['mode']=='out'][['timestamp', 'address']]
     joined = pd.merge(swap_in, page_write, on='address', how='outer').dropna()
     joined = joined[joined['timestamp_x'] < joined['timestamp_y']]
@@ -68,7 +68,7 @@ def extract_malloc():
     allocations.columns = ['timestamp', 'file','line','func','var', 'address', 'end']
     allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds() * MICROSECOND) 
     allocations = allocations[allocations.timestamp>= 0.0]
-    allocations['address'] = allocations['address'].apply(lambda x : int(int(x, 16)/get_page_size()))
+    # allocations['address'] = allocations['address'].apply(lambda x : int(x, 16))
     allocations['end'] = allocations['end'].apply(lambda x : int (int(x, 16)/get_page_size()))
     allocations.to_csv(get_path('head')+'/hook.csv')
     

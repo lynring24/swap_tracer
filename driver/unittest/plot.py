@@ -1,5 +1,4 @@
 import os
-import sys
 import pandas as pd
 import matplotlib as mpl
 from multiprocess import Pool, cpu_count
@@ -26,52 +25,44 @@ class Tracker(object):
 
 
 
-def plot_out():
+def plot_out(dir_path, mean_time):
     print "$ generate plot png"
 
-    fig, axis = plt.subplots()
 
-    swap_trace = pd.read_csv(sys.argv[1])
-    swap_trace['timestamp'] = swap_trace.index
-    #swap_trace = swap_trace[swap_trace['cmd']=='linear']
-   
-    groups = swap_trace.groupby('mode')
-    #groups = swap_trace[swap_trace['mode']!='map'].groupby('mode')
-    # out = swap_trace[swap_trace['mode']=='out']
-
-    # add allocation trace if needed
-    # add rsyslogs to plot 
-    labels={'in':'swap-in', 'out':'swap-out', 'map':'page-fault', 'writepage':'file I/O'}
-    colors={'in':'red', 'out':'blue', 'map':'green', 'writepage':'green'}
-
-    for name, group in groups:
-	if name =='out':
-		axis.plot(group.timestamp, group.swpentry, label=labels[name], color=colors[name], marker='o', linestyle='', ms=5)
-        # axis.plot(group.timestamp, group.address, label=labels[name], color=colors[name], marker='o', linestyle='', ms=5)
-        # axis.plot(group.timestamp.astype(str), group.address.astype(str), label=labels[name], marker='o', linestyle='', ms=5)
-
-
-    #axis.plot(swap_trace.index, swap_trace.swpentry, label='swap cache #', color='blue', marker='o', linestyle='', ms=5)
-
+    rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
+    rsyslog = rsylog.query('cmd=="linear"')
+    max_range = len(str(rsyslog['timestamp'].max()))
+    bins = [pow(10, x) for x in range(0, max_range)]
+    rsyslog['label'] = pd.cut(x=rsyslog['timestamp'], bins=bins)
+  
+    mode = 'out'
+    summary_str = "\n[Summary]\n"
+    labels={'in':'swap-in','map':'memory map', 'fault':'page fault','out':'swap-out', 'writepage':'file I/O'}
+    colors={'in':'red', 'out':'blue', 'map':'green', 'fault':'purple', 'allocation':'pink' }
+    zorders={'fault':5, 'map':10, 'out':0}
     
-    # axis.annotate(summary_str, xy=(0.5, 0), xycoords=('axes fraction', 'figure fraction'), xytext=(0, 10), textcoords='offset points', size=14, ha='center', va='bottom')
+    subranges=[]
+    for name, group in rsyslog.groupby('label'):
+        if (group.index) > 0:
+            subranges.append([group.timestamp.min(), group.timestamp.max()])
+            
+    fig, axes = plt.subplots(ncols=len(subranges), nrows=1, sharey=True)
+
+    ax = .plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle='', ms=5, zorder=zorders[mode])
+    summary_str = summary_str + "\n * memory {} # : {}".format(labels[mode], len(group.index)) 
 
     axis.legend()
-    # plt.text(6, 15, summary_str)
+    plt.text(0.05, pow(10, 6), summary_str)
 
     axis.grid(True)
-    axis.set_title('Swap Out pattern by timeline')
-    #axis.set_title('VPN  access pattern by timeline')
+    axis.set_title('Virtal Address by timeline')
     axis.set_xlabel('timestamp')
-    axis.set_ylabel('Swap Cache Entry')
-    axis.set_xscale('linear')
-    axis.set_yscale('linear')
-
+    axis.set_ylabel('Virtal Address')
 
     # output
-    plt.savefig("./plot.png",format='png')
-    plt.show()
+    plt.savefig(dir_path+"/plot.png",format='png')
+    if os.environ.get('DISPLAY','') != '':
+    	plt.show()
 
 
-track_allocation=False
-plot_out()
+plot_out('.', 0)

@@ -96,7 +96,7 @@ def awk_log():
 	__awk_log('cat /var/log/syslog', 'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\'' , IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
-	__awk_log( 'dmesg --time-format iso', 'grep swptrace', RuntimeError )
+	__awk_log( 'dmesg --time-format iso', 'grep swptrace', RuntimeError)
     except:
         print "[Failure] fail to extract log" 
 	clean_up_and_exit(get_path('head'), 'awk_log')
