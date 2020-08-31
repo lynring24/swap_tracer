@@ -132,5 +132,5 @@ if __name__ == '__main__':
    #    extract_malloc()
    #    #os.system('rm {}'.format(get_path('clone')+'/hook.csv'))
    mean_time = get_swap_extracted(enable_argv['abstract'])
-   plot_out(get_path('head'), mean_time)
+   plot_out(get_path('head'), mean_time, get_command())
    # run_flask() 

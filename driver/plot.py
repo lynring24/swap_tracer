@@ -25,12 +25,12 @@ class Tracker(object):
 
 
 
-def plot_out(dir_path, mean_time):
+def plot_out(dir_path, mean_time, command):
     print "$ generate plot png"
 
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
-    rsyslog = rsyslog.query('cmd=="linear" & mode=="handle_mm"')
+    rsyslog = rsyslog.query('cmd=="{}"'.format(command))
     max_range = len(str(rsyslog['timestamp'].max()))
     bins = [pow(10, x) for x in range(0, max_range)]
     rsyslog['label'] = pd.cut(x=rsyslog['timestamp'], bins=bins)
@@ -57,13 +57,13 @@ def plot_out(dir_path, mean_time):
     for idx in range(0, total_axes):
         plt.subplots_adjust(hspace =0.2)
         axes[idx].set_xlim(subranges[idx][0], subranges[idx][1])
-        if idx == 0: 
-            axes[idx].spines['right'].set_visible(False)
-        elif idx == total_axes-1:
-            axes[idx].spines['left'].set_visible(False)
-        else:
-            axes[idx].spines['left'].set_visible(False)
-            axes[idx].spines['right'].set_visible(False)
+        #if idx == 0: 
+        #    axes[idx].spines['right'].set_visible(False)
+        #elif idx == total_axes-1:
+        #    axes[idx].spines['left'].set_visible(False)
+        #else:
+        #    axes[idx].spines['left'].set_visible(False)
+        #    axes[idx].spines['right'].set_visible(False)
         for name, group in rsyslog.groupby('mode'):
             axes[idx].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
 

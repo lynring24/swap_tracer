@@ -1,0 +1,19 @@
+5619fae52000-5619fae53000 r-xp 00000000 08:01 3932330                    /home/leto/Documents/benchmark/segment/linear
+5619fb053000-5619fb054000 r--p 00001000 08:01 3932330                    /home/leto/Documents/benchmark/segment/linear
+5619fb054000-5619fb055000 rw-p 00002000 08:01 3932330                    /home/leto/Documents/benchmark/segment/linear
+5619fb055000-5619fb755000 rw-p 00000000 00:00 0 
+5619fc758000-5619fc779000 rw-p 00000000 00:00 0                          [heap]
+7eff0012e000-7eff00315000 r-xp 00000000 08:01 6165774                    /lib/x86_64-linux-gnu/libc-2.27.so
+7eff00315000-7eff00515000 ---p 001e7000 08:01 6165774                    /lib/x86_64-linux-gnu/libc-2.27.so
+7eff00515000-7eff00519000 r--p 001e7000 08:01 6165774                    /lib/x86_64-linux-gnu/libc-2.27.so
+7eff00519000-7eff0051b000 rw-p 001eb000 08:01 6165774                    /lib/x86_64-linux-gnu/libc-2.27.so
+7eff0051b000-7eff0051f000 rw-p 00000000 00:00 0 
+7eff0051f000-7eff00546000 r-xp 00000000 08:01 6165746                    /lib/x86_64-linux-gnu/ld-2.27.so
+7eff0072d000-7eff0072f000 rw-p 00000000 00:00 0 
+7eff00746000-7eff00747000 r--p 00027000 08:01 6165746                    /lib/x86_64-linux-gnu/ld-2.27.so
+7eff00747000-7eff00748000 rw-p 00028000 08:01 6165746                    /lib/x86_64-linux-gnu/ld-2.27.so
+7eff00748000-7eff00749000 rw-p 00000000 00:00 0 
+7ffdec3e6000-7ffdec407000 rw-p 00000000 00:00 0                          [stack]
+7ffdec5f8000-7ffdec5fb000 r--p 00000000 00:00 0                          [vvar]
+7ffdec5fb000-7ffdec5fc000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
