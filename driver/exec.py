@@ -128,9 +128,8 @@ if __name__ == '__main__':
    execute()
    create_directory()
    awk_log()
-   #if enable_argv['target']:
-   #    extract_malloc()
-   #    #os.system('rm {}'.format(get_path('clone')+'/hook.csv'))
+   extract_malloc()
+   os.system('rm {}'.format(get_path('clone')+'/hook.csv'))
    mean_time = get_swap_extracted(enable_argv['abstract'])
    plot_out(get_path('head'), mean_time, get_command())
    # run_flask() 

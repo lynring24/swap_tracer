@@ -58,21 +58,18 @@ def get_swap_extracted(use_abstract=False):
 def extract_malloc():
     # TODO 
     # check if hook exists
-    if os.path.isfile('{}/hook.csv'.format(get_path('clone'))) == False:
+    if os.path.isfile('{}/hook.csv'.format(get_path('root'))) == False:
         print "[Skip] Memory allocation not found"
         return 
 
     print "$ extract memory allocation"
-    allocations = pd.read_csv('{}/hook.csv'.format(get_path('clone')), header=None,  delimiter=get_delimeter())
+    hook = pd.read_csv('{}/hook.csv'.format(get_path('root')), header=None,  delimiter=get_delimeter())
 
-    allocations.columns = ['timestamp', 'file','line','func','var', 'address', 'end']
-    allocations['timestamp'] = allocations['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds() * MICROSECOND) 
-    allocations = allocations[allocations.timestamp>= 0.0]
-    # allocations['address'] = allocations['address'].apply(lambda x : int(x, 16))
-    allocations['end'] = allocations['end'].apply(lambda x : int (int(x, 16)/get_page_size()))
-    allocations.to_csv(get_path('head')+'/hook.csv')
-    
-
-
+    hook.columns = ['timestamp', 'file','line','func','var', 'address', 'size']
+    hook['timestamp'] = hook['timestamp'].apply(lambda x: (string_to_date(x) - get_time()).total_seconds() * MICROSECOND) 
+    hook = hook[hook.timestamp>= 0.0]
+    hook['address'] = hook['address'].apply(lambda x : int(x, 16))
+    hook['timestamp'] = hook['timestamp'].astype(int)
+    hook.to_csv(get_path('head')+'/hook.csv')
 
 
