@@ -16,6 +16,8 @@ def get_swap_extracted(use_abstract=False):
     rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
+    #rsyslog = rsyslog.query('cmd=="{}"'.format(get_command()))
+    rsyslog = rsyslog.query('cmd=="linear"')
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     

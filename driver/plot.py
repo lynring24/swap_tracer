@@ -29,7 +29,7 @@ labels={'in':'swap-in','map':'memory map', 'fault':'page fault','out':'swap-out'
 colors={'in':'red', 'out':'blue', 'map':'green', 'fault':'purple', 'create':'brown', 'handle_mm':'magenta' }
 zorders={'fault':5, 'map':10, 'out':0, 'handle_mm':3}
 
-def plot_out(dir_path, mean_time, command):
+def plot_out(dir_path, mean_time):
 
     #if os.path.isfile('{}/maps'.format(dir_path)) == True:
         #maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None)
@@ -58,7 +58,7 @@ def plot_out(dir_path, mean_time, command):
         # read hook.csv for this case
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
-    rsyslog = rsyslog.query('cmd=="linear"')
+    # rsyslog = rsyslog.query('cmd=="linear"')
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
     # kernel address is already set for integer 
     joined = rsyslog[['timestamp', 'address', 'mode']]
@@ -96,45 +96,56 @@ def plot_out(dir_path, mean_time, command):
             subyranges.append([max(group.address.min(), 0)  , group.address.max() + 10])
             
     fig, axes = plt.subplots(ncols=len(subxranges), nrows=len(subyranges))
-    fig.tight_layout()
+    # fig.tight_layout()
+    #fig.subplots_adjust(left=0.1)
+    
+    #layout = plt.twinx()
+    # layout.spines["left"].set_position(('axes', 1.2))
+    # make_patch_spines_invisible(layout)
+    #layout.spines['left'].set_visible(True)
 
     rect_end = joined['timestamp'].max()
         
     for idx in range(len(subxranges)-1,-1,-1):
         for idy in range(len(subyranges)-1, -1, -1):
-            plt.subplots_adjust(hspace =0.2)
-            # converty = len(subyranges)-(idy+1)
-            axes[idy][idx].set_xlim(subxranges[idx][0], subxranges[idx][1])
-            axes[idy][idx].set_ylim(subyranges[idy][0], subyranges[idy][1])
-
-            if idx == 0: 
-                axes[idy][idx].spines['right'].set_visible(False)
-            elif idx == len(subxranges) -1:
-                axes[idy][idx].spines['left'].set_visible(False)
-            else:
-                axes[idy][idx].spines['left'].set_visible(False)
-                axes[idy][idx].spines['right'].set_visible(False)
-
-            if idy == 0: 
-                axes[idy][idx].spines['bottom'].set_visible(False)
-            elif idy == len(subyranges) -1:
-                axes[idy][idx].spines['top'].set_visible(False)
-            else:
-                axes[idy][idx].spines['top'].set_visible(False)
-                axes[idy][idx].spines['bottom'].set_visible(False)
-
+            # plt.subplots_adjust(hspace =0.2)
             for name, group in rsyslog.groupby('mode'):
+                print name
                 axes[idy][idx].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
-            
-         
+
             if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
                 for index, rows in hook.iterrows():
                     axes[idy][idx].add_patch(mpl.patches.Rectangle((rows['timestamp'], rows['address']), (rect_end - rows['timestamp']), rows['size'], color=colors['create'], label=labels['create'],zorder=0))
+
+            converty = len(subyranges)-(idy+1)
+            axes[idy][idx].set_xlim(subxranges[idx][0], subxranges[idx][1])
+            axes[idy][idx].set_ylim(subyranges[converty][0], subyranges[converty][1])
+
+            #if idx == 0: 
+            #    axes[idy][idx].spines['right'].set_visible(False)
+            #elif idx == len(subxranges) -1:
+            #   axes[idy][idx].spines['left'].set_visible(False)
+            #   #axes[idy][idx].set_yticks([])
+            #else:
+            #   axes[idy][idx].spines['left'].set_visible(False)
+            #   axes[idy][idx].spines['right'].set_visible(False)
+                #axes[idy][idx].set_yticks([])
+
+            #if idy == 0: 
+            #   axes[idy][idx].spines['bottom'].set_visible(False)
+                #axes[idy][idx].set_xticks([])
+            #elif idy == len(subyranges) -1:
+            #   axes[idy][idx].spines['top'].set_visible(False)
+            #else:
+            #   axes[idy][idx].spines['top'].set_visible(False)
+            #   axes[idy][idx].spines['bottom'].set_visible(False)    
+                #axes[idy][idx].set_xticks([])
+         
                         
     plt.legend()
     plt.suptitle('Virtual Address by timeline')
-    plt.xlabel('timestamp')
-    plt.ylabel('Virtal Address')
+    #axes[int(len(subyranges)/2)][0].set_xlabel('timestamp')
+    #axes[len(subyranges)-1][int(len(subxranges)/2)].set_ylabel('Virtal Address')
 
 
     # output
