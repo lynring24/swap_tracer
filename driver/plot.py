@@ -58,7 +58,7 @@ def plot_out(dir_path, mean_time):
         # read hook.csv for this case
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
-    # rsyslog = rsyslog.query('cmd=="linear"')
+    rsyslog = rsyslog.query('mode=="handle_mm"')
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
     # kernel address is already set for integer 
     joined = rsyslog[['timestamp', 'address', 'mode']]
@@ -110,7 +110,6 @@ def plot_out(dir_path, mean_time):
         for idy in range(len(subyranges)-1, -1, -1):
             # plt.subplots_adjust(hspace =0.2)
             for name, group in rsyslog.groupby('mode'):
-                print name
                 axes[idy][idx].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
 
             if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
