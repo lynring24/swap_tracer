@@ -1,0 +1,20 @@
+ 1987  vim /var/log/syslog
+ 1988  exit
+ 1989  dmesg
+ 1990  vim sudo swapon /swapfile
+ 1991  swapon -s
+ 1992  sudo  free -m
+ 1993  sudo chmod 600 /swapfile
+ 1994  sudo swapon /swapfile
+ 1995  sudo chmod 600 /swapfile
+ 1996  clear
+ 1997  sudo mkswap /swapfile
+ 1998  sudo swapon /swapfile
+ 1999  vin /etc/fstab
+ 2000  vim /etc/fstab
+ 2001* history -tail 
+ 2002  history | tail -n 10
+ 2003  history | tail -n 11
+ 2004  history | tail -n 20
+ 2005  history | tail -n 20 > $SWPTRACE/../
+ 2006  history | tail -n 20 > $SWPTRACE/../swapon_setting

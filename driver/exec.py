@@ -1,5 +1,6 @@
 from pprint import pprint 
 from utility import * 
+import subprocess
 from extract import get_swap_extracted, extract_malloc
 import subprocess
 from requests import get
@@ -71,16 +72,23 @@ def execute():
        top=top+"/clone"
        # os.system('rm {}'.format(top+'/hook.csv'))
     if enable_argv['mem']: 
-        exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
+        command='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
     else:
-        exe_instr=get_command()
-        # exe_instr='cd {}; {} ; mv hook.csv {}'.format(top, get_command(),get_path('head')+'./hook.csv')
-    print "\n$ "+ exe_instr
-    eval_result = os.system(exe_instr)
+        command=get_command()
+        print "\n$ "+ command
+    command = "({})".format(command)
 
-    if eval_result!= 0: 
-        os.system('rm -rf {}'.format(get_path('root')+'/mod'))
+    # use subprocess to run the execution background
+    # eval_result = os.system(command)
+    try:
+        p = subprocess.Popen(command, stdin=None, stdout=None, shell=True)
+        print p.pid
 
+    #os.system("ps -ef --sort +time | awk '$NF ~ /.\/linear/ { print $2; system(\"cat /proc/\"$2\"/maps\" > maps )}'");
+        p.wait()
+        out, err = p.communicate()
+    except: 
+        os.system('rm -rf {}'.format(get_path('root')+'/clone'))
 
 def __awk_log(logfile, option, error): 
     	awk_part = logfile + ' | ' + option + ' > '+ get_path('awk')
@@ -129,7 +137,8 @@ if __name__ == '__main__':
    create_directory()
    awk_log()
    extract_malloc()
-   os.system('rm {}'.format(get_path('clone')+'/hook.csv'))
    mean_time = get_swap_extracted(enable_argv['abstract'])
    plot_out(get_path('head'), mean_time)
+   #os.system('rm {}/hook.csv'.format(get_path('clone')))
+   #os.system('rm {}/maps'.format(get_path('root'))
    # run_flask() 

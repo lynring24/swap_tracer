@@ -30,35 +30,8 @@ colors={'in':'red', 'out':'blue', 'map':'green', 'fault':'purple', 'create':'bro
 zorders={'fault':5, 'map':10, 'out':0, 'handle_mm':3}
 
 def plot_out(dir_path, mean_time):
-
-    #if os.path.isfile('{}/maps'.format(dir_path)) == True:
-        #maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None)
-        #maps.columns = ['layout', 'perm' , 'offset', 'duration', 'inode', 'pathname']
-        #maps['pathname'] = maps['pathname'].fillna('anon')
-        
-        #maps = maps.join(maps['layout'].str.split('-', expand=True).add_prefix('layout'))
-        #maps = maps.drop('layout', 1)
-        #maps['layout0'] = maps['layout0'].apply(lambda x: int(x, 16)) 
-        #maps['layout1'] = maps['layout1'].apply(lambda x: int(x, 16)) 
-        #maps  = maps[['layout0','layout1','pathname']]
-        #maps = maps.drop_duplicates()
-
-        #subyranges = maps[['layout0','layout1']].values.tolist()
-
-        #layout = dict() 
-        #for name, group in maps.groupby('pathname'):
-        #    if name != 'anon':
-        #       head = group.layout0.min()
-        #       tail = group.layout1.max()
-        #       layout[name] = [head, tail]
-
-
-        # nsegment = sum(len(v) for v in layout.itervalues())
-        #segment = len(layout)
-        # read hook.csv for this case
-
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
-    rsyslog = rsyslog.query('mode=="handle_mm"')
+    rsyslog = rsyslog.query('mode=="fault"')
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
     # kernel address is already set for integer 
     joined = rsyslog[['timestamp', 'address', 'mode']]
@@ -84,16 +57,42 @@ def plot_out(dir_path, mean_time):
         if (len(group.index)) > 0:
             subxranges.append([max(group.timestamp.min(), 0)  , group.timestamp.max() + 10])
               
-    max_range = len(str(joined['address'].max()))+1
-    min_range = min(len(str(joined['address'].min()))-1, 0)
-
-    biny = [pow(10, x) for x in range(min_range, max_range)]
-    joined['labely'] = pd.cut(x=joined['address'], bins=biny) 
  
-    subyranges = []
-    for name, group in joined.groupby('labely'):
-        if (len(group.index)) > 0:
-            subyranges.append([max(group.address.min(), 0)  , group.address.max() + 10])
+    subyranges=[]
+    if os.path.isfile('{}/maps'.format(dir_path)) == True:
+        maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None)
+        maps.columns = ['layout', 'perm' , 'offset', 'duration', 'inode', 'pathname']
+        maps['pathname'] = maps['pathname'].fillna('anon')
+        
+        maps = maps.join(maps['layout'].str.split('-', expand=True).add_prefix('layout'))
+        maps = maps.drop('layout', 1)
+        maps['layout0'] = maps['layout0'].apply(lambda x: int(x, 16)) 
+        maps['layout1'] = maps['layout1'].apply(lambda x: int(x, 16)) 
+        maps  = maps[['layout0','layout1','pathname']]
+        maps = maps.drop_duplicates()
+
+        subyranges.extend(maps[['layout0','layout1']].values.tolist())
+
+        layout = dict() 
+        for name, group in maps.groupby('pathname'):
+            if name != 'anon':
+               head = group.layout0.min()
+               tail = group.layout1.max()
+               layout[name] = [head, tail]
+
+
+        nsegment = sum(len(v) for v in layout.itervalues())
+        segment = len(layout)
+        # read hook.csv for this case
+    else:
+        max_range = len(str(joined['address'].max()))+1
+        min_range = min(len(str(joined['address'].min()))-1, 0)
+
+        biny = [pow(10, x) for x in range(min_range, max_range)]
+        joined['labely'] = pd.cut(x=joined['address'], bins=biny) 
+        for name, group in joined.groupby('labely'):
+            if (len(group.index)) > 0:
+                subyranges.append([max(group.address.min(), 0)  , group.address.max() + 10])
             
     fig, axes = plt.subplots(ncols=len(subxranges), nrows=len(subyranges))
     # fig.tight_layout()

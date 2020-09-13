@@ -17,7 +17,7 @@ def get_swap_extracted(use_abstract=False):
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
     #rsyslog = rsyslog.query('cmd=="{}"'.format(get_command()))
-    rsyslog = rsyslog.query('cmd=="linear"')
+    rsyslog = rsyslog.query('cmd=="report"')
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
@@ -26,9 +26,9 @@ def get_swap_extracted(use_abstract=False):
  
 
     print "$ extract duplicated address"
+    page_fault = rsyslog[rsyslog['mode']=='fault'][['timestamp', 'address']]
     swap_in = rsyslog[rsyslog['mode']=='map'][['timestamp', 'address']]
-    page_write = rsyslog[rsyslog['mode']=='out'][['timestamp', 'address']]
-    joined = pd.merge(swap_in, page_write, on='address', how='outer').dropna()
+    joined = pd.merge(page_fault, swap_in, on='address', how='outer').dropna()
     joined = joined[joined['timestamp_x'] < joined['timestamp_y']]
     joined.to_csv('{}/duplicated_address.csv'.format(get_path('head')))
 
@@ -47,10 +47,18 @@ def get_swap_extracted(use_abstract=False):
     mean_time = mean.mean()
     if mean_time.dtype != np.float64: 
         mean_time = 0
-    print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='in'].index))
+    print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='map'].index))
     print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))
-    print "> memory write back # : {}".format(len(rsyslog[rsyslog['mode']=='pageout'].index))
+    print "> memory page fault # : {}".format(len(rsyslog[rsyslog['mode']=='fault'].index))
+    #print "> memory write back # : {}".format(len(rsyslog[rsyslog['mode']=='pageout'].index))
     print "> average exist time in memory (usec) : {} ".format(mean_time)
+
+    with open('{}/summary.dat'.format(get_path('head')), 'w') as tag:
+        tag.write("> memory swap in# : {}\n".format(len(rsyslog[rsyslog['mode']=='map'].index)))
+        tag.write("> memory page out # : {}\n".format(len(rsyslog[rsyslog['mode']=='out'].index)))
+        tag.write("> memory page fault # : {}\n".format(len(rsyslog[rsyslog['mode']=='fault'].index)))
+        tag.write("> average exist time in memory (usec) : {} \n".format(mean_time))
+    tag.close()
     return mean_time 
         
 

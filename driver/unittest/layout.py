@@ -40,16 +40,20 @@ def plot_out(dir_path, mean_time):
     axes.set_yticklabels(maps.yaxis)
     
     xarea =0
+    fix = ['[stack]', '[heap]', 'anon']
     for index, row in maps.iterrows():
-        #if row['pathname'] == '[vsyscall]':
-        #    continue    
+        if row['pathname'] == '[vsyscall]':
+            continue    
 
         #if row['layout0'] <= int('94898210406400'):
         #if 139785345720320<=row['layout0'] and row['layout0'] <= int('139785356320768'):
-        #if 140735677308928 <=row['layout0'] and row['layout0'] <= int('140735678197760'):
-        axes.hlines(row['layout0'], label=row['pathname'], xmin=0, xmax=1, colors=numpy.random.rand(3,))
-        xarea = numpy.random.rand()%4
-        axes.text(xarea,row['layout0'],row['pathname'], va='center')
+        if 140735677308928 <=row['layout0'] and row['layout0'] <= int('140735678197760'):
+            if row['pathname'] in fix:
+                axes.add_patch(mpl.patches.Rectangle((0, row['layout0']),1, row['layout1']-row['layout0'],color=numpy.random.rand(3,),zorder=0))
+            else:
+                axes.hlines(row['layout0'], label=row['pathname'], xmin=0, xmax=1, colors=numpy.random.rand(3,))
+            xarea = numpy.random.rand()%4
+            axes.text(xarea,row['layout0'],row['pathname'], va='center')
 
 
     #chartBox = axes.get_position()
@@ -58,8 +62,9 @@ def plot_out(dir_path, mean_time):
     plt.legend(title='pathname', bbox_to_anchor=(1.05, 1), loc='upper center', fontsize='xx-small') 
 
     #plt.suptitle('start of memory layout (7f224fe06000 ~ 7f2250822000 ) ')
-    #plt.suptitle('start of memory layout ( 7fff940da000 ~ 7fff941b3000 ) ')
-    plt.suptitle('start of memory layout')
+    plt.suptitle('start of memory layout ( 7fff940da000 ~ 7fff941b3000 ) ')
+    #plt.suptitle('start of memory layout ( ~ 564f361f0000 ) ')
+    #plt.suptitle('start of memory layout')
     plt.xlabel('timestamp')
     plt.ylabel('Virtual Address')
 
