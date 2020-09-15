@@ -17,7 +17,14 @@ def get_swap_extracted(use_abstract=False):
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
     #rsyslog = rsyslog.query('cmd=="{}"'.format(get_command()))
-    rsyslog = rsyslog.query('cmd=="report"')
+
+    def compare_command(x):
+        if x in get_command():
+            return True
+        else: 
+            return False
+    rsyslog["cmd"] = rsyslog["cmd"].apply(lambda x : compare_command(x))
+    rsyslog = rsyslog[rsyslog.cmd==True]
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     

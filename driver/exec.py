@@ -6,6 +6,7 @@ import subprocess
 from requests import get
 from scan import scan_malloc
 from plot import plot_out
+from run import exec_mem_limit
 
 
 enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False, 'abstract' : False}
@@ -59,37 +60,6 @@ def check_option():
     print "---------------------------------------------------------------\n"
 
 
-def execute():
-    rsyslog = open('/etc/rsyslog.conf').read()
-    if "# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat" in rsyslog:
-       print "rsyslog timestamping in RFC 3339 format"
-    else: 
-       print "rsyslog timestamp traditional file format "
-       os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
-       os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
-    top=get_path('root')
-    if enable_argv['target']:
-       top=top+"/clone"
-       # os.system('rm {}'.format(top+'/hook.csv'))
-    if enable_argv['mem']: 
-        command='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
-    else:
-        command=get_command()
-        print "\n$ "+ command
-    command = "({})".format(command)
-
-    # use subprocess to run the execution background
-    # eval_result = os.system(command)
-    try:
-        p = subprocess.Popen(command, stdin=None, stdout=None, shell=True)
-        print p.pid
-
-    #os.system("ps -ef --sort +time | awk '$NF ~ /.\/linear/ { print $2; system(\"cat /proc/\"$2\"/maps\" > maps )}'");
-        p.wait()
-        out, err = p.communicate()
-    except: 
-        os.system('rm -rf {}'.format(get_path('root')+'/clone'))
-
 def __awk_log(logfile, option, error): 
     	awk_part = logfile + ' | ' + option + ' > '+ get_path('awk')
     	print "\n$ "+ awk_part+'\n'
@@ -133,12 +103,11 @@ if __name__ == '__main__':
    check_option()
    if enable_argv['target']:
        scan_malloc()
-   execute()
-   create_directory()
+   exec_mem_limit(get_command(), get_mem_limit() )
+   create_directory() 
    awk_log()
    extract_malloc()
    mean_time = get_swap_extracted(enable_argv['abstract'])
+   os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
    plot_out(get_path('head'), mean_time)
    #os.system('rm {}/hook.csv'.format(get_path('clone')))
-   #os.system('rm {}/maps'.format(get_path('root'))
-   # run_flask() 

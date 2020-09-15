@@ -32,7 +32,7 @@ def initialize() :
        configure['PATH']['rsyslog'] = "/var/log/messages"
 
     # configure mem limit
-    configure['MEM_LIMIT'] = 1024
+    configure['MEM_LIMIT'] = 0
     configure['COMMAND'] = "python $SWPTRACE/../demo/code/increment.py"
     # configre public ip
     configure['PUBLIC'] = dict()

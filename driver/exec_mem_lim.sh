@@ -11,7 +11,8 @@ then
 fi
 
 MEMLIM=$(($1 * 1024 * 1024))
-COMM=$2
+
+COMM="$2"  
 
 MEMCG_ORIG_DIR=/sys/fs/cgroup/memory/
 MEMCG_DIR=/sys/fs/cgroup/memory/run_mem_lim_$USER
@@ -22,8 +23,8 @@ sudo bash -c "echo $MEMLIM > $MEMCG_DIR/memory.limit_in_bytes"
 
 eval "$COMM"
 
-# while read -r pid; do
-#	sudo bash -c "echo $pid > $MEMCG_ORIG_DIR/tasks"
-# done < "$MEMCG_DIR"/tasks
+while read -r pid; do
+	sudo bash -c "echo $pid > $MEMCG_ORIG_DIR/tasks"
+done < "$MEMCG_DIR"/tasks
 
-# sudo rmdir $MEMCG_DIR
+sudo rmdir $MEMCG_DIR
