@@ -84,9 +84,14 @@ def plot_out(dir_path, mean_time):
         sorted_axes = []
         for idy in range(0, grids[1]):
             for idx in range(0, grids[0]):
-                print idy, idx
                 sorted_axes.append(axes[idy][idx]) 
         axes = sorted_axes
+    # set spines false
+    for axis in axes:
+        axis.spines['bottom'].set_visible(False)
+        axis.spines['top'].set_visible(False)
+        axis.spines['right'].set_visible(False)
+        axis.spines['left'].set_visible(False)
     
     #fig.tight_layout()
     #fig.subplots_adjust(left=0.1)
@@ -97,12 +102,10 @@ def plot_out(dir_path, mean_time):
     #layout.spines['left'].set_visible(True)
 
     rect_end = rsyslog['timestamp'].max()
+
         
     for idy in range(0, grids[1]):
         for idx in range(0, grids[0]):
-            print idx, idy, idy*grids[0]+idx
-         #   if str(subyranges[idy][0]) == 'nan' or str(subyranges[idy][1]) =='nan':
-          #      continue
             for name, group in rsyslog.groupby('mode'):
                 axes[idy*grids[0]+idx].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
 
@@ -110,31 +113,48 @@ def plot_out(dir_path, mean_time):
             #    for index, rows in hook.iterrows():
             #        axes[idy*grids[0]+idx].add_patch(mpl.patches.Rectangle((rows['timestamp'], rows['address']), (rect_end - rows['timestamp']), rows['size'], color=colors['create'], label=labels['create'],zorder=0))
 
-            #converty = grids[1]-(idy+1)
+            converty = grids[1]-(idy+1)
             axes[idy*grids[0]+idx].set_xlim(subxranges[idx][0], subxranges[idx][1])
-            #axes[idy*grids[0]+idx].set_ylim(subyranges[converty][0], subyranges[converty][1])
-            axes[idy*grids[0]+idx].set_ylim(subyranges[idy][0], subyranges[idy][1])
-            print "{}/{}/{}/{}".format(idx, idy, subxranges[idx], subyranges[idy])
+            axes[idy*grids[0]+idx].set_ylim(subyranges[converty][0], subyranges[converty][1])
 
-           # if idx == 0: 
-            #    axes[idy*grids[0]+idx].spines['right'].set_visible(False)
-            #elif idx == grids[0] -1:
-            #  axes[idy*grids[0]+idx].spines['left'].set_visible(False)
-               #axes[idy*grids[0]+idx].set_yticks([])
-            #lse:
-           #   axes[idy*grids[0]+idx].spines['left'].set_visible(False)
-           #   axes[idy*grids[0]+idx].spines['right'].set_visible(False)
-                #axes[idy*grids[0]+idx].set_yticks([])
+            if idx == 0: 
+                axes[idy*grids[0]+idx].spines['left'].set_visible(True)
+            elif idx == grids[0] -1:
+                axes[idy*grids[0]+idx].spines['right'].set_visible(True)
+                axes[idy*grids[0]+idx].set_yticks([])
+            else:
+                axes[idy*grids[0]+idx].set_yticks([])
 
-            #f idy == 0:
-            #   axes[idy*grids[0]+idx].spines['bottom'].set_visible(False)
-                #axes[idy*grids[0]+idx].set_xticks([])
-            #lif idy == grids[1] -1:
-            #  axes[idy*grids[0]+idx].spines['top'].set_visible(False)
-            #lse:
-             # axes[idy*grids[0]+idx].spines['top'].set_visible(False)
-              #axes[idy*grids[0]+idx].spines['bottom'].set_visible(False)    
-                #axes[idy*grids[0]+idx].set_xticks([])
+            if idy == 0:
+                axes[idy*grids[0]+idx].spines['top'].set_visible(True)
+                axes[idy*grids[0]+idx].set_xticks([])
+            elif idy == grids[1] -1:
+                axes[idy*grids[0]+idx].spines['bottom'].set_visible(False)
+            else:
+                axes[idy*grids[0]+idx].set_xticks([])
+
+    d = .015  # how big to make the diagonal lines in axes coordinates
+    # arguments to pass to plot, just so we don't keep repeating them
+    kwargs = dict(transform=axes[0].transAxes, color='k', clip_on=False)
+    axes[0].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+    kwargs.update(transform=axes[1].transAxes)  # switch to the bottom axes
+    axes[1].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+    kwargs.update(transform=axes[2].transAxes)  # switch to the bottom axes
+    axes[2].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    kwargs.update(transform=axes[3].transAxes)  # switch to the bottom axes
+    axes[3].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+
+    kwargs.update(transform=axes[2].transAxes)  # switch to the bottom axes
+    axes[2].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    kwargs.update(transform=axes[3].transAxes)  # switch to the bottom axes
+    axes[3].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+
+    kwargs.update(transform=axes[2].transAxes)  # switch to the bottom axes
+    axes[2].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    kwargs.update(transform=axes[3].transAxes)  # switch to the bottom axes
+    axes[3].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+
          
                         
     plt.legend()

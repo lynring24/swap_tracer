@@ -24,7 +24,6 @@ def exec_mem_limit(command, limit):
     # child process 
     p = subprocess.Popen(command, stdin=None, stdout=None, shell=True)
     time.sleep(0.05)
-    os.system('echo pid # : $(pgrep -P $(pgrep -P $(pgrep -P {})))'.format(p.pid))
     os.system('cat /proc/$(pgrep -P $(pgrep -P $(pgrep -P {})))/maps > maps'.format(p.pid))
     out, err = p.communicate()
     p.wait()
