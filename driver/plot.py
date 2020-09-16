@@ -26,7 +26,7 @@ class Tracker(object):
 
 
 labels={'map':'swap-in','fault':'page fault','out':'swap-out', 'writepage':'file I/O', 'handle_mm':'total page fault', 'create':'allocation'}
-colors={'map': 'mediumseagreen', 'out':'skyblue', 'fault':'light pink', 'create':'lightslategrey', 'handle_mm':'lightslategrey' }
+colors={'map': 'mediumseagreen', 'out':'skyblue', 'fault':'lightpink', 'create': 'darkorange', 'layout':'lightslategrey', 'handle_mm':'lightslategrey' }
 zorders={'fault':5, 'map':10, 'out':0, 'handle_mm':3}
 
 def plot_out(dir_path, mean_time):
@@ -71,7 +71,17 @@ def plot_out(dir_path, mean_time):
         subyranges = [ [group.address.min(), group.address.max()] for name, group in rsyslog.groupby('labely') ]
         subyranges = [ y for y in subyranges if y != [] ]
             
-    fig, axes = plt.subplots(ncols=len(subxranges), nrows=len(subyranges))
+    grids = [len(subxranges), len(subyranges)]
+    fig, axes = plt.subplots(ncols=grids[0], nrows=grids[1])
+    if grids[0]==1 and grids[1]==1:
+        axes = [axes]
+    if grids[0] == 1 or grids [1] ==1:
+        axes = [axis for axis in axes]
+    else:
+        axes = [ axis for sub in axes for axis in sub ] 
+    print grids
+    print axes
+    
     #fig.tight_layout()
     #fig.subplots_adjust(left=0.1)
     
@@ -82,44 +92,45 @@ def plot_out(dir_path, mean_time):
 
     rect_end = rsyslog['timestamp'].max()
         
-    for idx in range(len(subxranges)-1,-1,-1):
-        for idy in range(len(subyranges)-1, -1, -1):
+    for idx in range(0, grids[0]):
+        for idy in range(0, grids[1]):
+            print idx, idy, idx*grids[0]+idy
             for name, group in rsyslog.groupby('mode'):
-                axes[idy][idx].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
+                axes[idx*grids[0]+idy].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
 
             if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
                 for index, rows in hook.iterrows():
-                    axes[idy][idx].add_patch(mpl.patches.Rectangle((rows['timestamp'], rows['address']), (rect_end - rows['timestamp']), rows['size'], color=colors['create'], label=labels['create'],zorder=0))
+                    axes[idx*grids[0]+idy].add_patch(mpl.patches.Rectangle((rows['timestamp'], rows['address']), (rect_end - rows['timestamp']), rows['size'], color=colors['create'], label=labels['create'],zorder=0))
 
-            converty = len(subyranges)-(idy+1)
-            axes[idy][idx].set_xlim(subxranges[idx][0], subxranges[idx][1])
-            axes[idy][idx].set_ylim(subyranges[converty][0], subyranges[converty][1])
+            converty = grids[1]-(idy+1)
+            axes[idx*grids[0]+idy].set_xlim(subxranges[idx][0], subxranges[idx][1])
+            axes[idx*grids[0]+idy].set_ylim(subyranges[converty][0], subyranges[converty][1])
 
             if idx == 0: 
-                axes[idy][idx].spines['right'].set_visible(False)
-            elif idx == len(subxranges) -1:
-               axes[idy][idx].spines['left'].set_visible(False)
-               #axes[idy][idx].set_yticks([])
+                axes[idx*grids[0]+idy].spines['right'].set_visible(False)
+            elif idx == grids[0] -1:
+               axes[idx*grids[0]+idy].spines['left'].set_visible(False)
+               #axes[idx*grids[0]+idy].set_yticks([])
             else:
-               axes[idy][idx].spines['left'].set_visible(False)
-               axes[idy][idx].spines['right'].set_visible(False)
-                #axes[idy][idx].set_yticks([])
+               axes[idx*grids[0]+idy].spines['left'].set_visible(False)
+               axes[idx*grids[0]+idy].spines['right'].set_visible(False)
+                #axes[idx*grids[0]+idy].set_yticks([])
 
             if idy == 0:
-                axes[idy][idx].spines['bottom'].set_visible(False)
-                #axes[idy][idx].set_xticks([])
-            elif idy == len(subyranges) -1:
-               axes[idy][idx].spines['top'].set_visible(False)
+                axes[idx*grids[0]+idy].spines['bottom'].set_visible(False)
+                #axes[idx*grids[0]+idy].set_xticks([])
+            elif idy == grids[1] -1:
+               axes[idx*grids[0]+idy].spines['top'].set_visible(False)
             else:
-               axes[idy][idx].spines['top'].set_visible(False)
-               axes[idy][idx].spines['bottom'].set_visible(False)    
-                #axes[idy][idx].set_xticks([])
+               axes[idx*grids[0]+idy].spines['top'].set_visible(False)
+               axes[idx*grids[0]+idy].spines['bottom'].set_visible(False)    
+                #axes[idx*grids[0]+idy].set_xticks([])
          
                         
     plt.legend()
     plt.suptitle('Virtual Address by timeline')
     #axes[int(len(subyranges)/2)][0].set_xlabel('timestamp')
-    #axes[len(subyranges)-1][int(len(subxranges)/2)].set_ylabel('Virtal Address')
+    #axes[len(subyranges)-1][int(grids[0]/2)].set_ylabel('Virtal Address')
 
 
     # output
