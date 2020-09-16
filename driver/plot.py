@@ -34,15 +34,6 @@ def plot_out(dir_path, mean_time):
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
 
-    
-    min_range = len(str(rsyslog['timestamp'].min()))-1
-    max_range = len(str(rsyslog['timestamp'].max()))+1
-    
-    binx = [pow(10, x) for x in range(min_range, max_range)]
-    rsyslog['labelx'] = pd.cut(x=rsyslog['timestamp'], bins=binx)  
-    subxranges = [ [group.timestamp.min(), group.timestamp.max()] for name, group in rsyslog.groupby('labelx') ]
-    subxranges = [ x for x in subxranges if x != [] ]
-
     #if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
     #    hook = pd.read_csv(dir_path+"/hook.csv", usecols=['timestamp', 'address','size'])
     #    hook['mode'] = 'create'
@@ -74,24 +65,16 @@ def plot_out(dir_path, mean_time):
         maps  = maps[['address0','address1','pathname']]
         maps = maps.drop_duplicates()
             
-    grids = [len(subxranges), len(subyranges)]
-    fig, axes = plt.subplots(ncols=grids[0], nrows=grids[1])
-    if grids[0]==1 and grids[1]==1:
+
+    GRIDS = len(subyranges)
+    fig, axes = plt.subplots(nrows=GRIDS)
+    if GRIDS==1:
         axes = [axes]
-    if grids[0] == 1 or grids [1] ==1:
-        axes = [axis for axis in axes]
-    else:
-        sorted_axes = []
-        for idy in range(0, grids[1]):
-            for idx in range(0, grids[0]):
-                sorted_axes.append(axes[idy][idx]) 
-        axes = sorted_axes
+
     # set spines false
     for axis in axes:
         axis.spines['bottom'].set_visible(False)
         axis.spines['top'].set_visible(False)
-        axis.spines['right'].set_visible(False)
-        axis.spines['left'].set_visible(False)
     
     #fig.tight_layout()
     #fig.subplots_adjust(left=0.1)
@@ -103,58 +86,38 @@ def plot_out(dir_path, mean_time):
 
     rect_end = rsyslog['timestamp'].max()
 
-        
-    for idy in range(0, grids[1]):
-        for idx in range(0, grids[0]):
-            for name, group in rsyslog.groupby('mode'):
-                axes[idy*grids[0]+idx].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
-
-            #if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
-            #    for index, rows in hook.iterrows():
-            #        axes[idy*grids[0]+idx].add_patch(mpl.patches.Rectangle((rows['timestamp'], rows['address']), (rect_end - rows['timestamp']), rows['size'], color=colors['create'], label=labels['create'],zorder=0))
-
-            converty = grids[1]-(idy+1)
-            axes[idy*grids[0]+idx].set_xlim(subxranges[idx][0], subxranges[idx][1])
-            axes[idy*grids[0]+idx].set_ylim(subyranges[converty][0], subyranges[converty][1])
-
-            if idx == 0: 
-                axes[idy*grids[0]+idx].spines['left'].set_visible(True)
-            elif idx == grids[0] -1:
-                axes[idy*grids[0]+idx].spines['right'].set_visible(True)
-                axes[idy*grids[0]+idx].set_yticks([])
-            else:
-                axes[idy*grids[0]+idx].set_yticks([])
-
-            if idy == 0:
-                axes[idy*grids[0]+idx].spines['top'].set_visible(True)
-                axes[idy*grids[0]+idx].set_xticks([])
-            elif idy == grids[1] -1:
-                axes[idy*grids[0]+idx].spines['bottom'].set_visible(False)
-            else:
-                axes[idy*grids[0]+idx].set_xticks([])
-
     d = .015  # how big to make the diagonal lines in axes coordinates
     # arguments to pass to plot, just so we don't keep repeating them
     kwargs = dict(transform=axes[0].transAxes, color='k', clip_on=False)
-    axes[0].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-    kwargs.update(transform=axes[1].transAxes)  # switch to the bottom axes
-    axes[1].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+        
+    for idy in range(0, GRIDS):
+        for name, group in rsyslog.groupby('mode'):
+            axes[idy].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
 
-    kwargs.update(transform=axes[2].transAxes)  # switch to the bottom axes
-    axes[2].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-    kwargs.update(transform=axes[3].transAxes)  # switch to the bottom axes
-    axes[3].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+        #if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
+        #    for index, rows in hook.iterrows():
+        #        axes[idy].add_patch(mpl.patches.Rectangle((rows['timestamp'], rows['address']), (rect_end - rows['timestamp']), rows['size'], color=colors['create'], label=labels['create'],zorder=0))
 
-    kwargs.update(transform=axes[2].transAxes)  # switch to the bottom axes
-    axes[2].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-    kwargs.update(transform=axes[3].transAxes)  # switch to the bottom axes
-    axes[3].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+        converty = GRIDS-(idy+1)
+        axes[idy].set_ylim(subyranges[converty][0], subyranges[converty][1])
 
-    kwargs.update(transform=axes[2].transAxes)  # switch to the bottom axes
-    axes[2].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-    kwargs.update(transform=axes[3].transAxes)  # switch to the bottom axes
-    axes[3].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+        if idy == 0:
+            axes[idy].spines['top'].set_visible(True)
+            axes[idy].set_xticks([])
+        elif idy == GRIDS -1:
+            axes[idy].spines['bottom'].set_visible(True)
+        else:
+            axes[idy].set_xticks([])
 
+        if idy == 0:
+            axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+            axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+        else:
+            kwargs.update(transform=axes[idy].transAxes)  # switch to the bottom axes
+            axes[idy].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+            axes[idy].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+            axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+            axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
          
                         
     plt.legend()
