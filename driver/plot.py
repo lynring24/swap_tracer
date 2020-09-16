@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 import matplotlib as mpl
 from multiprocess import Pool, cpu_count
 
@@ -34,11 +35,12 @@ def plot_out(dir_path, mean_time):
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
 
     
-    max_range = len(str(rsyslog['timestamp'].max()))+1
     min_range = len(str(rsyslog['timestamp'].min()))-1
+    max_range = len(str(rsyslog['timestamp'].max()))+1
+    
     binx = [pow(10, x) for x in range(min_range, max_range)]
     rsyslog['labelx'] = pd.cut(x=rsyslog['timestamp'], bins=binx)  
-    subxranges = [ [group.address.min(), group.address.max()] for name, group in rsyslog.groupby('labelx') ]
+    subxranges = [ [group.timestamp.min(), group.timestamp.max()] for name, group in rsyslog.groupby('labelx') ]
     subxranges = [ x for x in subxranges if x != [] ]
 
     #if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
@@ -48,7 +50,18 @@ def plot_out(dir_path, mean_time):
     #joined['timestamp'] = joined['timestamp'].astype(int)
     #joined['address'] = joined['address'].astype(int)
                
-    subyranges=[]
+
+    digits = len(str(rsyslog['address'].min()))-1
+    min_range = int(str(rsyslog['address'].min())[:-1*digits])*pow(10, digits)
+    max_range = (int(str(rsyslog['address'].max())[:-1*digits])+2)*pow(10, digits)
+    POW = pow(10, digits-2)
+    biny = [ y for y in range(min_range, max_range, POW)]
+    rsyslog['labely'] = pd.cut(x=rsyslog['address'], bins=biny)  
+    
+    subyranges = [ [group.address.min(), group.address.max()] for name, group in rsyslog.groupby('labely') ]
+    subyranges = pd.DataFrame(subyranges).replace([np.inf, -np.inf], np.nan).dropna().values.tolist()
+    subyranges = [ y for y in subyranges if y != [] ]
+
     if os.path.isfile('{}/maps'.format(dir_path)) == True:
         maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None)
         maps.columns = ['layout', 'perm' , 'offset', 'duration', 'inode', 'pathname']
@@ -60,16 +73,6 @@ def plot_out(dir_path, mean_time):
         maps['address1'] = maps['address1'].apply(lambda x: int(x, 16)) 
         maps  = maps[['address0','address1','pathname']]
         maps = maps.drop_duplicates()
-        subyranges.extend(maps[['address0','address1']].values.tolist())
-
-    else:
-        max_range = len(str(rsyslog['address'].max()))+1
-        min_range = len(str(rsyslog['address'].min()))-1
-
-        biny = [pow(10, x) for x in range(min_range, max_range)]
-        rsyslog['labely'] = pd.cut(x=rsyslog['address'], bins=biny)
-        subyranges = [ [group.address.min(), group.address.max()] for name, group in rsyslog.groupby('labely') ]
-        subyranges = [ y for y in subyranges if y != [] ]
             
     grids = [len(subxranges), len(subyranges)]
     fig, axes = plt.subplots(ncols=grids[0], nrows=grids[1])
@@ -78,9 +81,12 @@ def plot_out(dir_path, mean_time):
     if grids[0] == 1 or grids [1] ==1:
         axes = [axis for axis in axes]
     else:
-        axes = [ axis for sub in axes for axis in sub ] 
-    print grids
-    print axes
+        sorted_axes = []
+        for idy in range(0, grids[1]):
+            for idx in range(0, grids[0]):
+                print idy, idx
+                sorted_axes.append(axes[idy][idx]) 
+        axes = sorted_axes
     
     #fig.tight_layout()
     #fig.subplots_adjust(left=0.1)
@@ -92,42 +98,47 @@ def plot_out(dir_path, mean_time):
 
     rect_end = rsyslog['timestamp'].max()
         
-    for idx in range(0, grids[0]):
-        for idy in range(0, grids[1]):
-            print idx, idy, idx*grids[0]+idy
+    for idy in range(0, grids[1]):
+        for idx in range(0, grids[0]):
+            print idx, idy, idy*grids[0]+idx
+         #   if str(subyranges[idy][0]) == 'nan' or str(subyranges[idy][1]) =='nan':
+          #      continue
             for name, group in rsyslog.groupby('mode'):
-                axes[idx*grids[0]+idy].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
+                axes[idy*grids[0]+idx].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
 
-            if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
-                for index, rows in hook.iterrows():
-                    axes[idx*grids[0]+idy].add_patch(mpl.patches.Rectangle((rows['timestamp'], rows['address']), (rect_end - rows['timestamp']), rows['size'], color=colors['create'], label=labels['create'],zorder=0))
+            #if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
+            #    for index, rows in hook.iterrows():
+            #        axes[idy*grids[0]+idx].add_patch(mpl.patches.Rectangle((rows['timestamp'], rows['address']), (rect_end - rows['timestamp']), rows['size'], color=colors['create'], label=labels['create'],zorder=0))
 
-            converty = grids[1]-(idy+1)
-            axes[idx*grids[0]+idy].set_xlim(subxranges[idx][0], subxranges[idx][1])
-            axes[idx*grids[0]+idy].set_ylim(subyranges[converty][0], subyranges[converty][1])
+            #converty = grids[1]-(idy+1)
+            axes[idy*grids[0]+idx].set_xlim(subxranges[idx][0], subxranges[idx][1])
+            #axes[idy*grids[0]+idx].set_ylim(subyranges[converty][0], subyranges[converty][1])
+            axes[idy*grids[0]+idx].set_ylim(subyranges[idy][0], subyranges[idy][1])
+            print "{}/{}/{}/{}".format(idx, idy, subxranges[idx], subyranges[idy])
 
-            if idx == 0: 
-                axes[idx*grids[0]+idy].spines['right'].set_visible(False)
-            elif idx == grids[0] -1:
-               axes[idx*grids[0]+idy].spines['left'].set_visible(False)
-               #axes[idx*grids[0]+idy].set_yticks([])
-            else:
-               axes[idx*grids[0]+idy].spines['left'].set_visible(False)
-               axes[idx*grids[0]+idy].spines['right'].set_visible(False)
-                #axes[idx*grids[0]+idy].set_yticks([])
+           # if idx == 0: 
+            #    axes[idy*grids[0]+idx].spines['right'].set_visible(False)
+            #elif idx == grids[0] -1:
+            #  axes[idy*grids[0]+idx].spines['left'].set_visible(False)
+               #axes[idy*grids[0]+idx].set_yticks([])
+            #lse:
+           #   axes[idy*grids[0]+idx].spines['left'].set_visible(False)
+           #   axes[idy*grids[0]+idx].spines['right'].set_visible(False)
+                #axes[idy*grids[0]+idx].set_yticks([])
 
-            if idy == 0:
-                axes[idx*grids[0]+idy].spines['bottom'].set_visible(False)
-                #axes[idx*grids[0]+idy].set_xticks([])
-            elif idy == grids[1] -1:
-               axes[idx*grids[0]+idy].spines['top'].set_visible(False)
-            else:
-               axes[idx*grids[0]+idy].spines['top'].set_visible(False)
-               axes[idx*grids[0]+idy].spines['bottom'].set_visible(False)    
-                #axes[idx*grids[0]+idy].set_xticks([])
+            #f idy == 0:
+            #   axes[idy*grids[0]+idx].spines['bottom'].set_visible(False)
+                #axes[idy*grids[0]+idx].set_xticks([])
+            #lif idy == grids[1] -1:
+            #  axes[idy*grids[0]+idx].spines['top'].set_visible(False)
+            #lse:
+             # axes[idy*grids[0]+idx].spines['top'].set_visible(False)
+              #axes[idy*grids[0]+idx].spines['bottom'].set_visible(False)    
+                #axes[idy*grids[0]+idx].set_xticks([])
          
                         
     plt.legend()
+    plt.rcParams["figure.figsize"] = (14, 14)
     plt.suptitle('Virtual Address by timeline')
     #axes[int(len(subyranges)/2)][0].set_xlabel('timestamp')
     #axes[len(subyranges)-1][int(grids[0]/2)].set_ylabel('Virtal Address')
