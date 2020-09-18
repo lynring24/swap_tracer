@@ -41,6 +41,8 @@ def initialize() :
 
     # configure time
     configure["TIME"] = datetime.now()
+    configure["MODE"] = False
+    configure['HEATMAP'] = False
    
     
     
@@ -104,6 +106,21 @@ def set_pattern(key, value):
 def set_time():
     configure["TIME"]
 
+def set_mode(modes):
+    configure["MODE"] = modes.split(',')
+    
+
+def get_mode_query():
+    print configure['MODE']
+    if configure["MODE"]:
+        queries = []
+        for mode in configure["MODE"]:
+            queries.append('mode=="{}"'.format(mode))
+        queries =' & '.join(queries) 
+        print queries
+        return queries
+    else:
+        return None
 
 def is_log_path(line):
     matched= re.compile('*{}*'.format(get_pattern('rsyslog'))).search(line)

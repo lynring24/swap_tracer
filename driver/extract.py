@@ -16,7 +16,6 @@ def get_swap_extracted(use_abstract=False):
     rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
-    #rsyslog = rsyslog.query('cmd=="{}"'.format(get_command()))
 
     def compare_command(x):
         if x in get_command():
@@ -29,6 +28,10 @@ def get_swap_extracted(use_abstract=False):
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
     modes = ['out', 'fault', 'map']
+    MODE_QUERY = get_mode_query()
+    if MODE_QUERY != None:
+        rsyslog = rsyslog.query(MODE_QUERY)
+
     # rsyslog['address'] = rsyslog.apply(lambda row : int(row['address'], 16) if row['mode'] in modes else row['address'], axis=1)
  
 

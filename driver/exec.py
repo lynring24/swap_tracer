@@ -5,11 +5,11 @@ from extract import get_swap_extracted, extract_malloc
 import subprocess
 from requests import get
 from scan import scan_malloc
-from plot import plot_out
+from plot import draw_view
 from run import exec_mem_limit
 
 
-enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False, 'abstract' : False}
+enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False, 'abstract' : False, 'heatmap' : False, 'mode': False}
 
 def config_option():
     global hasTarget
@@ -40,9 +40,13 @@ def config_option():
              set_path('root', item)
           elif arg.find('--abstract') > NOTEXIST:
              enable_argv['abstract'] = True
+          elif arg.find('--heatmap') > NOTEXIST:
+              enable_argv['heatmap'] = True
+          elif arg.find('--mode') > NOTEXIST:
+              set_mode(item)
           else:
              print '[error] invalid option %s'%arg
-             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--ip=PUBLIC_IP> <--port=PORT_TO_USE> <--abstract=Ture>"
+             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--heatmap> <--abstract=Ture>"
              sys.exit(1)
 
 
@@ -54,9 +58,6 @@ def check_option():
     print " * command        : %s "%get_command()
     if enable_argv['mem']:
         print " * mem lim(Mib)   : %s "%get_mem_limit()
-    print " * log            : %s "%get_path('root')
-    print " * public IP      : %s "%get_ip()
-    print " * port           : %s "%str(get_port())
     print "---------------------------------------------------------------\n"
 
 
@@ -108,6 +109,9 @@ if __name__ == '__main__':
    awk_log()
    extract_malloc()
    mean_time = get_swap_extracted(enable_argv['abstract'])
-   os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
-   plot_out(get_path('head'), mean_time)
+   if enable_argv['heatmap']:
+       draw_heatmap(get_path('head'))
+   else:
+       os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
+       draw_view(get_path('head'), mean_time)
    #os.system('rm {}/hook.csv'.format(get_path('clone')))
