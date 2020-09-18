@@ -61,7 +61,8 @@ def get_swap_extracted(use_abstract=False):
     print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))
     print "> memory page fault # : {}".format(len(rsyslog[rsyslog['mode']=='fault'].index))
     #print "> memory write back # : {}".format(len(rsyslog[rsyslog['mode']=='pageout'].index))
-    print "> average exist time in memory (usec) : {} ".format(mean_time)
+    if np.isnan(mean_time).any() != True:
+        print "> average exist time in memory (usec) : {} ".format(mean_time)
 
     with open('{}/summary.dat'.format(get_path('head')), 'w') as tag:
         tag.write("> memory swap in# : {}\n".format(len(rsyslog[rsyslog['mode']=='map'].index)))
@@ -79,7 +80,7 @@ def extract_malloc():
     # TODO 
     # check if hook exists
     if os.path.isfile('{}/hook.csv'.format(get_path('root'))) == False:
-        print "[Skip] Memory allocation not found"
+        print "\n$ [Skip] hook.csv not found"
         return 
 
     print "$ extract memory allocation"

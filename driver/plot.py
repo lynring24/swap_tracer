@@ -108,13 +108,14 @@ def draw_view(dir_path, mean_time):
     plt.suptitle('Virtual Address by timeline')
 
     # output
-    print "$ save plot"
+    print "\n$ save plot"
     def config_axis(index, start, end):
         fig, axis = plt.subplots()
         for name, group in rsyslog.groupby('mode'):
             axis.set_ylim(start, end)
             axis.plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
         plt.savefig("{}/{}.png".format(dir_path, index), format='png', dip=100)
+        plt.legend()
         if os.environ.get('DISPLAY','') != '':
            plt.show()
 
@@ -122,6 +123,7 @@ def draw_view(dir_path, mean_time):
         if len(group.index) > 0:
             start = group.address.min()
             end = group.address.max()
-            print name, start, end 
-            config_axis(name, start, end)
+            if start < end:
+                print '=> generate {}.png'.format(name)
+                config_axis(name, start, end)
                         

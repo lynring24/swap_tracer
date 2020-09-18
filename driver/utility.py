@@ -111,13 +111,11 @@ def set_mode(modes):
     
 
 def get_mode_query():
-    print configure['MODE']
     if configure["MODE"]:
         queries = []
         for mode in configure["MODE"]:
             queries.append('mode=="{}"'.format(mode))
-        queries =' & '.join(queries) 
-        print queries
+        queries =' | '.join(queries) 
         return queries
     else:
         return None
