@@ -115,7 +115,7 @@ def draw_view(dir_path, mean_time):
             axis.set_ylim(start, end)
             axis.plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
         plt.savefig("{}/{}.png".format(dir_path, index), format='png', dip=100)
-        plt.legend()
+        axis.legend()
         if os.environ.get('DISPLAY','') != '':
            plt.show()
 
