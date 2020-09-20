@@ -107,6 +107,8 @@ def set_time():
     configure["TIME"]
 
 def set_mode(modes):
+    if 'in' in modes:
+        modes = modes.replace('in', 'map')
     configure["MODE"] = modes.split(',')
     
 

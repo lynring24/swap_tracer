@@ -17,22 +17,20 @@ def get_swap_extracted(use_abstract=False):
 
     rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
 
-    def compare_command(x):
-        if x in get_command():
-            return True
-        else: 
-            return False
-    rsyslog["cmd"] = rsyslog["cmd"].apply(lambda x : compare_command(x))
-    rsyslog = rsyslog[rsyslog.cmd==True]
+    #def compare_command(x):
+    #    if x in get_command():
+    #        return True
+    #    else: 
+    #        return False
+    # rsyslog["cmd"] = rsyslog["cmd"].apply(lambda x : compare_command(x))
+    # rsyslog = rsyslog[rsyslog.cmd==True]
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
-    modes = ['out', 'fault', 'map']
     MODE_QUERY = get_mode_query()
     if MODE_QUERY != None:
         rsyslog = rsyslog.query(MODE_QUERY)
 
-    # rsyslog['address'] = rsyslog.apply(lambda row : int(row['address'], 16) if row['mode'] in modes else row['address'], axis=1)
  
 
     print "$ extract duplicated address"
@@ -60,7 +58,6 @@ def get_swap_extracted(use_abstract=False):
     print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='map'].index))
     print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))
     print "> memory page fault # : {}".format(len(rsyslog[rsyslog['mode']=='fault'].index))
-    #print "> memory write back # : {}".format(len(rsyslog[rsyslog['mode']=='pageout'].index))
     if np.isnan(mean_time).any() != True:
         print "> average exist time in memory (usec) : {} ".format(mean_time)
 
