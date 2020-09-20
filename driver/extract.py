@@ -6,24 +6,21 @@ from math import ceil, isnan
 
 MICROSECOND = 1000000
 
-def get_swap_extracted(use_abstract=False):
+def get_swap_extracted(EXACT_ONLY):
     # swap rsyslog cluster -> [ start  end ] : if start, end -> draw as a cluster 
     
 
     print "$ extract ryslog log"
     columns = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), nrows=1)
     max_column = columns.shape[1]
-    rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), usecols=[0, max_column-4, max_column-3, max_column-2, max_column-1])
+    rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), usecols=[0, max_column-5, max_column-4, max_column-3, max_column-2, max_column-1])
 
-    rsyslog.columns = ['timestamp', 'cmd', 'mode', 'swpentry', 'address']
+    rsyslog.columns = ['timestamp', 'pid', 'cmd', 'mode', 'swpentry', 'address']
 
-    #def compare_command(x):
-    #    if x in get_command():
-    #        return True
-    #    else: 
-    #        return False
-    # rsyslog["cmd"] = rsyslog["cmd"].apply(lambda x : compare_command(x))
-    # rsyslog = rsyslog[rsyslog.cmd==True]
+    if EXACT_ONLY:
+        rsyslog["pid"] = rsyslog["pid"].apply(lambda x : x==get_pid())
+        rsyslog = rsyslog[rsyslog.pid==True]
+
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
@@ -41,14 +38,8 @@ def get_swap_extracted(use_abstract=False):
     joined.to_csv('{}/duplicated_address.csv'.format(get_path('head')))
 
     #TODO : abstract data by msec instead of usec and get mean address value instead
-    if use_abstract:
-        print "$ generate abstracted file"
-        rsyslog['timestamp'] = rsyslog.apply(lambda row : round(row['timestamp']*1000, 3), axis =1)
-        abstract = rsyslog.groupby(['mode', 'timestamp'])['address'].mean().reset_index()
-        abstract.to_csv(get_path('rsyslog'), index=False)
-    else:
-        print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
-        rsyslog.to_csv(get_path('rsyslog'), index=False) 
+    print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
+    rsyslog.to_csv(get_path('rsyslog'), index=False) 
     
     print "\n[ Summary ]"
     mean = joined.apply(lambda row: row['timestamp_y'] - row['timestamp_x'], axis=1)
@@ -60,14 +51,15 @@ def get_swap_extracted(use_abstract=False):
     print "> memory page fault # : {}".format(len(rsyslog[rsyslog['mode']=='fault'].index))
     if np.isnan(mean_time).any() != True:
         print "> average exist time in memory (usec) : {} ".format(mean_time)
+        set_meantime(mean_time)
 
     with open('{}/summary.dat'.format(get_path('head')), 'w') as tag:
         tag.write("> memory swap in# : {}\n".format(len(rsyslog[rsyslog['mode']=='map'].index)))
         tag.write("> memory page out # : {}\n".format(len(rsyslog[rsyslog['mode']=='out'].index)))
         tag.write("> memory page fault # : {}\n".format(len(rsyslog[rsyslog['mode']=='fault'].index)))
-        tag.write("> average exist time in memory (usec) : {} \n".format(mean_time))
+        if np.isnan(mean_time).any() != True:
+            tag.write("> average exist time in memory (usec) : {} \n".format(mean_time))
     tag.close()
-    return mean_time 
         
 
 

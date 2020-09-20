@@ -1,7 +1,7 @@
 import os 
 import time
 import subprocess
-
+from utility import *
 
 def exec_mem_limit(command, limit):
     rsyslog = open('/etc/rsyslog.conf').read()
@@ -24,9 +24,16 @@ def exec_mem_limit(command, limit):
     # child process 
     p = subprocess.Popen(command, stdin=None, stdout=None, shell=True)
     time.sleep(0.05)
-    # ps -p 2523 -o comm=
+
     os.system('$SWPTRACE/swptrace {} {}'.format(p.pid, 1));
-    os.system('cat /proc/$(pgrep -P $(pgrep -P $(pgrep -P {})))/maps > maps'.format(p.pid))
+    pipeline = subprocess.Popen('echo $(pgrep -P $(pgrep -P $(pgrep -P {})))'.format(p.pid), stdout=subprocess.PIPE,shell=True)
+
+    target, err = pipeline.communicate()
+    target = target.strip()
+    set_pid(int(target))
+    
+    # os.system('cat /proc/$(pgrep -P $(pgrep -P $(pgrep -P {})))/maps > maps'.format(p.pid))
+    os.system('cat /proc/{}/maps > maps'.format(target))
     out, err = p.communicate()
     p.wait()
     os.system('$SWPTRACE/swptrace {} {}'.format(0, 0));

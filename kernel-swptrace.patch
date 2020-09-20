@@ -129,7 +129,7 @@ index 000000000..ad3dd8db0
 +
 +
 diff --git a/mm/memory.c b/mm/memory.c
-index ab650c21b..356ddca7c 100644
+index ab650c21b..b84d0ef0d 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -81,6 +81,9 @@
@@ -162,8 +162,8 @@ index ab650c21b..356ddca7c 100644
 +        long *entry = arg;
 +	if (SWPTRACE)
 +		if (is_child(get_current()->pid))
-+			pr_info("swptrace %s map %lu %lu\n",
-+					get_current()->comm, *entry, addr);
++			pr_info("swptrace %d %s map %lu %lu\n",
++					get_current()->pid, get_current()->comm, *entry, addr);
 +	return true;	
 +}
 +
@@ -186,8 +186,8 @@ index ab650c21b..356ddca7c 100644
  
 +	if (SWPTRACE) {
 +		if (is_child(get_current()->pid)) 
-+			pr_info("swptrace %s fault %lu %lu\n",
-+				get_current()->comm, entry.val, vmf->address);
++			pr_info("swptrace %d %s fault %lu %lu\n",
++				get_current()->pid, get_current()->comm, entry.val, vmf->address);
 + 	}
  
  	delayacct_set_flag(DELAYACCT_PF_SWAPIN);
@@ -291,7 +291,7 @@ index 0b39ec0c9..403886ee9 100644
  
  	if (need_lock)
 diff --git a/mm/page_io.c b/mm/page_io.c
-index 2e8019d0e..d940077b7 100644
+index 2e8019d0e..f27e8d4d2 100644
 --- a/mm/page_io.c
 +++ b/mm/page_io.c
 @@ -26,6 +26,11 @@
@@ -306,7 +306,7 @@ index 2e8019d0e..d940077b7 100644
  static struct bio *get_swap_bio(gfp_t gfp_flags,
  				struct page *page, bio_end_io_t end_io)
  {
-@@ -282,6 +287,29 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
+@@ -282,6 +287,30 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
  	int ret;
  	struct swap_info_struct *sis = page_swap_info(page);
  
@@ -327,7 +327,8 @@ index 2e8019d0e..d940077b7 100644
 +				anon_vma_interval_tree_foreach(avc, &anon_vma->rb_root, pgoff_start, pgoff_end) { 
 +					struct vm_area_struct *vma = avc->vma;
 +					unsigned long address = vma_address(page, vma);
-+					pr_info("swptrace %s out %lu %lu\n", get_current()->comm, page_private(page), address);
++					pr_info("swptrace %d %s out %lu %lu\n", 
++						get_current()->pid, get_current()->comm, page_private(page), address);
 +				}
 +			}
 +		}
@@ -336,7 +337,7 @@ index 2e8019d0e..d940077b7 100644
  	VM_BUG_ON_PAGE(!PageSwapCache(page), page);
  	if (sis->flags & SWP_FS) {
  		struct kiocb kiocb;
-@@ -359,6 +387,9 @@ int swap_readpage(struct page *page, bool synchronous)
+@@ -359,6 +388,9 @@ int swap_readpage(struct page *page, bool synchronous)
  	VM_BUG_ON_PAGE(!PageSwapCache(page) && !synchronous, page);
  	VM_BUG_ON_PAGE(!PageLocked(page), page);
  	VM_BUG_ON_PAGE(PageUptodate(page), page);

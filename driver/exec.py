@@ -9,7 +9,7 @@ from plot import draw_view
 from run import exec_mem_limit
 
 
-enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False, 'abstract' : False, 'heatmap' : False, 'mode': False}
+enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False,              'heatmap' : False, 'mode': False, 'exact' : False}
 
 def config_option():
     global hasTarget
@@ -38,15 +38,15 @@ def config_option():
           elif arg.find('--log') > NOTEXIST:
              enable_argv['log'] = True
              set_path('root', item)
-          elif arg.find('--abstract') > NOTEXIST:
-             enable_argv['abstract'] = True
           elif arg.find('--heatmap') > NOTEXIST:
               enable_argv['heatmap'] = True
           elif arg.find('--mode') > NOTEXIST:
               set_mode(item)
+          elif arg.find('--exact') > NOTEXIST:
+              enable_argv['exact'] = True
           else:
              print '[error] invalid option %s'%arg
-             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--heatmap> <--abstract=Ture>"
+             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--heatmap>  <--exact=True>" 
              sys.exit(1)
 
 
@@ -58,6 +58,11 @@ def check_option():
     print " * command        : %s "%get_command()
     if enable_argv['mem']:
         print " * mem lim(Mib)   : %s "%get_mem_limit()
+    if enable_argv['exact']:
+        print "* exact target only : True"
+    if enable_argv['heatmap']:
+        print "* heatmap : True"
+
     print "---------------------------------------------------------------\n"
 
 
@@ -108,10 +113,10 @@ if __name__ == '__main__':
    create_directory() 
    awk_log()
    extract_malloc()
-   mean_time = get_swap_extracted(enable_argv['abstract'])
+   get_swap_extracted(enable_argv['exact'])
    if enable_argv['heatmap']:
        draw_heatmap(get_path('head'))
    else:
        os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
-       draw_view(get_path('head'), mean_time)
+       draw_view(get_path('head'), get_meantime())
    #os.system('rm {}/hook.csv'.format(get_path('clone')))

@@ -43,6 +43,8 @@ def initialize() :
     configure["TIME"] = datetime.now()
     configure["MODE"] = False
     configure['HEATMAP'] = False
+    configure['PID'] = 1
+    configure['MEANTIME']=0
    
     
     
@@ -142,6 +144,19 @@ def get_path(x):
 
 def get_command():
     return configure["COMMAND"]
+
+def get_pid():
+    return configure['PID']
+
+def set_pid(x):
+    configure['PID'] = x
+
+def get_meantime():
+    return configure['MEANTIME']
+
+def set_meantime(x):
+    configure['MEANTIME'] = x
+
 
 # TODO 
 # threshold for vpn
