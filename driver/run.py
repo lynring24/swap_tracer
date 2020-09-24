@@ -23,7 +23,7 @@ def exec_mem_limit(command, limit):
 
     # child process 
     p = subprocess.Popen(command, stdin=None, stdout=None, shell=True)
-    time.sleep(0.05)
+    time.sleep(0.10)
 
     os.system('$SWPTRACE/swptrace {} {}'.format(p.pid, 1));
     pipeline = subprocess.Popen('echo $(pgrep -P $(pgrep -P $(pgrep -P {})))'.format(p.pid), stdout=subprocess.PIPE,shell=True)
