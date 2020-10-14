@@ -21,7 +21,7 @@ sudo mkdir -p $MEMCG_DIR
 sudo bash -c "echo $$ >> $MEMCG_DIR/cgroup.procs"
 sudo bash -c "echo $MEMLIM > $MEMCG_DIR/memory.limit_in_bytes"
 
-eval "$COMM"
+eval $COMM
 
 while read -r pid; do
 	sudo bash -c "echo $pid > $MEMCG_ORIG_DIR/tasks"

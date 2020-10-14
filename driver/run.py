@@ -21,22 +21,30 @@ def exec_mem_limit(command, limit):
    
     command = "(cd {}; {})".format(pwd, command)
 
+    print command
+
     # child process 
-    p = subprocess.Popen(command, stdin=None, stdout=None, shell=True)
-    time.sleep(0.10)
+    start_time = time.time()
+    child_process= subprocess.Popen(command, stdin=None, stdout=None, shell=True)
+    #out, err = child_process.communicate()
 
-    os.system('$SWPTRACE/swptrace {} {}'.format(p.pid, 1));
-    pipeline = subprocess.Popen('echo $(pgrep -P $(pgrep -P $(pgrep -P {})))'.format(p.pid), stdout=subprocess.PIPE,shell=True)
+    time.sleep(1)
 
-    target, err = pipeline.communicate()
-    target = target.strip()
-    set_pid(int(target))
+    os.system('$SWPTRACE/swptrace {} {}'.format(child_process.pid, 1));
+    target_process = subprocess.Popen('echo $(pgrep -P $(pgrep -P $(pgrep -P {})))'.format(child_process.pid), stdout=subprocess.PIPE,shell=True)
+
+    target_pid, err = target_process.communicate()
+    target_pid = target_pid.strip()
+
+    time.sleep(1)
     
-    # os.system('cat /proc/$(pgrep -P $(pgrep -P $(pgrep -P {})))/maps > maps'.format(p.pid))
-    os.system('cat /proc/{}/maps > maps'.format(target))
-    out, err = p.communicate()
-    p.wait()
+    print "catch proc/{}/maps".format(target_pid)
+    os.system('cat /proc/$(pgrep -P $(pgrep -P $(pgrep -P {})))/maps > maps'.format(child_process.pid))
+    os.system('cat /proc/{}/maps > maps'.format(target_pid))
+    child_process.wait()
+    print "--- execution {} sec ---".format(time.time() - start_time)
     os.system('$SWPTRACE/swptrace {} {}'.format(0, 0));
+    set_pid(int(target_pid))
 
 
 
