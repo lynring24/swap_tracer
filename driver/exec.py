@@ -6,7 +6,7 @@ import subprocess
 from requests import get
 from scan import scan_malloc
 from plot import draw_view
-from run import exec_mem_limit
+from exec_mem_lim import exec_mem_limit
 
 
 enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False,              'heatmap' : False, 'mode': False, 'exact' : False}
@@ -114,10 +114,10 @@ if __name__ == '__main__':
    awk_log()
    extract_malloc()
    get_swap_extracted(enable_argv['exact'])
-   #if enable_argv['heatmap']:
-   #    draw_heatmap(get_path('head'))
-   #else:
-   #    os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
-   #    os.system('mv {}/labelized.csv {}'.format(get_path('root'), get_path('head')))
-   #    draw_view(get_path('head'), get_meantime())
+   if enable_argv['heatmap']:
+       draw_heatmap(get_path('head'))
+   else:
+       os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
+       os.system('mv {}/labelized.csv {}'.format(get_path('root'), get_path('head')))
+       #draw_view(get_path('head'), get_meantime())
    #os.system('rm {}/hook.csv'.format(get_path('clone')))
