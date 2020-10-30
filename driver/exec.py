@@ -119,5 +119,5 @@ if __name__ == '__main__':
    else:
        os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
        os.system('mv {}/labelized.csv {}'.format(get_path('root'), get_path('head')))
-       #draw_view(get_path('head'), get_meantime())
+       draw_view(get_path('head'), get_meantime())
    #os.system('rm {}/hook.csv'.format(get_path('clone')))

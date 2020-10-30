@@ -145,7 +145,7 @@ def draw_view(dir_path, mean_time):
             
         for idy in range(0, GRIDS):
             for name, group in segments.groupby('mode'):
-                axes[idy].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
+                axes[idy].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=1, zorder=zorders[name])
 
             converty = GRIDS-(idy+1)
             axes[idy].set_ylim(subyranges[converty][0]-PADDING, subyranges[converty][1]+PADDING)
