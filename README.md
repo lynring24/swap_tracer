@@ -35,6 +35,11 @@ $ source ~/.bashrc
 
 $ cd driver
 $ make 
+
+# install requisite package
+# python=2.7.*
+$ pip install $(cat requisite)
+$ apt-get install python-tk
 ```
 3. [Optional] Adding the linkage for profiling
 For the profiling, please include the linkage(**-L. -lhmalloc**) to the Makefile of your target source 

@@ -1,13 +1,15 @@
 from pprint import pprint 
 from utility import * 
+import subprocess
 from extract import get_swap_extracted, extract_malloc
 import subprocess
 from requests import get
 from scan import scan_malloc
-from plot import plot_out
+from plot import draw_view
+from exec_mem_lim import exec_mem_limit
 
 
-enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False, 'abstract' : False}
+enable_argv = {'target' : False, 'mem' : False, 'cmd' : False, 'ip': False, 'port':False, 'log': False,              'heatmap' : False, 'mode': False, 'exact' : False}
 
 def config_option():
     global hasTarget
@@ -36,11 +38,15 @@ def config_option():
           elif arg.find('--log') > NOTEXIST:
              enable_argv['log'] = True
              set_path('root', item)
-          elif arg.find('--abstract') > NOTEXIST:
-             enable_argv['abstract'] = True
+          elif arg.find('--heatmap') > NOTEXIST:
+              enable_argv['heatmap'] = True
+          elif arg.find('--mode') > NOTEXIST:
+              set_mode(item)
+          elif arg.find('--exact') > NOTEXIST:
+              enable_argv['exact'] = True
           else:
              print '[error] invalid option %s'%arg
-             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--ip=PUBLIC_IP> <--port=PORT_TO_USE>"
+             print "usage : python $SWPTARCE/exec.py --target=/ABSOLUTE_PATH/ --cmd=\"COMMAND\"  <--mem=Mib>  <--log=/ABSOLUTE_PATH/> <--heatmap>  <--exact=True>" 
              sys.exit(1)
 
 
@@ -52,33 +58,12 @@ def check_option():
     print " * command        : %s "%get_command()
     if enable_argv['mem']:
         print " * mem lim(Mib)   : %s "%get_mem_limit()
-    print " * log            : %s "%get_path('root')
-    print " * public IP      : %s "%get_ip()
-    print " * port           : %s "%str(get_port())
+    if enable_argv['exact']:
+        print "* exact target only : True"
+    if enable_argv['heatmap']:
+        print "* heatmap : True"
+
     print "---------------------------------------------------------------\n"
-
-
-def execute():
-    rsyslog = open('/etc/rsyslog.conf').read()
-    if "# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat" in rsyslog:
-       print "rsyslog timestamping in RFC 3339 format"
-    else: 
-       print "rsyslog timestamp traditional file format "
-       os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
-       os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
-    top=get_path('root')
-    if enable_argv['target']:
-       top=top+"/clone"
-       # os.system('rm {}'.format(top+'/hook.csv'))
-    if enable_argv['mem']: 
-        exe_instr='cd %s; sudo sh $SWPTRACE/exec_mem_lim.sh %s \"%s\"'%(top, str(get_mem_limit()) , get_command() )
-    else:
-        exe_instr='cd {}; {} ;'.format(top, get_command())
-        # exe_instr='cd {}; {} ; mv hook.csv {}'.format(top, get_command(),get_path('head')+'./hook.csv')
-    print "\n$ "+ exe_instr
-    eval_result = os.system(exe_instr)
-    if eval_result!= 0: 
-        os.system('rm -rf {}'.format(get_path('root')+'/mod'))
 
 
 def __awk_log(logfile, option, error): 
@@ -92,10 +77,10 @@ def __awk_log(logfile, option, error):
 def awk_log():
     # awk parts from log only after the execution
     try:
-	__awk_log('cat '+get_path('rsyslog'), 'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\'' , IOError)
+	__awk_log('cat /var/log/syslog', 'awk -v start='+ datetime_to_string(get_time()) +' -F, \'/swptrace/ {if($1>start){print $0}}\'' , IOError)
     except IOError:
         print "rsyslog miss message, try dmesg"
-	__awk_log( 'dmesg --time-format iso', 'grep swptrace', RuntimeError )
+	__awk_log( 'dmesg --time-format iso', 'grep swptrace', RuntimeError)
     except:
         print "[Failure] fail to extract log" 
 	clean_up_and_exit(get_path('head'), 'awk_log')
@@ -124,12 +109,15 @@ if __name__ == '__main__':
    check_option()
    if enable_argv['target']:
        scan_malloc()
-   execute()
-   create_directory()
+   exec_mem_limit(get_command(), get_mem_limit() )
+   create_directory() 
    awk_log()
-   if enable_argv['target'] :
-       extract_malloc()
-       os.system('rm {}'.format(get_path('clone')+'/hook.csv'))
-   mean_time = get_swap_extracted()
-   plot_out(get_path('head'), mean_time, enable_argv['target'])
-   # run_flask() 
+   extract_malloc()
+   get_swap_extracted(enable_argv['exact'])
+   if enable_argv['heatmap']:
+       draw_heatmap(get_path('head'))
+   else:
+       os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
+       os.system('mv {}/labelized.csv {}'.format(get_path('root'), get_path('head')))
+       draw_view(get_path('head'), get_meantime())
+   #os.system('rm {}/hook.csv'.format(get_path('clone')))

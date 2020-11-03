@@ -19,6 +19,7 @@ def initialize() :
     
     configure['PATTERN']['block']='(\d+.\d{6}) (.+)'
     configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}[,\.]\d{6}) (.+)'
+    configure['DELIMETER'] = '\s+'
     # configure size
     configure['SIZE'] =  resource.getpagesize()
     # configure path 
@@ -31,7 +32,7 @@ def initialize() :
        configure['PATH']['rsyslog'] = "/var/log/messages"
 
     # configure mem limit
-    configure['MEM_LIMIT'] = 1024
+    configure['MEM_LIMIT'] = 0
     configure['COMMAND'] = "python $SWPTRACE/../demo/code/increment.py"
     # configre public ip
     configure['PUBLIC'] = dict()
@@ -40,11 +41,15 @@ def initialize() :
 
     # configure time
     configure["TIME"] = datetime.now()
+    configure["MODE"] = False
+    configure['HEATMAP'] = False
+    configure['PID'] = 1
+    configure['MEANTIME']=0
    
     
     
 
-# area = ['total','merge', 'labeled']
+# area = ['total','rsyslog', 'labeled']
 # area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
 
 
@@ -56,7 +61,7 @@ def create_directory():
     configure['PATH']['clone'] = configure['PATH']['target']+"/clone"
     configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
-    configure['PATH']['merge'] = configure['PATH']['head'] +'/merge.csv'
+    configure['PATH']['rsyslog'] = configure['PATH']['head'] +'/rsyslog.csv'
 
     os.system('sudo mkdir -p ' + configure['PATH']['head'])
     with open(get_path('head')+'/option.dat','w') as tag:
@@ -103,6 +108,21 @@ def set_pattern(key, value):
 def set_time():
     configure["TIME"]
 
+def set_mode(modes):
+    if 'in' in modes:
+        modes = modes.replace('in', 'map')
+    configure["MODE"] = modes.split(',')
+    
+
+def get_mode_query():
+    if configure["MODE"]:
+        queries = []
+        for mode in configure["MODE"]:
+            queries.append('mode=="{}"'.format(mode))
+        queries =' | '.join(queries) 
+        return queries
+    else:
+        return None
 
 def is_log_path(line):
     matched= re.compile('*{}*'.format(get_pattern('rsyslog'))).search(line)
@@ -124,6 +144,19 @@ def get_path(x):
 
 def get_command():
     return configure["COMMAND"]
+
+def get_pid():
+    return configure['PID']
+
+def set_pid(x):
+    configure['PID'] = x
+
+def get_meantime():
+    return configure['MEANTIME']
+
+def set_meantime(x):
+    configure['MEANTIME'] = x
+
 
 # TODO 
 # threshold for vpn
@@ -152,6 +185,9 @@ def get_mem_limit():
 
 def get_pattern(x):
     return configure['PATTERN'].get(x)
+
+def get_delimeter():
+    return configure['DELIMETER']
  
 
 def is_false_generated(x, fname=None):

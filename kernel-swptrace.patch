@@ -1,0 +1,448 @@
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index 92ee0b437..48cd8b55b 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -343,6 +343,9 @@
+ 332	common	statx			__x64_sys_statx
+ 333	common	io_pgetevents		__x64_sys_io_pgetevents
+ 334	common	rseq			__x64_sys_rseq
++# SWPTRACE
++335     64  	swptrace 		__x64_sys_swptrace
++
+ # don't use numbers 387 through 423, add new calls after the last
+ # 'common' entry
+ 424	common	pidfd_send_signal	__x64_sys_pidfd_send_signal
+diff --git a/include/linux/swptrace.h b/include/linux/swptrace.h
+new file mode 100644
+index 000000000..58de5fb8f
+--- /dev/null
++++ b/include/linux/swptrace.h
+@@ -0,0 +1,10 @@
++#ifdef _LINUX_SWPTRACE_H
++int SWPTRACE; 
++pid_t SWPTARGET;
++int is_child(pid_t child);
++#else
++extern int SWPTRACE;
++extern pid_t SWPTARGET;
++extern int is_child(pid_t child);
++#endif
++
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index e446806a5..780174979 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -1189,6 +1189,10 @@ asmlinkage long sys_old_readdir(unsigned int, struct old_linux_dirent __user *,
+ asmlinkage long sys_gethostname(char __user *name, int len);
+ asmlinkage long sys_uname(struct old_utsname __user *);
+ asmlinkage long sys_olduname(struct oldold_utsname __user *);
++
++/* SWPTRACE : kernel/swptrace.c */
++asmlinkage long sys_swptrace(pid_t pid, int mode);
++
+ #ifdef __ARCH_WANT_SYS_OLD_GETRLIMIT
+ asmlinkage long sys_old_getrlimit(unsigned int resource, struct rlimit __user *rlim);
+ #endif
+@@ -1210,6 +1214,7 @@ asmlinkage long sys_old_mmap(struct mmap_arg_struct __user *arg);
+  */
+ asmlinkage long sys_ni_syscall(void);
+ 
++
+ #endif /* CONFIG_ARCH_HAS_SYSCALL_WRAPPER */
+ 
+ 
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 62471e75a..fef10cbfb 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -10,7 +10,7 @@ obj-y     = fork.o exec_domain.o panic.o \
+ 	    extable.o params.o \
+ 	    kthread.o sys_ni.o nsproxy.o \
+ 	    notifier.o ksysfs.o cred.o reboot.o \
+-	    async.o range.o smpboot.o ucount.o
++	    async.o range.o smpboot.o ucount.o 
+ 
+ obj-$(CONFIG_MODULES) += kmod.o
+ obj-$(CONFIG_MULTIUSER) += groups.o
+@@ -43,6 +43,8 @@ obj-y += irq/
+ obj-y += rcu/
+ obj-y += livepatch/
+ obj-y += dma/
++## TODO
++obj-y += swptrace.o
+ 
+ obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
+ obj-$(CONFIG_FREEZER) += freezer.o
+diff --git a/kernel/swptrace.c b/kernel/swptrace.c
+new file mode 100644
+index 000000000..ad3dd8db0
+--- /dev/null
++++ b/kernel/swptrace.c
+@@ -0,0 +1,49 @@
++#include <linux/kernel.h>
++#include <linux/syscalls.h>
++#include <linux/uaccess.h>
++#include <linux/swptrace.h>
++#include <linux/linkage.h>
++#include <linux/sched.h>
++
++#define SWPON 1
++#define SWPOFF 0
++
++int SWPTRACE=SWPOFF;
++pid_t SWPTARGET=0;
++
++MODULE_LICENSE("GPL");
++
++SYSCALL_DEFINE2(swptrace, pid_t, pid, int , mode)  
++{
++	long pid_l = (long) pid;
++
++	SWPTRACE = mode; 
++	SWPTARGET = pid; 
++	printk("[SWPTRACE] target(%ld) %s\n", pid_l, (SWPTRACE==SWPON)?"ON":"OFF");
++	return 0;
++}
++
++int is_child(pid_t child)
++{
++	int is_child = 0;
++	static struct task_struct *curr;
++	
++	if (child == SWPTARGET) 
++		is_child = 1;
++	else {
++		curr = pid_task(find_get_pid(child), PIDTYPE_PID); 
++		if(!curr)
++			return -EINVAL;
++		
++		while( curr->pid != 0) {
++			if ( curr->pid == SWPTARGET ) {
++				is_child = 1;
++				break;
++			}
++			curr = curr->parent;
++		}
++	}
++	return is_child;
++}
++
++
+diff --git a/mm/memory.c b/mm/memory.c
+index ab650c21b..b84d0ef0d 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -81,6 +81,9 @@
+ 
+ #include "internal.h"
+ 
++//TODO
++#include <linux/swptrace.h>
++
+ #if defined(LAST_CPUPID_NOT_IN_PAGE_FLAGS) && !defined(CONFIG_COMPILE_TEST)
+ #warning Unfortunate NUMA and NUMA Balancing config, growing page-frame for last_cpupid.
+ #endif
+@@ -2468,7 +2471,7 @@ static vm_fault_t wp_page_shared(struct vm_fault *vmf)
+ 
+ 	return VM_FAULT_WRITE;
+ }
+-
++	
+ /*
+  * This routine handles present pages, when users try to write
+  * to a shared page. It is done by copying the page to a new address
+@@ -2667,6 +2670,28 @@ void unmap_mapping_range(struct address_space *mapping,
+ }
+ EXPORT_SYMBOL(unmap_mapping_range);
+ 
++// TODO : This is anonymous page. Must be rmapped
++static bool swp_rmap_one(struct page *page, struct vm_area_struct *vma, 
++		        unsigned long addr, void *arg) 
++{
++        long *entry = arg;
++	if (SWPTRACE)
++		if (is_child(get_current()->pid))
++			pr_info("swptrace %d %s map %lu %lu\n",
++					get_current()->pid, get_current()->comm, *entry, addr);
++	return true;	
++}
++
++void rmap_walk_swapanon(struct page *page, long entry)
++{
++	struct rmap_walk_control rwc = {
++		.rmap_one=swp_rmap_one,
++		.arg=(void*)&(entry),
++	};
++	rmap_walk(page, &rwc);
++}
++
++
+ /*
+  * We enter with non-exclusive mmap_sem (to exclude vma changes,
+  * but allow concurrent faults), and pte mapped but not yet locked.
+@@ -2711,6 +2736,11 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ 		goto out;
+ 	}
+ 
++	if (SWPTRACE) {
++		if (is_child(get_current()->pid)) 
++			pr_info("swptrace %d %s fault %lu %lu\n",
++				get_current()->pid, get_current()->comm, entry.val, vmf->address);
++ 	}
+ 
+ 	delayacct_set_flag(DELAYACCT_PF_SWAPIN);
+ 	page = lookup_swap_cache(entry, vma, vmf->address);
+@@ -2846,6 +2876,8 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ 	}
+ 
+ 	swap_free(entry);
++
++
+ 	if (mem_cgroup_swap_full(page) ||
+ 	    (vma->vm_flags & VM_LOCKED) || PageMlocked(page))
+ 		try_to_free_swap(page);
+@@ -2875,6 +2907,8 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ unlock:
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+ out:
++	rmap_walk_swapanon(page, entry.val);
++
+ 	return ret;
+ out_nomap:
+ 	mem_cgroup_cancel_charge(page, memcg, false);
+@@ -2887,6 +2921,8 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ 		unlock_page(swapcache);
+ 		put_page(swapcache);
+ 	}
++	
++	rmap_walk_swapanon(page, entry.val);
+ 	return ret;
+ }
+ 
+@@ -3274,7 +3310,7 @@ vm_fault_t alloc_set_pte(struct vm_fault *vmf, struct mem_cgroup *memcg,
+ 
+ 	return 0;
+ }
+-
++ 
+ 
+ /**
+  * finish_fault - finish page fault once we have prepared the page to fault
+@@ -3946,7 +3982,8 @@ vm_fault_t handle_mm_fault(struct vm_area_struct *vma, unsigned long address,
+ 	vm_fault_t ret;
+ 
+ 	__set_current_state(TASK_RUNNING);
+-
++	//pr_info("swptrace %s handle_mm -1 %lu\n",
++	//		get_current()->comm, address);
+ 	count_vm_event(PGFAULT);
+ 	count_memcg_event_mm(vma->vm_mm, PGFAULT);
+ 
+@@ -4394,7 +4431,7 @@ void __might_fault(const char *file, int line)
+ 	/*
+ 	 * Some code (nfs/sunrpc) uses socket ops on kernel memory while
+ 	 * holding the mmap_sem, this is safe because kernel memory doesn't
+-	 * get paged out, therefore we'll never actually fault, and the
++	 * get paged out, therefore we'll never ahandle_mmfault, and the
+ 	 * below annotations will generate false positives.
+ 	 */
+ 	if (uaccess_kernel())
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 663a54493..ddf0a835f 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -296,8 +296,11 @@ void remove_migration_ptes(struct page *old, struct page *new, bool locked)
+ 
+ 	if (locked)
+ 		rmap_walk_locked(new, &rwc);
+-	else
++	else {
++		//printk("remove_migration_ptes/rmap.c\n");
+ 		rmap_walk(new, &rwc);
++	}
++		
+ }
+ 
+ /*
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index 9f61dfec6..8d7171137 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -2298,6 +2298,8 @@ static int __writepage(struct page *page, struct writeback_control *wbc,
+ {
+ 	struct address_space *mapping = data;
+ 	int ret = mapping->a_ops->writepage(page, wbc);
++//	pr_info("swptrace mm/page-writeback writepage -1 %p\n", page_address(page));
++//	pr_info("swptrace %s file -1 %p\n",get_current()->comm, page_address(page));
+ 	mapping_set_error(mapping, ret);
+ 	return ret;
+ }
+diff --git a/mm/page_idle.c b/mm/page_idle.c
+index 0b39ec0c9..403886ee9 100644
+--- a/mm/page_idle.c
++++ b/mm/page_idle.c
+@@ -111,7 +111,7 @@ static void page_idle_clear_pte_refs(struct page *page)
+ 	need_lock = !PageAnon(page) || PageKsm(page);
+ 	if (need_lock && !trylock_page(page))
+ 		return;
+-
++	//printk("page_idle_clear_pte_refs/page_idle.c\n");
+ 	rmap_walk(page, (struct rmap_walk_control *)&rwc);
+ 
+ 	if (need_lock)
+diff --git a/mm/page_io.c b/mm/page_io.c
+index 2e8019d0e..f27e8d4d2 100644
+--- a/mm/page_io.c
++++ b/mm/page_io.c
+@@ -26,6 +26,11 @@
+ #include <linux/sched/task.h>
+ #include <asm/pgtable.h>
+ 
++//TODO:swptrace
++#include <linux/rmap.h>
++#include "internal.h" // vma_address
++#include <linux/swptrace.h>
++
+ static struct bio *get_swap_bio(gfp_t gfp_flags,
+ 				struct page *page, bio_end_io_t end_io)
+ {
+@@ -282,6 +287,30 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
+ 	int ret;
+ 	struct swap_info_struct *sis = page_swap_info(page);
+ 
++
++	// TODO : through interverse the anon_vma_chain 
++	if (SWPTRACE) { 
++		if (is_child(get_current()->pid)) {	
++			struct anon_vma * anon_vma; 
++			struct anon_vma_chain * avc;
++			pgoff_t pgoff_start, pgoff_end;
++
++			anon_vma = page_anon_vma(page);
++			
++
++			if (anon_vma) {
++				pgoff_start = page_to_pgoff(page);
++				pgoff_end = pgoff_start + hpage_nr_pages(page) - 1;	
++				anon_vma_interval_tree_foreach(avc, &anon_vma->rb_root, pgoff_start, pgoff_end) { 
++					struct vm_area_struct *vma = avc->vma;
++					unsigned long address = vma_address(page, vma);
++					pr_info("swptrace %d %s out %lu %lu\n", 
++						get_current()->pid, get_current()->comm, page_private(page), address);
++				}
++			}
++		}
++	}
++
+ 	VM_BUG_ON_PAGE(!PageSwapCache(page), page);
+ 	if (sis->flags & SWP_FS) {
+ 		struct kiocb kiocb;
+@@ -359,6 +388,9 @@ int swap_readpage(struct page *page, bool synchronous)
+ 	VM_BUG_ON_PAGE(!PageSwapCache(page) && !synchronous, page);
+ 	VM_BUG_ON_PAGE(!PageLocked(page), page);
+ 	VM_BUG_ON_PAGE(PageUptodate(page), page);
++
++//	pr_info("swptrace %s in %lu -1\n", get_current()->comm, page_private(page));
++
+ 	if (frontswap_load(page) == 0) {
+ 		SetPageUptodate(page);
+ 		unlock_page(page);
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 76c8dfd3a..b02bb0613 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -871,6 +871,7 @@ int page_referenced(struct page *page,
+ 		rwc.invalid_vma = invalid_page_referenced_vma;
+ 	}
+ 
++	//printk("page_referenced/rmap.c\n");
+ 	rmap_walk(page, &rwc);
+ 	*vm_flags = pra.vm_flags;
+ 
+@@ -983,6 +984,7 @@ int page_mkclean(struct page *page)
+ 	if (!mapping)
+ 		return 0;
+ 
++	//printk("page_mkclean/rmap.c\n");
+ 	rmap_walk(page, &rwc);
+ 
+ 	return cleaned;
+@@ -1718,8 +1720,10 @@ bool try_to_unmap(struct page *page, enum ttu_flags flags)
+ 
+ 	if (flags & TTU_RMAP_LOCKED)
+ 		rmap_walk_locked(page, &rwc);
+-	else
++	else {
++		//printk("try_to_unmap/rmap.c\n");
+ 		rmap_walk(page, &rwc);
++	}
+ 
+ 	return !page_mapcount(page) ? true : false;
+ }
+@@ -1751,6 +1755,7 @@ void try_to_munlock(struct page *page)
+ 	VM_BUG_ON_PAGE(!PageLocked(page) || PageLRU(page), page);
+ 	VM_BUG_ON_PAGE(PageCompound(page) && PageDoubleMap(page), page);
+ 
++	//printk("try_to_munlock/rmap.c\n");
+ 	rmap_walk(page, &rwc);
+ }
+ 
+@@ -1818,6 +1823,7 @@ static void rmap_walk_anon(struct page *page, struct rmap_walk_control *rwc,
+ 
+ 	pgoff_start = page_to_pgoff(page);
+ 	pgoff_end = pgoff_start + hpage_nr_pages(page) - 1;
++	long depth = 0; 
+ 	anon_vma_interval_tree_foreach(avc, &anon_vma->rb_root,
+ 			pgoff_start, pgoff_end) {
+ 		struct vm_area_struct *vma = avc->vma;
+@@ -1828,8 +1834,12 @@ static void rmap_walk_anon(struct page *page, struct rmap_walk_control *rwc,
+ 		if (rwc->invalid_vma && rwc->invalid_vma(vma, rwc->arg))
+ 			continue;
+ 
++		//if try_unmap_page_one() fails
+ 		if (!rwc->rmap_one(page, vma, address, rwc->arg))
+ 			break;
++		//printk("swptrace %d rmap_walk %lu %p\n", depth, page_private(page), address);
++		depth++;
++		//if it is end of rwc or the page is done
+ 		if (rwc->done && rwc->done(page))
+ 			break;
+ 	}
+diff --git a/mm/swap_state.c b/mm/swap_state.c
+index 85245fdec..a5435e1c9 100644
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -560,6 +560,8 @@ struct page *swap_cluster_readahead(swp_entry_t entry, gfp_t gfp_mask,
+ 		end_offset = si->max - 1;
+ 
+ 	blk_start_plug(&plug);
++//	printk("swptrace %s cluster_ahead_info %lu %lu\n", get_current()->comm, swp_entry(swp_type(entry), start_offset), swp_entry(swp_type(entry), end_offset));
++
+ 	for (offset = start_offset; offset <= end_offset ; offset++) {
+ 		/* Ok, do the async read-ahead now */
+ 		page = __read_swap_cache_async(
+@@ -576,6 +578,7 @@ struct page *swap_cluster_readahead(swp_entry_t entry, gfp_t gfp_mask,
+ 		}
+ 		put_page(page);
+ 	}
++
+ 	blk_finish_plug(&plug);
+ 
+ 	lru_add_drain();	/* Push any new pages onto the LRU now */
+@@ -729,6 +732,8 @@ static struct page *swap_vma_readahead(swp_entry_t fentry, gfp_t gfp_mask,
+ 		goto skip;
+ 
+ 	blk_start_plug(&plug);
++//	printk("swptrace %s vma_ahead_info %lu %lu\n", get_current()->comm, ra_info.ptes, (ra_info.ptes + ra_info.nr_pte));
++
+ 	for (i = 0, pte = ra_info.ptes; i < ra_info.nr_pte;
+ 	     i++, pte++) {
+ 		pentry = *pte;
+@@ -751,6 +756,7 @@ static struct page *swap_vma_readahead(swp_entry_t fentry, gfp_t gfp_mask,
+ 			}
+ 		}
+ 		put_page(page);
++		
+ 	}
+ 	blk_finish_plug(&plug);
+ 	lru_add_drain();
