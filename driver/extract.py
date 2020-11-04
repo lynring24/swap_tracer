@@ -17,8 +17,10 @@ def get_swap_extracted(EXACT_ONLY):
         rsyslog["pid"] = rsyslog["pid"].apply(lambda x : x==get_pid())
         rsyslog = rsyslog[rsyslog.pid==True]
 
+
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
+    rsyslog['address'] = rsyslog['address'].apply(lambda x: int(x, 16))
     
     MODE_QUERY = get_mode_query()
     if MODE_QUERY != None:

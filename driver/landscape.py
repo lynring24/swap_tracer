@@ -120,7 +120,7 @@ def draw_landscape(dir_path):
               HEAD = break_points[idx][0]
               TAIL = END_OF_ADDRESS 
 
-           if len(rsyslog[HEAD <= rsyslog['address'] & rsyslog['address'] <= TAIL]) > 0:
+           if len(rsyslog[(HEAD <= rsyslog['address']) & (rsyslog['address'] <= TAIL)]) > 0:
               subyranges.append([HEAD, TAIL]) 
         print subyranges
 
