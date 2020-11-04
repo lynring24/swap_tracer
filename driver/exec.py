@@ -6,6 +6,7 @@ import subprocess
 from requests import get
 from scan import scan_malloc
 from plot import draw_view
+from landscape import draw_landscape
 from exec_mem_lim import exec_mem_limit
 
 
@@ -119,5 +120,6 @@ if __name__ == '__main__':
    else:
        os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
        os.system('mv {}/labelized.csv {}'.format(get_path('root'), get_path('head')))
+       draw_landscape(get_path('head'))
        draw_view(get_path('head'), get_meantime())
    #os.system('rm {}/hook.csv'.format(get_path('clone')))

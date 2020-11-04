@@ -29,9 +29,17 @@ def exec_mem_limit(command, limit):
     time.sleep(10)
     
     os.system('$SWPTRACE/swptrace {} {}'.format(child_process.pid, 1));
-    target_process = subprocess.Popen('echo $(pgrep -P $(pgrep -P $(pgrep -P {})))'.format(child_process.pid), stdout=subprocess.PIPE,shell=True)
-    target_pid, err = target_process.communicate()
-    target_pid = target_pid.strip()
+
+    target_pid = None
+    if limit != 0:
+       target_process = subprocess.Popen('echo $(pgrep -P $(pgrep -P $(pgrep -P {})))'.format(child_process.pid), stdout=subprocess.PIPE,shell=True)
+       target_pid, err = target_process.communicate()
+       target_pid = target_pid.strip()
+    else:
+       target_process = subprocess.Popen('echo $(pgrep -P {})'.format(child_process.pid), stdout=subprocess.PIPE,shell=True)
+       target_pid, err = target_process.communicate()
+       target_pid = target_pid.strip()
+        
 
     os.system('cat /proc/{}/maps > maps'.format(target_pid))
     child_process.wait()
