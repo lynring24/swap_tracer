@@ -45,13 +45,17 @@ def draw_landscape(dir_path):
     drops = []
     for name, group in maps.groupby('pathname'):
         # if the range is continuous 
-        group['merge'] = (group['range0'].shift(-1) == group['range1']) | (group['range1'].shift() == group['range0'])  
+        #group['merge'] = (group['range0'].shift(-1) == group['range1']) | (group['range1'].shift() == group['range0'])  
+        group.loc[:, 'merge'] = (group['range0'].shift(-1) == group['range1']) | (group['range1'].shift() == group['range0'])  
         temp = group[group['merge']==True]
         if len(temp)> 1 :
             indexs = sorted(temp.index)
             addr = [temp['range0'].min(), temp['range1'].max()]
-            maps.set_value(indexs[0], 'range0', temp['range0'].min())
-            maps.set_value(indexs[0], 'range1', temp['range1'].max())
+            #maps.set_value(indexs[0], 'range0', temp['range0'].min())
+            #maps.set_value(indexs[0], 'range1', temp['range1'].max())
+            AT = int(indexs[0])
+            maps.at[AT, 'range0'] = temp['range0'].min()
+            maps.at[AT, 'range1'] = temp['range1'].max()
             indexs.pop(0)
             drops.extend(indexs)
             
@@ -74,7 +78,6 @@ def draw_landscape(dir_path):
     COUNT_BREAKS = 3
     break_points = maps.sort_values(['gap'],ascending=[0]).head(COUNT_BREAKS)
     break_points = break_points.sort_values('range0', ascending=1)[[ 'range1', 'next_start']].to_numpy().tolist()
-    print break_points
 
     maps = maps[['range0', 'range1', 'pathname']]
     maps.to_csv('./maps.csv')
@@ -107,35 +110,27 @@ def draw_landscape(dir_path):
     START_OF_ADDRESS = maps.range0.min()
     END_OF_ADDRESS = maps.range1.max() 
 
-    #subyranges = [[ rsyslog.address.min(), pow(10, 14)], [pow(10,14), rsyslog.address.max()]]
-    subyranges = [START_OF_ADDRESS, END_OF_ADDRESS] 
-    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-    print subyranges
-    for gap in break_points:
-        print gap
-        subyranges.extend(gap) 
+    subyranges = [rsyslog.address.min(),  1.4*pow(10, 14), rsyslog.address.max()]
+    subyranges.extend( maps[maps['pathname'] == 'vsyscall'][['range0','range1']].to_numpy().tolist() [0])
+    subyranges.extend( maps[maps['pathname'] == 'vvar'][['range0']].to_numpy().tolist() [0])
+    subyranges.extend( maps[maps['pathname'] == 'vdso'][['range1']].to_numpy().tolist() [0])
 
     subyranges = sorted(subyranges)
-    print subyranges
-    rsyslog['axis'] = pd.cut(x=rsyslog['address'], bins=subyranges)
-
-    print rsyslog.head(5)
-
-    height_ratio = dict()
-    TOTAL = len(rsyslog)
+    rsyslog['axis'] = pd.cut(x = rsyslog['address'], bins=subyranges)
+    height_ratios = []
+   
     for name, group in rsyslog.groupby('axis'):
-        height_ratio[name] = len(group)
-        #print name, len(group)
-    height_ratios = height_ratio.values()
+        if len(group) > 0:
+            height_ratios.append(len(group)*(name.right - name.left))
+
+    DIGITS = len(str(int(min(height_ratios)))) - 1   
+    height_ratios = map(lambda x : int(x/pow(10, DIGITS)) if DIGITS >=0 else 1, height_ratios)
+
+    GRIDS = len(height_ratios)
+
     print height_ratios
-
-    # map to pairs
-    subyranges = zip(subyranges[::2], subyranges[1::2]) 
-    print subyranges
-
-
-    GRIDS = len(subyranges) 
-    fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, sharex = True, gridspeck_kw={'height_ration':height_ratios, 'hspace' :0})
+    height_ratio = [2,3]
+    fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, sharex = True, gridspec_kw={'height_ratios': height_ratios, 'hspace' :0})
     
     for axis in axes:
         axis.spines['bottom'].set_visible(False)
@@ -154,34 +149,40 @@ def draw_landscape(dir_path):
         colors.update({label : color_list.pop(-1)})
 
     map( lambda x:paint(x), rsyslog.label.unique().tolist())
-    
-    for idy in range(0, GRIDS):
-        for (area, mode), group in segments.groupby(['label', 'mode']):
-            #(Anon, fault)
-            if mode == "map":
-                axes[idy].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
 
-        converty = GRIDS-(idy+1)
-        axes[idy].set_ylim(subyranges[converty][0]-PADDING, subyranges[converty][1]+PADDING)
+    IDY = -1
+    for name, partition  in rsyslog.groupby('axis'):
+        if len(partition) > 0:
+            #IDY = subyranges.index([name.left, name.right])
+            IDY = IDY + 1
+            CONVERTY = GRIDS-(IDY+1)
+            for (area, mode), group in partition.groupby(['label', 'mode']):
+                #(Anon, fault)
+                print area, mode, len(group)
+                axes[IDY].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
 
-        if idy == 0:
-            axes[idy].spines['top'].set_visible(True)
+            #axes[IDY].set_ylim(subyranges[converty][0]-PADDING, subyranges[converty][1]+PADDING)
+            axes[IDY].set_ylim(partition.address.min(), partition.address.max())
+            print (partition.address.min(), partition.address.max())
 
-        if idy == GRIDS-1:
-            axes[idy].spines['bottom'].set_visible(True)
+            #if IDY == 0:
+            axes[IDY].spines['top'].set_visible(True)
 
-        if idy != GRIDS-1: 
-            axes[idy].set_xticks([])
+            #if IDY == GRIDS-1:
+            axes[IDY].spines['bottom'].set_visible(True)
 
-        if idy == 0:
-            axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-            axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
-        else:
-            kwargs.update(transform=axes[idy].transAxes)  # switch to the bottom axes
-            axes[idy].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-            axes[idy].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
-            axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-            axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal                        
+            if IDY != GRIDS-1: 
+                axes[IDY].set_xticks([])
+
+            if IDY == 0:
+                axes[IDY].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+                axes[IDY].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+            else:
+                kwargs.update(transform=axes[IDY].transAxes)  # switch to the bottom axes
+                axes[IDY].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+                axes[IDY].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+                axes[IDY].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+                axes[IDY].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal                        
 
     patches = [mpatches.Patch(color = value, label = '{} ({})'.format(key, len(rsyslog[rsyslog['label'] == key]))) for key, value in colors.iteritems()]
     patches.extend([mpatches.Patch(hatch = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in markers.iteritems()])
