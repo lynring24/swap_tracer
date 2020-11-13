@@ -8,52 +8,31 @@ if os.environ.get('DISPLAY','') == '':
     print('no display found. Using non-interactive Agg backend')
     mpl.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import matplotlib.patches as mpatches
 from datetime import datetime, timedelta
 
 MICROSECOND = 1000000
 
-class Tracker(object):
-    def __init__(self, axis, data):
-        self.axis = axis
-        self.data = data
-    
-    def add_plot(self, row):
-        x = [row[0], row[0]]
-        y = [row[1], row[2]]
 
-    def run(self):
-        pool = Pool(processes=cpu_count())
-        return pool.map(self.add_plot, self.data)
-
-
-
-labels={'map':'swap in', 'fault':'page fault', 'out':'page out'}
-points={'map':'o', 'fault':'^', 'out':'x'}
-
+labels={'map':'swap-in','fault':'page fault','out':'swap-out', 'writepage':'file I/O', 'handle_mm':'total page fault', 'create':'allocation'}
 zorders={'fault':5, 'map':10, 'out':0}
-
-    #if os.path.isfile('{}/hook.csv'.format(dir_path)) == True:
-    #    hook = pd.read_csv(dir_path+"/hook.csv", usecols=['timestamp', 'address','size'])
-    #    hook['mode'] = 'create'
-    #    joined = pd.concat([hook[['timestamp', 'address', 'mode']], joined[['timestamp', 'address', 'mode']]])
-    #joined['timestamp'] = joined['timestamp'].astype(int)
-    #joined['address'] = joined['address'].astype(int)
-            
+markers = { 'map':'o', 'out':'x', 'fault' :'^'}
  
 PADDING = 5*pow(10,5)
-def draw_view(dir_path, mean_time):
+MODE = "mode"
+AREA = "area"
+
+def plot_out(dir_path, option):
             
     maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None, usecols=[0,5])
     maps.columns = ['range','pathname']   
-    maps['pathname'] = maps['pathname'].fillna('[Anon]') 
-    
-    #maps['range'] = maps['range'].apply(lambda value :  value.split('-'))
+    maps['pathname'] = maps['pathname'].fillna('Anon') 
     maps = maps.join(maps['range'].str.split('-', expand=True).add_prefix('range'))
     maps['range0'] = maps['range0'].apply(lambda x: int(x, 16))
     maps['range1'] = maps['range1'].apply(lambda x: int(x, 16))
     maps = maps.drop('range', axis=1)
     maps['merge'] = (maps['pathname'].shift(-1) == '[Anon]') & (maps['range0'].shift(-1) == maps['range1']) & (maps['pathname'].str.contains('/lib/')==False)
-
 
     indexs = maps[maps['merge'] == True].index
     for index in indexs:
@@ -66,12 +45,21 @@ def draw_view(dir_path, mean_time):
         if os.path.isabs(x):
            return os.path.basename(x).split('.')[0]
         else:
+           if '[' in x: 
+                x=x.replace('[','')
+                x=x.replace(']','')
            return x
     ## pathname 
     maps['pathname'] = maps['pathname'].apply(lambda value : shorted(value))
     maps = maps.reset_index()
+
+    # find biggest gap 
+    maps['gap'] = maps['range0'].shift(-1) - maps['range1']
+    maps['next_start'] = maps['range0'].shift(-1)
+    COUNT_BREAKS = 4
+    break_points = maps.sort_values(['gap'],ascending=[0]).head(COUNT_BREAKS)
+    break_points = break_points.sort_values('range0', ascending=1)[['range1', 'next_start']].to_numpy().tolist()
     maps = maps[['range0', 'range1', 'pathname']]
-    maps.to_csv('./maps.csv')
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
@@ -98,93 +86,88 @@ def draw_view(dir_path, mean_time):
     rsyslog.to_csv('./labelized.csv')
 
     # output
-    print "\n$ save plot"
+    print "\n$ plot by {}".format(option)
 
-    def break_axis(index, segments):
-        if index != 'landscape':
-            plt.figure(figsize=(14,4))            
+    digits = len(str(rsyslog['address'].min()))-1
+    START_OF_ADDRESS = maps.range0.min()
+    END_OF_ADDRESS = maps.range1.max() 
 
+    subyranges = [[START_OF_ADDRESS, break_points[0][0]]]
 
-        digits = len(str(segments['timestamp'].min()))-1
-        min_range = int(str(segments['timestamp'].min())[:-1*digits])*pow(10, digits)
-        max_range = (int(str(segments['timestamp'].max())[:-1*digits])+2)*pow(10, digits)
-        POW = pow(10, digits-2)
-        binx = [ x for x in range(min_range, max_range, POW)]
-        segments['labelx'] = pd.cut(x=segments['timestamp'], bins=binx)   
-        subxranges = [ [group.address.min(), group.address.max()] for name, group in segments.groupby('labelx') ]
-        subxranges = pd.DataFrame(subxranges).replace([np.inf, -np.inf], np.nan).dropna().values.tolist()
-        subxranges = [ x for x in subxranges if x != [] ]
+    for idx in range(1, COUNT_BREAKS):
+       HEAD = None
+       TAIL = None
+       if idx < COUNT_BREAKS - 1 :
+          HEAD = break_points[idx][1]
+          TAIL = break_points[idx+1][0]
+       else:
+          HEAD = break_points[idx][0]
+          TAIL = END_OF_ADDRESS 
 
-        digits = len(str(segments['address'].min()))-1
-        min_range = int(str(segments['address'].min())[:-1*digits])*pow(10, digits)
-        max_range = (int(str(segments['address'].max())[:-1*digits])+2)*pow(10, digits)
-        POW = pow(10, digits-2)
-        biny = [ y for y in range(min_range, max_range, POW)]
-        segments['labely'] = pd.cut(x=segments['address'], bins=biny)                          
-        subyranges = [ [group.address.min(), group.address.max()] for name, group in segments.groupby('labely') ]
-        subyranges = pd.DataFrame(subyranges).replace([np.inf, -np.inf], np.nan).dropna().values.tolist()
-        subyranges = [ y for y in subyranges if y != [] ]
-        
+       if len(rsyslog[(HEAD <= rsyslog['address']) & (rsyslog['address'] <= TAIL)]) > 0:
+          subyranges.append([HEAD, TAIL]) 
 
-        GRIDS = len(subyranges)
-        fig, axes = plt.subplots(nrows=GRIDS)
-        
-        if GRIDS==1:
-            axes = [axes]
-        else:
-            axes = [axis for axis in axes]
+    GRIDS = len(subyranges) 
+    fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, sharex=True)
+    plt.subplots_adjust(wspace=0, hspace=0)
+    
+    axes = axes.flatten()
 
-        # set spines false
-        for axis in axes:
-            axis.spines['bottom'].set_visible(False)
-            axis.spines['top'].set_visible(False)
-        
-
-        d = .015  # how big to make the diagonal lines in axes coordinates
-        kwargs = dict(transform=axes[0].transAxes, color='k', clip_on=False)
-            
-        for idy in range(0, GRIDS):
-            for name, group in segments.groupby('mode'):
-                axes[idy].plot(group.timestamp, group.address, label=labels[name], c=colors[name], marker='o', linestyle=' ', ms=5, zorder=zorders[name])
-
-            converty = GRIDS-(idy+1)
-            axes[idy].set_ylim(subyranges[converty][0]-PADDING, subyranges[converty][1]+PADDING)
-
-            if idy == 0:
-                axes[idy].spines['top'].set_visible(True)
-                #axes[idy].set_xticks([])
-            # for case there are only one axis 
-            if idy == GRIDS-1:
-                axes[idy].spines['bottom'].set_visible(True)
-
-            if idy != GRIDS-1: 
-                axes[idy].set_xticks([])
-
-            if idy == 0:
-                axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-                axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+    # set spines false
+    for axis in axes:
+        axis.spines['bottom'].set_visible(False)
+        axis.spines['top'].set_visible(False)
+    
+    d = .015  # how big to make the diagonal lines in axes coordinates
+    kwargs = dict(transform=axes[0].transAxes, color='k', clip_on=False)
+    colors=dict()
+    if option == AREA:
+        def set_color_list():
+            return list(mcolors.TABLEAU_COLORS)
+        color_list = set_color_list()
+        def paint(label):
+            colors.update({label : color_list.pop(-1)})
+        map( lambda x:paint(x), rsyslog.label.unique().tolist())
+    else:
+        colors = {'out' : 'red', 'map' : 'green'}
+    
+    for idy in range(0, GRIDS):
+        for (area, mode), group in rsyslog.groupby(['label', 'mode']):
+            if option==AREA:
+                axes[idy].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
             else:
-                kwargs.update(transform=axes[idy].transAxes)  # switch to the bottom axes
-                axes[idy].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-                axes[idy].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
-                axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-                axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal                        
-        plt.suptitle('Virtual Address by timeline in /{}'.format(index))
-        plt.savefig("{}/{}.png".format(dir_path, index), format='png', dip=100)
-        axis.legend()
-        if os.environ.get('DISPLAY','') != '':
-            plt.show()
+                axes[idy].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
 
+        converty = GRIDS-(idy+1)
+        axes[idy].set_ylim(subyranges[converty][0]-PADDING, subyranges[converty][1]+PADDING)
 
-    for name, group in rsyslog.groupby('label'):
-        if len(group.index) > 0:
-            print name, len(group)
-            start = group.address.min()
-            end = group.address.max()
-            if start < end:
-                print '=> generate {}.png'.format(name)
-                break_axis(name, group)
+        if idy == 0:
+            axes[idy].spines['top'].set_visible(True)
 
-    print "=> generate landscape.png"
-    break_axis('landscape', rsyslog)
+        if idy == GRIDS-1:
+            axes[idy].spines['bottom'].set_visible(True)
 
+        if idy == 0:
+            axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+            axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+        else:
+            kwargs.update(transform=axes[idy].transAxes)  # switch to the bottom axes
+            axes[idy].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+            axes[idy].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+            axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+            axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal             
+    
+    patches = None 
+    if option == AREA :
+        patches = [mpatches.Patch(color = value, label = '{} ({})'.format(key, len(rsyslog[rsyslog['label'] == key]))) for key, value in colors.iteritems()]
+        patches.extend([mpatches.Patch(hatch = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in markers.iteritems()])
+    else:
+        patches = [mpatches.Patch(color = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in colors.iteritems()]
+
+    legend = axes[0].legend(handles = patches, bbox_to_anchor=(1.05, 1))
+    plt.savefig("{}/result.png".format(dir_path),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)
+
+    if os.environ.get('DISPLAY','') != '':
+        plt.show()
+
+# plot_out('.', MODE)

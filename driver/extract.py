@@ -6,24 +6,19 @@ from math import ceil, isnan
 
 MICROSECOND = 1000000
 
-def get_swap_extracted(EXACT_ONLY):
+def get_swap_extracted(FAULT):
     print "$ extract ryslog log"
     columns = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), nrows=1)
     max_column = columns.shape[1]
     rsyslog = pd.read_csv(get_path('awk'), header=None, delimiter=get_delimeter(), usecols=[0, max_column-5, max_column-4, max_column-3, max_column-2, max_column-1])
     rsyslog.columns = ['timestamp', 'pid', 'cmd', 'mode', 'swpentry', 'address']
-
-    if EXACT_ONLY:
-        rsyslog["pid"] = rsyslog["pid"].apply(lambda x : x==get_pid())
-        rsyslog = rsyslog[rsyslog.pid==True]
-
-
+    rsyslog["pid"] = rsyslog["pid"].apply(lambda x : x==get_pid())
+    rsyslog = rsyslog[rsyslog.pid==True]
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - get_time()).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     
-    MODE_QUERY = get_mode_query()
-    if MODE_QUERY != None:
-        rsyslog = rsyslog.query(MODE_QUERY) 
+    if FAULT != True:
+        rsyslog = rsyslog[rsyslog['mode']!='fault']
 
 
     #TODO : abstract data by msec instead of usec and get mean address value instead
@@ -39,10 +34,7 @@ def get_swap_extracted(EXACT_ONLY):
         tag.write("> memory page out # : {}\n".format(len(rsyslog[rsyslog['mode']=='out'].index)))
         tag.write("> memory page fault # : {}\n".format(len(rsyslog[rsyslog['mode']=='fault'].index)))
     tag.close()
-        
-
-
-         
+    
 
 def extract_malloc():
     # TODO 

@@ -25,7 +25,7 @@ def initialize() :
     # configure path 
     configure['PATH'] = dict()
     configure['PATH']['root'] = os.getcwd()
-    configure['PATH']['target'] = os.getcwd()
+    configure['PATH']['dir'] = os.getcwd()
     if platform.dist()[0] == 'Ubuntu':
        configure['PATH']['rsyslog'] = "/var/log/syslog"
     else:
@@ -58,7 +58,7 @@ def get_sub_path_by_id(id):
 
 
 def create_directory():
-    configure['PATH']['clone'] = configure['PATH']['target']+"/clone"
+    configure['PATH']['clone'] = configure['PATH']['dir']+"/clone"
     configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
     configure['PATH']['rsyslog'] = configure['PATH']['head'] +'/rsyslog.csv'
@@ -108,21 +108,6 @@ def set_pattern(key, value):
 def set_time():
     configure["TIME"]
 
-def set_mode(modes):
-    if 'in' in modes:
-        modes = modes.replace('in', 'map')
-    configure["MODE"] = modes.split(',')
-    
-
-def get_mode_query():
-    if configure["MODE"]:
-        queries = []
-        for mode in configure["MODE"]:
-            queries.append('mode=="{}"'.format(mode))
-        queries =' | '.join(queries) 
-        return queries
-    else:
-        return None
 
 def is_log_path(line):
     matched= re.compile('*{}*'.format(get_pattern('rsyslog'))).search(line)
