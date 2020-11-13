@@ -122,7 +122,7 @@ def draw_landscape(dir_path):
 
            if len(rsyslog[(HEAD <= rsyslog['address']) & (rsyslog['address'] <= TAIL)]) > 0:
               subyranges.append([HEAD, TAIL]) 
-        print subyranges
+        #print subyranges
 
         GRIDS = len(subyranges) 
         fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, sharex=True)
@@ -151,13 +151,15 @@ def draw_landscape(dir_path):
         def paint(label):
             colors.update({label : color_list.pop(-1)})
 
+        colors = {'out' : 'red', 'map' : 'green'}
         map( lambda x:paint(x), rsyslog.label.unique().tolist())
         
         for idy in range(0, GRIDS):
             for (area, mode), group in segments.groupby(['label', 'mode']):
                 #(Anon, fault)
-                if mode == "map":
-                    axes[idy].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
+                if mode != "fault":
+                    #axes[idy].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
+                    axes[idy].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
 
             converty = GRIDS-(idy+1)
             axes[idy].set_ylim(subyranges[converty][0]-PADDING, subyranges[converty][1]+PADDING)
@@ -169,8 +171,8 @@ def draw_landscape(dir_path):
             if idy == GRIDS-1:
                 axes[idy].spines['bottom'].set_visible(True)
 
-            if idy != GRIDS-1: 
-                axes[idy].set_xticks([])
+            #if idy != GRIDS-1: 
+            # axes[idy].set_xticks([])
 
             if idy == 0:
                 axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
@@ -181,9 +183,11 @@ def draw_landscape(dir_path):
                 axes[idy].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
                 axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
                 axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal                        
-
-        patches = [mpatches.Patch(color = value, label = '{} ({})'.format(key, len(rsyslog[rsyslog['label'] == key]))) for key, value in colors.iteritems()]
-        patches.extend([mpatches.Patch(hatch = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in markers.iteritems()])
+        
+        colors = {'out' : 'red', 'map' : 'green'}
+        #patches = [mpatches.Patch(color = value, label = '{} ({})'.format(key, len(rsyslog[rsyslog['label'] == key]))) for key, value in colors.iteritems()]
+        #patches.extend([mpatches.Patch(hatch = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in markers.iteritems()])
+        patches = [mpatches.Patch(color = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in colors.iteritems()]
         legend = axes[0].legend(handles = patches, bbox_to_anchor=(1.05, 1))
         plt.suptitle('[{}] Virtual Address by timeline'.format(index))
         plt.savefig("{}/{}.png".format(dir_path, index),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)
@@ -193,7 +197,7 @@ def draw_landscape(dir_path):
 
 
     print "=> generate landscape.png"
-    break_once('overview', rsyslog)
+    break_once('result', rsyslog)
 
 
 draw_landscape('.')
