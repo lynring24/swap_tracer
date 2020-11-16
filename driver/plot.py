@@ -12,9 +12,6 @@ import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 from datetime import datetime, timedelta
 
-MICROSECOND = 1000000
-
-
 labels={'map':'swap-in','fault':'page fault','out':'swap-out', 'writepage':'file I/O', 'handle_mm':'total page fault', 'create':'allocation'}
 zorders={'fault':5, 'map':10, 'out':0}
 markers = { 'map':'o', 'out':'x', 'fault' :'^'}
@@ -23,8 +20,7 @@ PADDING = 5*pow(10,5)
 MODE = "mode"
 AREA = "area"
 
-def plot_out(dir_path, option):
-            
+def plot_out(dir_path, option):            
     maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None, usecols=[0,5])
     maps.columns = ['range','pathname']   
     maps['pathname'] = maps['pathname'].fillna('Anon') 
@@ -62,6 +58,10 @@ def plot_out(dir_path, option):
     maps = maps[['range0', 'range1', 'pathname']]
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
+    if len(rsyslog) < 2: 
+        print "[Debug] swap not occured"
+        exit(1)
+
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
     keys = list( zip(maps.range0, maps.range1)) 
     layout = pd.Series(maps.pathname.values, index=keys).to_dict()
@@ -111,7 +111,7 @@ def plot_out(dir_path, option):
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, sharex=True)
     plt.subplots_adjust(wspace=0, hspace=0)
     
-    axes = axes.flatten()
+    axes = axes.flatten() if GRIDS > 1 else [axes]
 
     # set spines false
     for axis in axes:
@@ -170,4 +170,5 @@ def plot_out(dir_path, option):
     if os.environ.get('DISPLAY','') != '':
         plt.show()
 
-# plot_out('.', MODE)
+if __name__ == "__main__":
+    plot_out('.', AREA)

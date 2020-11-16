@@ -34,10 +34,6 @@ def initialize() :
     # configure mem limit
     configure['MEM_LIMIT'] = 0
     configure['COMMAND'] = "python $SWPTRACE/../demo/code/increment.py"
-    # configre public ip
-    configure['PUBLIC'] = dict()
-    configure['PUBLIC']['IP'] = '0.0.0.0'
-    configure['PUBLIC']['PORT'] = 5000
 
     # configure time
     configure["TIME"] = datetime.now()
@@ -45,13 +41,6 @@ def initialize() :
     configure['HEATMAP'] = False
     configure['PID'] = 1
     configure['MEANTIME']=0
-   
-    
-    
-
-# area = ['total','rsyslog', 'labeled']
-# area = ['total', 'code', 'ram', 'peripheral', 'ex_ram', 'ex_device', 'private_peripheral_bus', 'vendor']
-
 
 def get_sub_path_by_id(id):
     return get_path(area[id])
@@ -68,18 +57,6 @@ def create_directory():
         tag.write('[Option]\n %s, %s, %s, %s, %s\n' %(get_command(), get_mem_limit(), get_path('head'), get_ip(), str(get_port())) )
     tag.close()
 
-
-def set_ip(value):
-    configure['PUBLIC']['IP'] = value
-
-def get_ip():
-    return configure['PUBLIC']['IP'] 
-
-def set_port(value):
-    configure['PUBLIC']['PORT'] = value
-
-def get_port():
-    return configure['PUBLIC']['PORT']
 
 def set_command(value):
     configure['COMMAND'] = value

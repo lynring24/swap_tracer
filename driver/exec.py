@@ -1,7 +1,7 @@
 from pprint import pprint 
 from utility import * 
 import subprocess
-from extract import get_swap_extracted, extract_malloc
+from extract import extract
 import subprocess
 from requests import get
 from scan import scan_malloc
@@ -74,16 +74,16 @@ if __name__ == '__main__':
    initialize()
    config_option()
    check_option()
-   if configures['target']:
-       scan_malloc()
-   exec_mem_limit(get_command(), get_mem_limit() )
+   exec_mem_limit(get_command(), get_mem_limit())
    create_directory() 
    awk_log()
-   extract_malloc()
-   get_swap_extracted(configures['fault'])
-   if configures['heatmap']:
-       draw_heatmap(get_path('head'))
-   else:
-       os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
-       os.system('mv {}/labelized.csv {}'.format(get_path('root'), get_path('head')))
-       plot_out(get_path('head'), configures['area'])
+   os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
+   extract(configures['fault'])
+   # if configures['target']:
+   #    scan_malloc()
+   # extract_malloc()
+   #if configures['heatmap']:
+   #    draw_heatmap(get_path('head'))
+   #else:
+   #    os.system('mv {}/labelized.csv {}'.format(get_path('root'), get_path('head')))
+   #    plot_out(get_path('head'), configures['area'])

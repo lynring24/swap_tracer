@@ -24,34 +24,35 @@ def string_to_date(timestamp):
 
 def draw_heatmap(dir_path):
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
-    rsyslog['hex'] = rsyslog['address'].apply(lambda x : hex(x)[:6])
-    print rsyslog.head(5)
+    rsyslog['address'] = rsyslog['address'].apply(lambda x : hex(x)[:6])
+
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
-    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x : x/MILLISECOND)
-    rsyslog = rsyslog.groupby(['timestamp', 'hex']).size().to_frame('count').reset_index()
-    #print rsyslog.head(5)
+    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x : x/MICROSECOND)
+    rsyslog = rsyslog.groupby(['timestamp', 'address']).size().to_frame('count').reset_index()
+
     histogram = pd.DataFrame({'total': rsyslog.groupby('timestamp')['count'].sum()}).reset_index()
     rsyslog = pd.merge(rsyslog, histogram, how="left")
     del histogram
 
     rsyslog['count'] = rsyslog.apply(lambda row : round(1.0*row['count']/row['total'], 2), axis=1)
-    pivot = rsyslog.pivot(index='hex', columns='timestamp', values='count').fillna(0.0)
+    pivot = rsyslog.pivot(index='address', columns='timestamp', values='count').fillna(0.0)
 
-    print pivot.head(5)
     del rsyslog
 
-    print "set plots"
-
-    fig = plt.figure(figsize=(20, 5))
+    fig = plt.figure(figsize=(30,3))
+    ax = fig.add_subplot(1,1,1)
     plt.pcolor(pivot)
+    #plt.xticks(np.arange(0.5, len(pivot.columns), 1), pivot.columns)
+    max_xticks=10
     plt.xticks(np.arange(0.5, len(pivot.columns), 1), pivot.columns)
+    xloc = plt.MaxNLocator(max_xticks)
+    ax.xaxis.set_major_locator(xloc)
     plt.yticks(np.arange(0.5, len(pivot.index), 1), pivot.index, rotation=45)
     plt.title('Memory access # (timstamp x virtual address space)', fontsize=20)
-    plt.xlabel('timestamp', fontsize=14)
+    plt.xlabel('timestamp (sec) ', fontsize=14)
     plt.ylabel('Virtual Address Space', fontsize=10)
 
     plt.colorbar()
-
     plt.tight_layout()
 
     # output
@@ -60,4 +61,6 @@ def draw_heatmap(dir_path):
     if os.environ.get('DISPLAY','') != '':
     	plt.show()
 
-draw_heatmap('.')
+if __name__ == '__main__':
+    dir_name = os.getcwd()
+    draw_heatmap(dir_name)
