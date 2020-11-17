@@ -45,17 +45,13 @@ def extract(FAULT):
     configure["TIME"] = string_to_date(os.path.basename(CURRENT))
     columns = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, nrows=1)
     max_column = columns.shape[1]
-    rsyslog = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, usecols=[0, max_column-5, max_column-4, max_column-3, max_column-2, max_column-1])
-    rsyslog.columns = ['timestamp', 'pid', 'cmd', 'mode', 'swpentry', 'address']
+    rsyslog = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, usecols=[0, max_column-3, max_column-2, max_column-1])
+    rsyslog.columns = ['timestamp', 'mode', 'swpentry', 'address']
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - configure["TIME"]).total_seconds() * MICROSECOND)
-    #rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - configure["TIME"]).total_seconds())
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
-    #rsyslog["pid"] = rsyslog["pid"].apply(lambda x : x==get_pid())
-    #rsyslog = rsyslog[rsyslog.pid==True]
     if FAULT !=True:
         rsyslog = rsyslog[rsyslog['mode']!='fault']
 
-    #TODO : abstract data by msec instead of usec and get mean address value instead
     print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
     rsyslog.to_csv(get_path('rsyslog.csv'), index=False) 
     print "\n[ Summary ]"
