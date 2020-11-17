@@ -18,7 +18,7 @@ markers = { 'map':'o', 'out':'x', 'fault' :'^'}
  
 PADDING = 5*pow(10,5)
 MODE = "mode"
-AREA = "area"
+MMAP = "mmap"
 
 def plot_out(dir_path, option):            
     maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None, usecols=[0,5])
@@ -79,7 +79,7 @@ def plot_out(dir_path, option):
                 break
         return label 
 
-    rsyslog['label'] = rsyslog['address'].apply(lambda x : labelize(x))
+    rsyslog['mmap'] = rsyslog['address'].apply(lambda x : labelize(x))
     rsyslog.to_csv('./labelized.csv')
 
     # output
@@ -93,7 +93,7 @@ def plot_out(dir_path, option):
     #biny = [ pow(10, n) for n in range(14, 20) ]
     # biny.extend([START_OF_ADDRESS, END_OF_ADDRESS])
 
-    mmap = rsyslog.groupby('label')['address'].agg([('start' , 'min'), ('end', 'max')]).sort_values('start', ascending=1) 
+    mmap = rsyslog.groupby('mmap')['address'].agg([('start' , 'min'), ('end', 'max')]).sort_values('start', ascending=1) 
     COUNT_BREAKS = 2 
     mmap['next'] = mmap['start'].shift(-1)   
     mmap['rear'] = mmap['next']-mmap['end']
@@ -126,13 +126,13 @@ def plot_out(dir_path, option):
     d = .015  # how big to make the diagonal lines in axes coordinates
     kwargs = dict(transform=axes[0].transAxes, color='k', clip_on=False)
     colors=dict()
-    if option == AREA:
+    if option == MMAP:
         def set_color_list():
             return list(mcolors.TABLEAU_COLORS)
         color_list = set_color_list()
-        def paint(label):
-            colors.update({label : color_list.pop(-1)})
-        map( lambda x:paint(x), rsyslog.label.unique().tolist())
+        def paint(mmap):
+            colors.update({mmap : color_list.pop(-1)})
+        map( lambda x:paint(x), rsyslog.mmap.unique().tolist())
     else:
         colors = {'out' : 'red', 'map' : 'green'} 
 
@@ -142,8 +142,8 @@ def plot_out(dir_path, option):
             continue
         idy = idy+1
         converty = GRIDS-(idy+1)
-        for (area, mode), group in region.groupby(['label', 'mode']):
-            if option==AREA:
+        for (area, mode), group in region.groupby(['mmap', 'mode']):
+            if option==MMAP:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
             else:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
@@ -169,8 +169,8 @@ def plot_out(dir_path, option):
             axes[converty].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal             
     
     patches = None 
-    if option == AREA :
-        patches = [mpatches.Patch(color = value, label = '{} ({})'.format(key, len(rsyslog[rsyslog['label'] == key]))) for key, value in colors.iteritems()]
+    if option == MMAP :
+        patches = [mpatches.Patch(color = value, label = '{} ({})'.format(key, len(rsyslog[rsyslog['mmap'] == key]))) for key, value in colors.iteritems()]
         patches.extend([mpatches.Patch(hatch = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in markers.iteritems()])
     else:
         patches = [mpatches.Patch(color = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in colors.iteritems()]
@@ -182,4 +182,5 @@ def plot_out(dir_path, option):
         plt.show()
 
 if __name__ == "__main__":
-    plot_out('.', AREA)
+    plot_out('.', MMAP)
+    print "[Finish]"
