@@ -52,9 +52,6 @@ def plot_out(dir_path, option):
     # find biggest gap 
     maps['gap'] = maps['range0'].shift(-1) - maps['range1']
     maps['next_start'] = maps['range0'].shift(-1)
-    COUNT_BREAKS = 4
-    break_points = maps.sort_values(['gap'],ascending=[0]).head(COUNT_BREAKS)
-    break_points = break_points.sort_values('range0', ascending=1)[['range1', 'next_start']].to_numpy().tolist()
     maps = maps[['range0', 'range1', 'pathname']]
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
@@ -88,26 +85,34 @@ def plot_out(dir_path, option):
     # output
     print "\n$ plot by {}".format(option)
 
-    digits = len(str(rsyslog['address'].min()))-1
-    START_OF_ADDRESS = maps.range0.min()
-    END_OF_ADDRESS = maps.range1.max() 
+    START_OF_ADDRESS = rsyslog.address.min()
+    END_OF_ADDRESS = rsyslog.address.max() 
 
-    subyranges = [[START_OF_ADDRESS, break_points[0][0]]]
+    #biny = [START_OF_ADDRESS, 1.0*pow(10, 14), 1.3*pow(10,14), 1.4*pow(10,14), END_OF_ADDRESS , 1.8 *pow(10, 18) ]
+    #biny = [ n*pow(10, 14) for n in np.arange(1,3 , 0.1) ]
+    #biny = [ pow(10, n) for n in range(14, 20) ]
+    # biny.extend([START_OF_ADDRESS, END_OF_ADDRESS])
 
-    for idx in range(1, COUNT_BREAKS):
-       HEAD = None
-       TAIL = None
-       if idx < COUNT_BREAKS - 1 :
-          HEAD = break_points[idx][1]
-          TAIL = break_points[idx+1][0]
-       else:
-          HEAD = break_points[idx][0]
-          TAIL = END_OF_ADDRESS 
+    mmap = rsyslog.groupby('label')['address'].agg([('start' , 'min'), ('end', 'max')]).sort_values('start', ascending=1) 
+    COUNT_BREAKS = 2 
+    mmap['next'] = mmap['start'].shift(-1)   
+    mmap['rear'] = mmap['next']-mmap['end']
 
-       if len(rsyslog[(HEAD <= rsyslog['address']) & (rsyslog['address'] <= TAIL)]) > 0:
-          subyranges.append([HEAD, TAIL]) 
+    break_points = mmap.sort_values('rear', ascending=0).head(2)
+    break_points = break_points.sort_values('start', ascending=1)[['end', 'next']].to_numpy().tolist()
+    biny = sum(break_points, [])
+    biny.extend([START_OF_ADDRESS, END_OF_ADDRESS])
+    biny = sorted(biny)
+    subyranges = zip(biny[::2], biny[1::2])
 
-    GRIDS = len(subyranges) 
+    def mmap(x):
+        for region in subyranges:
+            if region[0]<=x and x <= region[1]:
+                return region
+    rsyslog['axis'] = rsyslog['address'].apply(lambda x : mmap(x))
+    
+    GRIDS = len(subyranges)
+
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, sharex=True)
     plt.subplots_adjust(wspace=0, hspace=0)
     
@@ -129,33 +134,39 @@ def plot_out(dir_path, option):
             colors.update({label : color_list.pop(-1)})
         map( lambda x:paint(x), rsyslog.label.unique().tolist())
     else:
-        colors = {'out' : 'red', 'map' : 'green'}
-    
-    for idy in range(0, GRIDS):
-        for (area, mode), group in rsyslog.groupby(['label', 'mode']):
-            if option==AREA:
-                axes[idy].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
-            else:
-                axes[idy].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
+        colors = {'out' : 'red', 'map' : 'green'} 
 
+    idy = -1  
+    for name, region in rsyslog.groupby("axis"):
+        if len(region) < 1:
+            continue
+        idy = idy+1
         converty = GRIDS-(idy+1)
-        axes[idy].set_ylim(subyranges[converty][0]-PADDING, subyranges[converty][1]+PADDING)
+        for (area, mode), group in region.groupby(['label', 'mode']):
+            if option==AREA:
+                axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
+            else:
+                axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
 
-        if idy == 0:
-            axes[idy].spines['top'].set_visible(True)
 
-        if idy == GRIDS-1:
-            axes[idy].spines['bottom'].set_visible(True)
+        axes[converty].set_ylim(min(region['address'])-PADDING, max(region['address'])+PADDING)
 
-        if idy == 0:
-            axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-            axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+        if converty == 0:
+            axes[converty].spines['top'].set_visible(True)
+
+        if converty == GRIDS-1:
+            axes[converty].spines['bottom'].set_visible(True)
+
+        if converty != GRIDS-1:
+            axes[converty].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+            axes[converty].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
         else:
-            kwargs.update(transform=axes[idy].transAxes)  # switch to the bottom axes
-            axes[idy].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-            axes[idy].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
-            axes[idy].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-            axes[idy].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal             
+            kwargs.update(transform=axes[converty].transAxes)  # switch to the bottom axes
+            axes[converty].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+            axes[converty].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+            axes[converty].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+            axes[converty].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal             
     
     patches = None 
     if option == AREA :
