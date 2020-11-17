@@ -47,15 +47,9 @@ def get_sub_path_by_id(id):
 
 
 def create_directory():
-    configure['PATH']['clone'] = configure['PATH']['dir']+"/clone"
     configure['PATH']['head'] = configure['PATH']["root"]+'/'+datetime_to_string(configure["TIME"])
     configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
-    configure['PATH']['rsyslog'] = configure['PATH']['head'] +'/rsyslog.csv'
-
-    os.system('sudo mkdir -p ' + configure['PATH']['head'])
-    with open(get_path('head')+'/option.dat','w') as tag:
-        tag.write('[Option]\n %s, %s, %s, %s, %s\n' %(get_command(), get_mem_limit(), get_path('head'), get_ip(), str(get_port())) )
-    tag.close()
+    os.system('sudo mkdir -p {}; cd {}'.format(configure['PATH']['head'], configure['PATH']['head']))
 
 
 def set_command(value):

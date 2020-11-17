@@ -1,4 +1,3 @@
-from pprint import pprint 
 from utility import * 
 import subprocess
 from extract import extract
@@ -79,11 +78,3 @@ if __name__ == '__main__':
    awk_log()
    os.system('mv {}/maps {}'.format(get_path('root'), get_path('head')))
    extract(configures['fault'])
-   # if configures['target']:
-   #    scan_malloc()
-   # extract_malloc()
-   #if configures['heatmap']:
-   #    draw_heatmap(get_path('head'))
-   #else:
-   #    os.system('mv {}/labelized.csv {}'.format(get_path('root'), get_path('head')))
-   #    plot_out(get_path('head'), configures['area'])

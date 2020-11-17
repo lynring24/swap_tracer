@@ -24,7 +24,9 @@ def string_to_date(timestamp):
 
 def draw_heatmap(dir_path):
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
-    rsyslog['address'] = rsyslog['address'].apply(lambda x : hex(x)[:6])
+    rsyslog = rsyslog[rsyslog['mode'] == 'map']
+    RANGE = 7
+    rsyslog['address'] = rsyslog['address'].apply(lambda x : hex(x)[:RANGE])
 
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x : x/MICROSECOND)
@@ -39,7 +41,7 @@ def draw_heatmap(dir_path):
 
     del rsyslog
 
-    fig = plt.figure(figsize=(30,3))
+    fig = plt.figure(figsize=(30, 5))
     ax = fig.add_subplot(1,1,1)
     plt.pcolor(pivot)
     #plt.xticks(np.arange(0.5, len(pivot.columns), 1), pivot.columns)
@@ -48,7 +50,7 @@ def draw_heatmap(dir_path):
     xloc = plt.MaxNLocator(max_xticks)
     ax.xaxis.set_major_locator(xloc)
     plt.yticks(np.arange(0.5, len(pivot.index), 1), pivot.index, rotation=45)
-    plt.title('Memory access # (timstamp x virtual address space)', fontsize=20)
+    plt.title('Swap Heatmap', fontsize=20)
     plt.xlabel('timestamp (sec) ', fontsize=14)
     plt.ylabel('Virtual Address Space', fontsize=10)
 
