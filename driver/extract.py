@@ -14,8 +14,6 @@ from math import ceil, isnan
 
 MICROSECOND = 1000000
 DELIMETER ='\s+'
-CURRENT = os.getcwd()
-
 
 configure = dict()
 configure['PATTERN'] = dict() 
@@ -25,12 +23,11 @@ configure['PATTERN']['date']='%Y-%m-%dT%H:%M:%S[,.]%f'
 configure['PATTERN']['block']='(\d+.\d{6}) (.+)'
 configure['PATTERN']['MICROSEC']='(\d+:\d{2}:\d{2}[,\.]\d{6}) (.+)'
 
-def get_path(x):
-    return os.path.join(CURRENT, x)
 
 
 def get_pattern(x):
     return configure['PATTERN'].get(x)
+
 
 def string_to_date(timestamp):
     try: 
@@ -43,7 +40,8 @@ def string_to_date(timestamp):
 def extract(FAULT):
     print "$ extract ryslog log"
     CURRENT = os.getcwd()
-    print CURRENT
+    def get_path(x):
+        return os.path.join(CURRENT, x)
     configure["TIME"] = string_to_date(os.path.basename(CURRENT))
     columns = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, nrows=1)
     max_column = columns.shape[1]

@@ -13,6 +13,8 @@ import resource
 PATTERN = dict() 
 PATTERN['rsyslog']='%Y-%m-%dT%H:%M:%S.%f'
 PATTERN['dmesg']='%Y-%m-%dT%H:%M:%S,%f'
+#PATTERN['rsyslog']='%Y-%m-%dT%H:%M:%S.%f'
+#PATTERN['dmesg']='%Y-%m-%dT%H:%M:%S,%f'
 PATTERN['date']='%Y-%m-%dT%H:%M:%S[,.]%f'
 
 COMMAND="sleep 20"
@@ -75,46 +77,37 @@ def execute(command):
             print "\n[Debug] Skipped mmap"
     except:
         print "\n[Debug] Execution Abort"
+        os.system("python $SWPTRACE/off.py")
         return 
 
 
-def __awk_log(logfile, time_to_str, error): 
-    	awk_part = logfile +'{} | awk -v start={} -F, \'/swptrace/  {if($1>start){print $0}}\' > ./awk.csv'.format(logfile, time_to_str)
-    	print "\n$ "+ awk_part+'\n'
-        os.system(awk_part)
-	if is_false_generated('./awk.csv'):
-		raise error
-
-
 def awk_log(start_time):
-    # awk parts from log only after the execution
     try:
         RSYSLOG = None
         if platform.dist()[0] == 'Ubuntu':
-           RSYSLOG = "/var/log/syslog"
+            RSYSLOG = "/var/log/syslog"
         else:
-           RSYSLOG = "/var/log/messages"
-
-	__awk_log('cat {}'.format(RSYSLOG),  datetime_to_rsyslog(start_time), IOError)
+            RSYSLOG = "/var/log/messages"
+        
+        awk_command = "cat %s | awk -v start=%s -F, '/swptrace/ {if($1>start) {print $0}}' > awk.csv"%(RSYSLOG, datetime_to_string(start_time))
+        print "$ %s\n"%awk_command
+        os.system(awk_command)
+        if is_false_generated("./awk.csv"):
+           raise IOError
     except IOError:
         print "rsyslog miss message, try dmesg"
-	__awk_log( 'dmesg --time-format iso', datetime_to_dmesg(start_time), RuntimeError)
+        awk_command = "dmesg --time-format iso | awk -v start=%s -F, '/swptrace/ {if($1>start) {print $0}}' > ./awk.csv"%datetime_to_string(start_time)
+        print "$ %s\n"%awk_command
+        os.system(awk_command)
+        if is_false_generated("./awk.csv"):
+           raise IOError
     except:
-        print "[Failure] fail to extract log" 
-	clean_up_and_exit(os.getcwd())
+       print "[Failure] fail to extract log" 
 
 
-def create_directory():
-    configure['PATH']['awk'] = configure['PATH']['head'] +'/awk.csv'
-
-
-def datetime_to_rsyslog(x):
+def datetime_to_string(x):
     # needed for path, will print in rsyslog format
     return x.strftime(PATTERN["rsyslog"])
-
-def datetime_to_dmesg(x):
-    # needed for path, will print in rsyslog format
-    return x.strftime(PATTERN["dmesg"])
 
 
 def is_false_generated(x, fname=None):
@@ -135,9 +128,8 @@ def clean_up_and_exit(path):
 if __name__ == '__main__': 
    config_option()
    START_TIME = datetime.now()
-   print COMMAND
    execute(COMMAND)
-   LOG_DIR = os.getcwd()+'/'+datetime_to_rsyslog(START_TIME)
+   LOG_DIR = os.getcwd()+'/'+datetime_to_string(START_TIME)
    os.system('sudo mkdir -p {}'.format(LOG_DIR))
    os.system('mv {}/maps {}'.format(os.getcwd(), LOG_DIR))
    os.chdir(LOG_DIR)
