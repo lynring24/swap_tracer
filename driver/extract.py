@@ -42,6 +42,8 @@ def string_to_date(timestamp):
 
 def extract(FAULT):
     print "$ extract ryslog log"
+    CURRENT = os.getcwd()
+    print CURRENT
     configure["TIME"] = string_to_date(os.path.basename(CURRENT))
     columns = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, nrows=1)
     max_column = columns.shape[1]

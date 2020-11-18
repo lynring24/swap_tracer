@@ -182,5 +182,5 @@ def plot_out(dir_path, option):
         plt.show()
 
 if __name__ == "__main__":
-    plot_out('.', MMAP)
+    plot_out(os.getcwd(), MODE)
     print "[Finish]"
