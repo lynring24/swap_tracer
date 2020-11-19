@@ -100,14 +100,11 @@ def plot_out(dir_path, option):
     rsyslog['axis'] = pd.cut(rsyslog['address'], bins=subyranges) 
     GRIDS = rsyslog['axis'].nunique()
     
-    #rsyslog['address'].value_counts(normalize=True, bins=4).loc[lambda x : x>0]
-    #print rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index()
-    #print rsyslog['axis'].value_counts().loc[lambda x: x > 0].sort_index()
-    height_ratios = map(lambda x : int(x*100) if x > 0.1 else 3, rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index(ascending=False).tolist())
+    height_ratios = map(lambda x : int(x*100) if x > 0.1 else 4, rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index(ascending=False).tolist())
 
     #print height_ratios
 
-    print "\n$ plot [ {} x 1 ] by {}".format(GRIDS, option)
+    print "\n$ generate plot [ {} x 1 ] by {}".format(GRIDS, option)
 
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, gridspec_kw={'height_ratios':height_ratios}, sharex=True)
     plt.subplots_adjust(wspace=0, hspace=0)
@@ -142,8 +139,9 @@ def plot_out(dir_path, option):
             else:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
 
-        #print (min(region['address'])-PADDING, max(region['address'])+PADDING), len(region)
-        axes[converty].set_ylim(min(region['address'])-PADDING, max(region['address'])+PADDING)
+        REGION_START = min(region['address'])
+        REGION_END =  max(region['address'])
+        axes[converty].set_ylim(REGION_START-PADDING, REGION_END+PADDING)
 
         if converty == 0:
             axes[converty].spines['top'].set_visible(True)
@@ -159,7 +157,21 @@ def plot_out(dir_path, option):
             axes[converty].plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
             axes[converty].plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
             axes[converty].plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-            axes[converty].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal             
+            axes[converty].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal           
+        #TODO: set ticks 
+        ticks = None
+        if height_ratios[converty] > 50:
+           ticks = map(lambda x: x.left, region['address'].value_counts(bins=3).sort_index().index.tolist())
+           ticks.append(REGION_END)
+        elif height_ratios[converty] > 20:
+           ticks = map(lambda x: x.left, region['address'].value_counts(bins=2).sort_index().index.tolist())
+           ticks.append(REGION_END)
+        else:
+            ticks = [REGION_START, REGION_END]
+        axes[converty].set_yticks(ticks)
+
+
+
     
     patches = None 
     if option == MMAP :
@@ -171,7 +183,7 @@ def plot_out(dir_path, option):
     legend = axes[0].legend(handles = patches, bbox_to_anchor=(1.05, 1))
     plt.suptitle('Swap Trace [Address x timestamp]',fontsize=10)
     fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
-    fig.text(0.06, 0.5, 'Virtual Address Space', va='center', rotation='vertical')
+    fig.text(0.05, 0.5, 'Virtual Address', va='center', rotation='vertical')
     plt.savefig("{}/result.png".format(dir_path),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)
 
     if os.environ.get('DISPLAY','') != '':
