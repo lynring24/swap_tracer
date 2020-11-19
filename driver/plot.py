@@ -84,7 +84,6 @@ def plot_out(dir_path, option):
 
     rsyslog['address'] = rsyslog['address'].apply(lambda x: x)
     rsyslog['mmap'] = rsyslog['address'].apply(lambda x : labelize(x))
-    # rsyslog.to_csv('./labelized.csv')
 
     del maps
 
@@ -93,22 +92,24 @@ def plot_out(dir_path, option):
     START_ADDRESS = rsyslog.address.min()-PADDING
     START_DIGITS = len(str(START_ADDRESS))
     STEP = 0.001*pow(10,START_DIGITS)
-
     END_ADDRESS = rsyslog.address.max()+PADDING
 
     subyranges = [ n for n in np.arange( START_ADDRESS, END_ADDRESS, STEP)] 
-    #subyranges = [ n*pow(10, 14) for n in np.arange(0.9, 1.5, 0.001)] 
-    #subyranges = [ 0.940*pow(10,14), 0.941*pow(10,14), 0.942*pow(10,14), 0.943*pow(10,14), 1.405*pow(10,14), 1.406*pow(10,14), 1.407*pow(10,14), 1.408*pow(10,15)]
     subyranges.extend([1.8*pow(10,19), 1.9*pow(10,19)])
 
-    rsyslog['axis'] = pd.cut(rsyslog['address'], bins=subyranges)
-    #print rsyslog['axis'].head(10)
-    
+    rsyslog['axis'] = pd.cut(rsyslog['address'], bins=subyranges) 
     GRIDS = rsyslog['axis'].nunique()
-   
+    
+    #rsyslog['address'].value_counts(normalize=True, bins=4).loc[lambda x : x>0]
+    #print rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index()
+    #print rsyslog['axis'].value_counts().loc[lambda x: x > 0].sort_index()
+    height_ratios = map(lambda x : int(x*100) if x > 0.1 else 3, rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index().tolist())
+
+    print height_ratios
+
     print "\n$ plot [ {} x 1 ] by {}".format(GRIDS, option)
 
-    fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, sharex=True)
+    fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, gridspec_kw={'height_ratios':height_ratios}, sharex=True)
     plt.subplots_adjust(wspace=0, hspace=0)
     
     axes = axes.flatten() if GRIDS > 1 else [axes]
@@ -122,9 +123,7 @@ def plot_out(dir_path, option):
     kwargs = dict(transform=axes[0].transAxes, color='k', clip_on=False)
     colors=dict()
     if option == MMAP:
-        def set_color_list():
-            return list(mcolors.TABLEAU_COLORS)
-        color_list = set_color_list()
+        color_list = list(mcolors.TABLEAU_COLORS)
         def paint(mmap):
             colors.update({mmap : color_list.pop(-1)})
         map( lambda x:paint(x), rsyslog.mmap.unique().tolist())
@@ -137,13 +136,14 @@ def plot_out(dir_path, option):
             continue
         idy = idy+1
         converty = GRIDS-(idy+1)
+        converty = idy
         for (area, mode), group in region.groupby(['mmap', 'mode']):
             if option==MMAP:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
             else:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
 
-        #print (min(region['address'])-PADDING, max(region['address'])+PADDING)
+        print (min(region['address'])-PADDING, max(region['address'])+PADDING), len(region)
         axes[converty].set_ylim(min(region['address'])-PADDING, max(region['address'])+PADDING)
 
         if converty == 0:
