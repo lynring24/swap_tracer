@@ -20,6 +20,8 @@ PADDING = 5*pow(10,5)
 MODE = "mode"
 MMAP = "mmap"
 
+SEC_TO_USEC = 100000
+
 def plot_out(dir_path, option):            
     maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None, usecols=[0,5])
     maps.columns = ['range','pathname']   
@@ -28,9 +30,7 @@ def plot_out(dir_path, option):
     maps['range0'] = maps['range0'].apply(lambda x: int(x, 16))
     maps['range1'] = maps['range1'].apply(lambda x: int(x, 16))
     maps = maps.drop('range', axis=1)
-    #maps['merge'] = (maps['pathname'].shift(-1) == '[Anon]') & (maps['range0'].shift(-1) == maps['range1']) & (maps['pathname'].str.contains('/lib/')==False)
     maps['merge'] = ((maps['range0'].shift(-1) == maps['range1'])  & (maps['pathname'].shift(-1)==maps['pathname'])) | ((maps['range1'].shift() == maps['range0']) & (maps['pathname'].shift()==maps['pathname']))
-
 
     for name, group in maps[maps['merge']==True].groupby('pathname'):
         head = group.range0.min()
@@ -53,17 +53,16 @@ def plot_out(dir_path, option):
 
 
     # find biggest gap 
-    maps['gap'] = maps['range0'].shift(-1) - maps['range1']
-    maps['next_start'] = maps['range0'].shift(-1)
+    #maps['gap'] = maps['range0'].shift(-1) - maps['range1']
+    #maps['next_start'] = maps['range0'].shift(-1)
     maps = maps[['range0', 'range1', 'pathname']]
-    maps.to_csv('./maps.csv')
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     if len(rsyslog) < 2: 
         print "[Debug] swap not occured"
         exit(1)
 
-    rsyslog['timestamp'] = rsyslog['timestamp'].astype(int)
+    rsyslog['timestamp'] = rsyslog['timestamp'].astype(int).apply(lambda x:x/SEC_TO_USEC)
     keys = list( zip(maps.range0, maps.range1)) 
     layout = pd.Series(maps.pathname.values, index=keys).to_dict()
 
@@ -85,40 +84,26 @@ def plot_out(dir_path, option):
 
     rsyslog['address'] = rsyslog['address'].apply(lambda x: x)
     rsyslog['mmap'] = rsyslog['address'].apply(lambda x : labelize(x))
-    rsyslog.to_csv('./labelized.csv')
+    # rsyslog.to_csv('./labelized.csv')
+
+    del maps
 
     # output
 
-    #subyranges = [ [n*pow(10, 14), (n+0.1)*pow(10, 14) ]for n in np.arange(0.9, 1.5, 0.1)] 
-    #subyranges.append([1.8*pow(10,19), 1.9*pow(10,19)])
-    #subyranges = zip(biny[::2], biny[1::2])
-    #print biny 
-    
-   # mmap = rsyslog.groupby('mmap')['address'].agg([('start', 'min'), ('end', 'max')]).sort_values('start', ascending=1)
-    #mmap['head'] = mmap['start'] - mmap['end'].shift()
-    #mmap['rear'] = mmap['start'].shift(-1) - mmap['end']
+    START_ADDRESS = rsyslog.address.min()-PADDING
+    START_DIGITS = len(str(START_ADDRESS))
+    STEP = 0.001*pow(10,START_DIGITS)
 
-    #print mmap
-   #break_points = mmap.sort_values(['head','rear'], ascending=[0,0]).head(2)
-   #break_points = break_points[pd.notnull(break_points['head']) & pd.notnull(break_points['rear'])]
-   #exit(1)
-    #reak_points = break_points.sort_values('start', ascending=1) [['end', 'next']].to_numpy().tolist()
-    # subyranges = [ n*pow(10, 14) for n in np.arange(0.9, 1.5, 0.0005)] 
-    subyranges = [ 0.940*pow(10,14), 0.941*pow(10,14), 0.942*pow(10,14), 0.943*pow(10,14), 1.405*pow(10,14), 1.406*pow(10,14), 1.407*pow(10,14), 1.408*pow(10,15)]
+    END_ADDRESS = rsyslog.address.max()+PADDING
+
+    subyranges = [ n for n in np.arange( START_ADDRESS, END_ADDRESS, STEP)] 
+    #subyranges = [ n*pow(10, 14) for n in np.arange(0.9, 1.5, 0.001)] 
+    #subyranges = [ 0.940*pow(10,14), 0.941*pow(10,14), 0.942*pow(10,14), 0.943*pow(10,14), 1.405*pow(10,14), 1.406*pow(10,14), 1.407*pow(10,14), 1.408*pow(10,15)]
     subyranges.extend([1.8*pow(10,19), 1.9*pow(10,19)])
 
-    #subyranges.extend(sum(break_points, []))
-
-
-    #def mmap(x):
-    #    for region in subyranges:
-    #        if region[0]<=x and x < region[1]:
-    #            return region
-    #rsyslog['axis'] = rsyslog['address'].apply(lambda x : mmap(x))
     rsyslog['axis'] = pd.cut(rsyslog['address'], bins=subyranges)
-    print rsyslog['axis'].head(10)
+    #print rsyslog['axis'].head(10)
     
-    #GRIDS = len(rsyslog.astype('str').groupby('axis'))
     GRIDS = rsyslog['axis'].nunique()
    
     print "\n$ plot [ {} x 1 ] by {}".format(GRIDS, option)
@@ -158,7 +143,7 @@ def plot_out(dir_path, option):
             else:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
 
-        print (min(region['address'])-PADDING, max(region['address'])+PADDING)
+        #print (min(region['address'])-PADDING, max(region['address'])+PADDING)
         axes[converty].set_ylim(min(region['address'])-PADDING, max(region['address'])+PADDING)
 
         if converty == 0:
