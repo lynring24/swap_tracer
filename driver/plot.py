@@ -100,7 +100,18 @@ def plot_out(dir_path, option):
     rsyslog['axis'] = pd.cut(rsyslog['address'], bins=subyranges) 
     GRIDS = rsyslog['axis'].nunique()
     
-    height_ratios = map(lambda x : int(x*100) if x > 0.1 else 4, rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index(ascending=False).tolist())
+    def add_weight(x):
+        weighted = None
+        if x > 0.3 :
+            weighted = int(x*80)
+        elif x > 0.1:
+            weighted = int(x*150)
+        else: 
+            weighted = 4
+        return weighted
+
+
+    height_ratios = map(lambda x : add_weight(x), rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index(ascending=False).tolist())
 
     #print height_ratios
 
