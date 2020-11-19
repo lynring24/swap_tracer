@@ -41,27 +41,15 @@ $ make
 $ pip install $(cat requisite)
 $ apt-get install python-tk
 ```
-3. [Optional] Adding the linkage for profiling
-For the profiling, please include the linkage(**-L. -lhmalloc**) to the Makefile of your target source 
-For example, 
-```
-martix_multiplication:
-	gcc matrix.c -lm -o matrix_multiplication
-```
-should be
-```
-matrix_multiplication:
-	# gcc matrix.c -lm -L. -lhmalloc -o matrix_multiplication
-	# gcc -o matrix malloc.c -g -lm -Wl,--no-as-needed -ldl
-```
 
 ### Execution
 
 ```
-$ python $SWPTRACE/exec.py <--mem=Mib> <--cmd="command to run"> \
-	<--ip=public ip> <--port=port number> <--log="/Absolute_path_for_log_dir/"> 
-
 # <> is optional
+$ python $SWPTRACE/exec.py <--faault> <--interval=MICROSECOND> "command to run"
+
+# example 
+$ python $SWPTRACE/exec.py --faault --interval=1000 "./script.sh"
 
 ```
 
@@ -72,12 +60,28 @@ LOG_ROOT
 | YYYY-MM-DDTHH:MM:SS.msec
           |  LOG_FILES.csv
 ```
-### plot
+## Output plots 
 
-![plot](./example.gif)
+### Scatter Plot 
+1. Plot with mode option
+```
+$ python $SWPTRACE/plot.py
+```
+![plot-mode](./demo/mode.png)
+
+2. Plot with memory map
+```
+$ python $SWPTRACE/plot.py -m|--mmap
+```
+![plot-mmap](./demo/mmap.png)
+
+### Heatmap Plot
+```
+$ python $SWPTRACE/heatmap.py
+```
+![heatmap](./demo/heatmap.png)
 
 ## Directory 
-+ swptracer.patch
++ patch
 + driver 
-+ driver/templates
 + demo
