@@ -28,14 +28,17 @@ def plot_out(dir_path, option):
     maps['range0'] = maps['range0'].apply(lambda x: int(x, 16))
     maps['range1'] = maps['range1'].apply(lambda x: int(x, 16))
     maps = maps.drop('range', axis=1)
-    maps['merge'] = (maps['pathname'].shift(-1) == '[Anon]') & (maps['range0'].shift(-1) == maps['range1']) & (maps['pathname'].str.contains('/lib/')==False)
+    #maps['merge'] = (maps['pathname'].shift(-1) == '[Anon]') & (maps['range0'].shift(-1) == maps['range1']) & (maps['pathname'].str.contains('/lib/')==False)
+    maps['merge'] = ((maps['range0'].shift(-1) == maps['range1'])  & (maps['pathname'].shift(-1)==maps['pathname'])) | ((maps['range1'].shift() == maps['range0']) & (maps['pathname'].shift()==maps['pathname']))
 
-    indexs = maps[maps['merge'] == True].index
-    for index in indexs:
-        under = index+1 
-        if maps.iloc[under]['merge'] == False:
-            maps.at[index, 'range1'] = maps.iloc[under]['range1']
-            maps = maps.drop(under) 
+
+    for name, group in maps[maps['merge']==True].groupby('pathname'):
+        head = group.range0.min()
+        tail = group.range1.max()
+        #print head, tail
+        new_row = {'pathname':name, 'range0':head, 'range1':tail, 'merge':False}
+        maps = maps.append(new_row, ignore_index=True)
+    maps = maps[maps['merge']==False].sort_values('range0', ascending=1)
 
     def shorted(x):
         if os.path.isabs(x):
@@ -45,14 +48,15 @@ def plot_out(dir_path, option):
                 x=x.replace('[','')
                 x=x.replace(']','')
            return x
-    ## pathname 
     maps['pathname'] = maps['pathname'].apply(lambda value : shorted(value))
     maps = maps.reset_index()
+
 
     # find biggest gap 
     maps['gap'] = maps['range0'].shift(-1) - maps['range1']
     maps['next_start'] = maps['range0'].shift(-1)
     maps = maps[['range0', 'range1', 'pathname']]
+    maps.to_csv('./maps.csv')
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     if len(rsyslog) < 2: 
@@ -79,39 +83,45 @@ def plot_out(dir_path, option):
                 break
         return label 
 
+    rsyslog['address'] = rsyslog['address'].apply(lambda x: x)
     rsyslog['mmap'] = rsyslog['address'].apply(lambda x : labelize(x))
     rsyslog.to_csv('./labelized.csv')
 
     # output
-    print "\n$ plot by {}".format(option)
 
-    START_OF_ADDRESS = rsyslog.address.min()
-    END_OF_ADDRESS = rsyslog.address.max() 
-
-    #biny = [START_OF_ADDRESS, 1.0*pow(10, 14), 1.3*pow(10,14), 1.4*pow(10,14), END_OF_ADDRESS , 1.8 *pow(10, 18) ]
-    #biny = [ n*pow(10, 14) for n in np.arange(1,3 , 0.1) ]
-    #biny = [ pow(10, n) for n in range(14, 20) ]
-    # biny.extend([START_OF_ADDRESS, END_OF_ADDRESS])
-
-    mmap = rsyslog.groupby('mmap')['address'].agg([('start' , 'min'), ('end', 'max')]).sort_values('start', ascending=1) 
-    COUNT_BREAKS = 2 
-    mmap['next'] = mmap['start'].shift(-1)   
-    mmap['rear'] = mmap['next']-mmap['end']
-
-    break_points = mmap.sort_values('rear', ascending=0).head(2)
-    break_points = break_points.sort_values('start', ascending=1)[['end', 'next']].to_numpy().tolist()
-    biny = sum(break_points, [])
-    biny.extend([START_OF_ADDRESS, END_OF_ADDRESS])
-    biny = sorted(biny)
-    subyranges = zip(biny[::2], biny[1::2])
-
-    def mmap(x):
-        for region in subyranges:
-            if region[0]<=x and x <= region[1]:
-                return region
-    rsyslog['axis'] = rsyslog['address'].apply(lambda x : mmap(x))
+    #subyranges = [ [n*pow(10, 14), (n+0.1)*pow(10, 14) ]for n in np.arange(0.9, 1.5, 0.1)] 
+    #subyranges.append([1.8*pow(10,19), 1.9*pow(10,19)])
+    #subyranges = zip(biny[::2], biny[1::2])
+    #print biny 
     
-    GRIDS = len(subyranges)
+   # mmap = rsyslog.groupby('mmap')['address'].agg([('start', 'min'), ('end', 'max')]).sort_values('start', ascending=1)
+    #mmap['head'] = mmap['start'] - mmap['end'].shift()
+    #mmap['rear'] = mmap['start'].shift(-1) - mmap['end']
+
+    #print mmap
+   #break_points = mmap.sort_values(['head','rear'], ascending=[0,0]).head(2)
+   #break_points = break_points[pd.notnull(break_points['head']) & pd.notnull(break_points['rear'])]
+   #exit(1)
+    #reak_points = break_points.sort_values('start', ascending=1) [['end', 'next']].to_numpy().tolist()
+    # subyranges = [ n*pow(10, 14) for n in np.arange(0.9, 1.5, 0.0005)] 
+    subyranges = [ 0.940*pow(10,14), 0.941*pow(10,14), 0.942*pow(10,14), 0.943*pow(10,14), 1.405*pow(10,14), 1.406*pow(10,14), 1.407*pow(10,14), 1.408*pow(10,15)]
+    subyranges.extend([1.8*pow(10,19), 1.9*pow(10,19)])
+
+    #subyranges.extend(sum(break_points, []))
+
+
+    #def mmap(x):
+    #    for region in subyranges:
+    #        if region[0]<=x and x < region[1]:
+    #            return region
+    #rsyslog['axis'] = rsyslog['address'].apply(lambda x : mmap(x))
+    rsyslog['axis'] = pd.cut(rsyslog['address'], bins=subyranges)
+    print rsyslog['axis'].head(10)
+    
+    #GRIDS = len(rsyslog.astype('str').groupby('axis'))
+    GRIDS = rsyslog['axis'].nunique()
+   
+    print "\n$ plot [ {} x 1 ] by {}".format(GRIDS, option)
 
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, sharex=True)
     plt.subplots_adjust(wspace=0, hspace=0)
@@ -148,9 +158,8 @@ def plot_out(dir_path, option):
             else:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
 
-
+        print (min(region['address'])-PADDING, max(region['address'])+PADDING)
         axes[converty].set_ylim(min(region['address'])-PADDING, max(region['address'])+PADDING)
-
 
         if converty == 0:
             axes[converty].spines['top'].set_visible(True)
