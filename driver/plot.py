@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 import numpy as np
 import matplotlib as mpl
@@ -17,12 +18,12 @@ zorders={'fault':5, 'map':10, 'out':0}
 markers = { 'map':'o', 'out':'x', 'fault' :'^'}
  
 PADDING = 5*pow(10,5)
-MODE = "mode"
-MMAP = "mmap"
 
 SEC_TO_USEC = 100000
 
 def plot_out(dir_path, option):            
+    MODE = "mode"
+    MMAP = "mmap"
     maps = pd.read_csv(dir_path+"/maps", sep='\s+',header=None, usecols=[0,5])
     maps.columns = ['range','pathname']   
     maps['pathname'] = maps['pathname'].fillna('Anon') 
@@ -201,5 +202,8 @@ def plot_out(dir_path, option):
         plt.show()
 
 if __name__ == "__main__":
-    plot_out(os.getcwd(), MODE)
+    if sys.argv[1] == '--mmap' or sys.argv[1] == '-m':
+        plot_out(os.getcwd(), "mmap")
+    else:
+        plot_out(os.getcwd(), "mode")
     print "[Finish]"
