@@ -202,8 +202,11 @@ def plot_out(dir_path, option):
         plt.show()
 
 if __name__ == "__main__":
-    if sys.argv[1] == '--mmap' or sys.argv[1] == '-m':
+    if len (sys.argv) < 2: 
+        plot_out(os.getcwd(), "mode")
+    elif sys.argv[1] == '--mmap' or sys.argv[1] == '-m':
         plot_out(os.getcwd(), "mmap")
     else:
-        plot_out(os.getcwd(), "mode")
-    print "[Finish]"
+        print "Usage : python plot.py <--mmap | -m>"
+    
+    print "\n[Finish]"
