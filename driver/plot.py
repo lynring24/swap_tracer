@@ -103,9 +103,9 @@ def plot_out(dir_path, option):
     #rsyslog['address'].value_counts(normalize=True, bins=4).loc[lambda x : x>0]
     #print rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index()
     #print rsyslog['axis'].value_counts().loc[lambda x: x > 0].sort_index()
-    height_ratios = map(lambda x : int(x*100) if x > 0.1 else 3, rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index().tolist())
+    height_ratios = map(lambda x : int(x*100) if x > 0.1 else 3, rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index(ascending=False).tolist())
 
-    print height_ratios
+    #print height_ratios
 
     print "\n$ plot [ {} x 1 ] by {}".format(GRIDS, option)
 
@@ -136,14 +136,13 @@ def plot_out(dir_path, option):
             continue
         idy = idy+1
         converty = GRIDS-(idy+1)
-        converty = idy
         for (area, mode), group in region.groupby(['mmap', 'mode']):
             if option==MMAP:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[area], marker=markers[mode], linestyle=' ', ms=1, zorder=zorders[mode])
             else:
                 axes[converty].plot(group.timestamp, group.address, label=labels[mode], c=colors[mode], marker='o', linestyle=' ', ms=1, zorder=zorders[mode])
 
-        print (min(region['address'])-PADDING, max(region['address'])+PADDING), len(region)
+        #print (min(region['address'])-PADDING, max(region['address'])+PADDING), len(region)
         axes[converty].set_ylim(min(region['address'])-PADDING, max(region['address'])+PADDING)
 
         if converty == 0:
@@ -170,6 +169,9 @@ def plot_out(dir_path, option):
         patches = [mpatches.Patch(color = value, label = '{} ({})'.format(labels[key], len(rsyslog[rsyslog['mode']==key]))) for key, value in colors.iteritems()]
 
     legend = axes[0].legend(handles = patches, bbox_to_anchor=(1.05, 1))
+    plt.suptitle('Swap Trace [Address x timestamp]',fontsize=10)
+    fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
+    fig.text(0.06, 0.5, 'Virtual Address Space', va='center', rotation='vertical')
     plt.savefig("{}/result.png".format(dir_path),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)
 
     if os.environ.get('DISPLAY','') != '':
