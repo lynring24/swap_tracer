@@ -11,7 +11,6 @@ then
 fi
 
 MEMLIM=$(($1 * 1024 * 1024))
-
 COMM="$2"  
 
 MEMCG_ORIG_DIR=/sys/fs/cgroup/memory/

@@ -43,12 +43,17 @@ def extract(FAULT):
     def get_path(x):
         return os.path.join(CURRENT, x)
     configure["TIME"] = string_to_date(os.path.basename(CURRENT))
+    if os.path.isfile(get_path('awk.csv')) == False:
+        print "[DEBUG] awk.csv not exist"
+        exit(1)
+
     columns = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, nrows=1)
     max_column = columns.shape[1]
     rsyslog = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, usecols=[0, max_column-3, max_column-2, max_column-1])
     rsyslog.columns = ['timestamp', 'mode', 'swpentry', 'address']
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - configure["TIME"]).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
+    rsyslog = rsyslog[(rsyslog['mode']=='out') | (rsyslog['mode'] == 'map')]
     if FAULT !=True:
         rsyslog = rsyslog[rsyslog['mode']!='fault']
 

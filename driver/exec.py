@@ -70,11 +70,11 @@ def execute(command):
 
         if target_pid != "":
             os.system('cat /proc/{}/maps > maps'.format(target_pid))
-            child_process.wait()
-            print "[Exec] {} sec".format(time.time() - start_time)
-            os.system('$SWPTRACE/swptrace {} {}'.format(0, 0));
         else:
             print "\n[Debug] Skipped mmap"
+        child_process.wait()
+        #print "[Exec] {} sec".format(time.time() - start_time)
+        os.system('$SWPTRACE/swptrace {} {}'.format(0, 0));
     except:
         print "\n[Debug] Execution Abort"
         os.system("python $SWPTRACE/off.py")
@@ -100,9 +100,8 @@ def awk_log(start_time):
         print "$ %s\n"%awk_command
         os.system(awk_command)
         if is_false_generated("./awk.csv"):
-           raise IOError
-    except:
-       print "[Failure] fail to extract log" 
+            print "[DEBUG] Swap trace not exists" 
+            exit(1)
 
 
 def datetime_to_string(x):
@@ -131,7 +130,11 @@ if __name__ == '__main__':
    execute(COMMAND)
    LOG_DIR = os.getcwd()+'/'+datetime_to_string(START_TIME)
    os.system('sudo mkdir -p {}'.format(LOG_DIR))
-   os.system('mv {}/maps {}'.format(os.getcwd(), LOG_DIR))
+   # TODO: if file exists
+   
+   MAPS = '{}/maps'.format(os.getcwd())
+   if os.path.isfile(MAPS):
+       os.system('mv {} {}'.format(MAPS, LOG_DIR))
    os.chdir(LOG_DIR)
    awk_log(START_TIME)
    extract(USE_FAULT)

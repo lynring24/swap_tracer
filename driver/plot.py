@@ -92,6 +92,7 @@ def plot_out(dir_path, option):
 
     START_ADDRESS = rsyslog.address.min()-PADDING
     START_DIGITS = len(str(START_ADDRESS))
+    print rsyslog.address.min(), rsyslog.address.max()
     STEP = 0.001*pow(10,START_DIGITS)
     END_ADDRESS = rsyslog.address.max()+PADDING
 
@@ -196,6 +197,8 @@ def plot_out(dir_path, option):
     plt.suptitle('Swap Trace [Address x timestamp]',fontsize=10)
     fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
     fig.text(0.05, 0.5, 'Virtual Address', va='center', rotation='vertical')
+    textstr = 'Mem.used(MiB):{}\n@: [{}, {}]\ntime(sec):{}'.format(END_ADDRESS-START_ADDRESS, hex(START_ADDRESS), hex(END_ADDRESS), (rsyslog.timestamp.max() - rsyslog.timestamp.min())/SEC_TO_USEC)
+    fig.text(1.75, 0, textstr)
     plt.savefig("{}/result.png".format(dir_path),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)
 
     if os.environ.get('DISPLAY','') != '':
