@@ -51,14 +51,18 @@ def extract(FAULT):
     max_column = columns.shape[1]
     rsyslog = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, usecols=[0, max_column-3, max_column-2, max_column-1])
     rsyslog.columns = ['timestamp', 'mode', 'swpentry', 'address']
+    
+    swappedin = rsyslog[rsyslog['mode']=='in']['swpentry'].to_numpy().tolist()
+    rsyslog = rsyslog[(rsyslog['mode']=='out') | ((rsyslog['mode']=='map') & (rsyslog['swpentry'].isin(swappedin)))]
+
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - configure["TIME"]).total_seconds() * MICROSECOND)
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
-    rsyslog = rsyslog[(rsyslog['mode']=='out') | (rsyslog['mode'] == 'map')]
     if FAULT !=True:
         rsyslog = rsyslog[rsyslog['mode']!='fault']
+    #rsyslog['address'] = rsyslog['address'].apply(lambda x : x/4096)
 
     print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
-    rsyslog.to_csv(get_path('rsyslog.csv'), index=False) 
+    rsyslog[['timestamp', 'mode', 'address']].to_csv(get_path('rsyslog.csv'), index=False) 
     print "\n[ Summary ]"
     print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='map'].index))
     print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))
