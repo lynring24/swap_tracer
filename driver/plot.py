@@ -52,15 +52,13 @@ def plot_out(dir_path, option):
     limits = ADDRESS_RANGE
 
     for index, row in rsyslog[rsyslog['gap'] < -1 * pow(10,10)].nsmallest(3,'gap').iterrows():
-        print row['address'], row['prev'] , row['gap']
-        # pandas cut the category by ( , ] so the addresws +1 , prev-1
         limits.extend([row['address']+1, row['prev']-1])
 
     limits = sorted(limits)
 
 
 
-    print "calculate range"
+    print " > sample range"
     #START_ADDRESS = rsyslog.address.min()-PADDING
     #START_DIGITS = len(str(START_ADDRESS))-1
     #STEP = 0.001*pow(10,START_DIGITS)
@@ -91,12 +89,12 @@ def plot_out(dir_path, option):
         return weighted
 
 
-    print "add range"
+    print " > add range"
     height_ratios = map(lambda x : add_weight(x), rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index(ascending=False).tolist())
 
     #print height_ratios
 
-    print "\n$ generate plot [ {} x 1 ] ".format(GRIDS)
+    print " > generate plot [ {} x 1 ] ".format(GRIDS)
 
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, gridspec_kw={'height_ratios':height_ratios}, sharex=True)
     plt.subplots_adjust(wspace=0, hspace=0)
@@ -114,7 +112,6 @@ def plot_out(dir_path, option):
 
     idy = -1  
     
-    print "$ building plot"
     
     for name, region in rsyslog.groupby("axis"):
         if len(region) < 1:
@@ -145,7 +142,7 @@ def plot_out(dir_path, option):
             axes[converty].plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal           
         #TODO: set ticks 
 
-        ticks = None
+        ticks = []
         if height_ratios[converty] > 50:
            ticks = map(lambda x: x.left, region['address'].value_counts(bins=3).sort_index().index.tolist())
            ticks.append(REGION_END)
@@ -153,9 +150,11 @@ def plot_out(dir_path, option):
            ticks = map(lambda x: x.left, region['address'].value_counts(bins=2).sort_index().index.tolist())
            ticks.append(REGION_END)
         else:
-            #ticks = [REGION_START, REGION_END]
-            ticks = []
+            pass
+
         axes[converty].set_yticks(ticks)
+        ticklabels = map(lambda x: format(int(x), 'x'), ticks)
+        axes[converty].set_yticklabels(ticklabels, fontsize='7')
 
 
 
@@ -165,24 +164,23 @@ def plot_out(dir_path, option):
 
     legend = axes[0].legend(handles = patches, bbox_to_anchor=(1.05, 1))
     plt.suptitle('Swap Trace [Address x timestamp]',fontsize=10)
-    fig.text(0.05, 0.5, 'Virtual Address', va='center', rotation='vertical')
+    fig.text(0.005,  0.5, 'Virtual Address', va='center', rotation='vertical')
 
-    textstr = None
+    text_str  = 'virtual address : \n[{} ~ {}]\n'.format(format(int(ADDRESS_RANGE[0]), 'x'), format(int(ADDRESS_RANGE[1]), 'x'))
     if SECONDS == True:
         fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
-        textstr = 'Mem.used @: [{}, {}]\ntime(sec):{}'.format(hex(ADDRESS_RANGE[0]), hex(ADDRESS_RANGE[1]), (rsyslog.timestamp.max() - rsyslog.timestamp.min()))
+        text_str = '{}\ntime(sec) : {}'.format(text_str, (rsyslog.timestamp.max() - rsyslog.timestamp.min()))
     else:
         fig.text(0.5, 0.04, 'timestamp (usec) ', ha='center')
-        textstr = 'Mem.used @: [{}, {}]\ntime(sec):{}'.format(hex(ADDRESS_RANGE[0]), hex(ADDRESS_RANGE[1]), (rsyslog.timestamp.max() - rsyslog.timestamp.min())/SEC_TO_USEC)
+        text_str = '{}\ntime(sec) : {}'.format(text_str, (rsyslog.timestamp.max() - rsyslog.timestamp.min())/SEC_TO_USEC)
 
-    fig.text(0.6, 0.5, textstr)
+    fig.text(0.93, 0.5, text_str)
     plt.savefig("{}/result.png".format(dir_path),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)
 
     if os.environ.get('DISPLAY','') != '':
         plt.show()
 
 if __name__ == "__main__":
-    print "enter"
     if len (sys.argv) < 2: 
         plot_out(os.getcwd(), "mode")
     else:
