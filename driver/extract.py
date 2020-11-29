@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 from math import ceil, isnan
 
-MICROSECOND = 1000000
+SEC_TO_USEC = 1000000
 DELIMETER ='\s+'
 
 configure = dict()
@@ -55,7 +55,7 @@ def extract(FAULT):
     swappedin = rsyslog[rsyslog['mode']=='in']['swpentry'].to_numpy().tolist()
     rsyslog = rsyslog[(rsyslog['mode']=='out') | ((rsyslog['mode']=='map') & (rsyslog['swpentry'].isin(swappedin)))]
 
-    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - configure["TIME"]).total_seconds() * MICROSECOND)
+    rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - configure["TIME"]).total_seconds())
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
     if FAULT !=True:
         rsyslog = rsyslog[rsyslog['mode']!='fault']

@@ -21,32 +21,69 @@ PADDING = pow(10,3)
 SEC_TO_USEC = 1000000
 
 def plot_out(dir_path, option):            
+    #rsyslog['gap'] = rsyslog['address'].diff()
+    #rsyslog.to_csv(dir_path+"/gap.csv")
+
+    maps=pd.read_csv(dir_path+"/maps", sep='\s+',header=None, usecols=[0,5])
+    maps.columns = ['range', 'pathname']
+    #maps['range'] = maps['range'].apply(lambda x : map(lambda i : int(i,16), x.split('-')))
+    maps = maps.join(maps['range'].str.split('-', expand=True).add_prefix('range')) 
+    maps['range0'] = maps['range0'].apply(lambda x: int(x,16))
+    maps['range1'] = maps['range1'].apply(lambda x: int(x,16))
+    maps['gap'] = maps['range0'].diff()
+    maps.to_csv(dir_path+"/gap.csv")
+
+    #print maps.nlargest(4, 'gap')
+
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     if len(rsyslog) < 2: 
         print "[Debug] swap not occured"
         exit(1)
 
+    rsyslog = rsyslog.sort_values('address', ascending =0)
+    rsyslog['prev'] = rsyslog['address'].shift(1)
     rsyslog['gap'] = rsyslog['address'].diff()
-    rsyslog.to_csv(dir_path+"/gap.csv")
+    rsyslog = rsyslog.sort_values('gap')
+    #print rsyslog.head(5)
+    rsyslog.to_csv('sorted.csv')
+    #print  rsyslog.nsmallest(4,'gap')
+    
+    ADDRESS_RANGE = [rsyslog.address.min()-1, rsyslog.address.max()+1]
+    limits = ADDRESS_RANGE
+
+    for index, row in rsyslog[rsyslog['gap'] < -1 * pow(10,10)].nsmallest(3,'gap').iterrows():
+        print row['address'], row['prev'] , row['gap']
+        # pandas cut the category by ( , ] so the addresws +1 , prev-1
+        limits.extend([row['address']+1, row['prev']-1])
+
+    limits = sorted(limits)
+
+
 
     print "calculate range"
-    #rsyslog['timestamp'] = rsyslog['timestamp'].astype(int).apply(lambda x:x/SEC_TO_USEC)
-    START_ADDRESS = rsyslog.address.min()-PADDING
-    START_DIGITS = len(str(START_ADDRESS))-1
+    #START_ADDRESS = rsyslog.address.min()-PADDING
+    #START_DIGITS = len(str(START_ADDRESS))-1
     #STEP = 0.001*pow(10,START_DIGITS)
-    STEP = pow(10,START_DIGITS)
-    END_ADDRESS = rsyslog.address.max()+PADDING
+    #STEP = pow(10,START_DIGITS)
+    #END_ADDRESS = rsyslog.address.max()+PADDING
+    
+    SECONDS = True
+    if rsyslog.timestamp.max() < (SEC_TO_USEC * 60) :
+        rsyslog['timestamp'] = rsyslog['timestamp'].astype(int).apply(lambda x:x*SEC_TO_USEC)
+        SECONDS = False
 
-    subyranges = [ n for n in np.arange( START_ADDRESS, END_ADDRESS, STEP)] 
-    subyranges.extend([1.8*pow(10,19), 1.9*pow(10,19)])
 
-    rsyslog['axis'] = pd.cut(rsyslog['address'], bins=subyranges) 
-    GRIDS = rsyslog['axis'].nunique()
+
+    #subyranges = [ n for n in np.arange( START_ADDRESS, END_ADDRESS, STEP)] 
+    #subyranges.extend([1.8*pow(10,19), 1.9*pow(10,19)])
+
+    rsyslog['axis'] = pd.cut(rsyslog['address'], bins=limits) 
+    GRIDS = len(zip( limits[::2], limits[1::2]))
     
     def add_weight(x):
         weighted = None
         if x > 0.3 :
-            weighted = int(x*80)
+            weighted = int(x*70)
         elif x > 0.1:
             weighted = int(x*150)
         else: 
@@ -128,10 +165,17 @@ def plot_out(dir_path, option):
 
     legend = axes[0].legend(handles = patches, bbox_to_anchor=(1.05, 1))
     plt.suptitle('Swap Trace [Address x timestamp]',fontsize=10)
-    fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
     fig.text(0.05, 0.5, 'Virtual Address', va='center', rotation='vertical')
-    textstr = 'Mem.used(MiB):{}\n@: [{}, {}]\ntime(sec):{}'.format(END_ADDRESS-START_ADDRESS, hex(START_ADDRESS), hex(END_ADDRESS), (rsyslog.timestamp.max() - rsyslog.timestamp.min())/SEC_TO_USEC)
-    fig.text(1.5, 0.05, textstr)
+
+    textstr = None
+    if SECONDS == True:
+        fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
+        textstr = 'Mem.used @: [{}, {}]\ntime(sec):{}'.format(hex(ADDRESS_RANGE[0]), hex(ADDRESS_RANGE[1]), (rsyslog.timestamp.max() - rsyslog.timestamp.min()))
+    else:
+        fig.text(0.5, 0.04, 'timestamp (usec) ', ha='center')
+        textstr = 'Mem.used @: [{}, {}]\ntime(sec):{}'.format(hex(ADDRESS_RANGE[0]), hex(ADDRESS_RANGE[1]), (rsyslog.timestamp.max() - rsyslog.timestamp.min())/SEC_TO_USEC)
+
+    fig.text(0.6, 0.5, textstr)
     plt.savefig("{}/result.png".format(dir_path),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)
 
     if os.environ.get('DISPLAY','') != '':
