@@ -23,11 +23,36 @@ vector<string> split(string str, char delimiter) {
 %option noyywrap
 
 %%
-
-^[^/]{2}.*alloc.*;  {
+^[^/]{2}.*calloc.*;  {
       string request = yytext ;
       cout << yytext<<endl; 
-      const regex re ("^[^/]{2}(.*)=.*alloc\((.*)).*;");
+      const regex re ("^[^/]{1}(.*)=.*calloc ?\\((.*),(.*)\\).*;");
+      cmatch matched;
+        
+      regex_search(yytext, matched, re); 
+      if (matched.length() > 0) {
+	      string vardef = matched[1].str();
+	      int found = vardef.find('*');
+	      int name_start = vardef.find_last_of(' ');
+	      string count = matched[2].str();
+	      string size = matched[3].str();
+	      
+	      if (found < vardef.length()) {
+		string varname = split(vardef.substr(found+1), ' ').back();
+		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, &"<< varname << ", " << count << "*" << size << ");"<< endl;
+	      }
+	      else {
+		string varname = split(vardef.substr(found+1), ' ').back();
+		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, &"<< varname << ", " << count << "*" << size << ");" << endl;
+	     }
+         cout << "\t//printf(\"swptracer\");" << endl; 
+	}
+ }
+
+^[^/]{2}.malloc.*;  {
+      string request = yytext ;
+      cout << yytext<<endl; 
+      const regex re ("^[^/]{2}(.*)=.*malloc\((.*)).*;");
       cmatch matched;
         
       regex_search(yytext, matched, re); 
