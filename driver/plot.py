@@ -31,7 +31,7 @@ def plot_out(dir_path, option):
     maps['range0'] = maps['range0'].apply(lambda x: int(x,16))
     maps['range1'] = maps['range1'].apply(lambda x: int(x,16))
     maps['gap'] = maps['range0'].diff()
-    maps.to_csv(dir_path+"/gap.csv")
+    #maps.to_csv(dir_path+"/gap.csv")
 
     #print maps.nlargest(4, 'gap')
 
@@ -45,7 +45,7 @@ def plot_out(dir_path, option):
     rsyslog['gap'] = rsyslog['address'].diff()
     rsyslog = rsyslog.sort_values('gap')
     #print rsyslog.head(5)
-    rsyslog.to_csv('sorted.csv')
+    #rsyslog.to_csv('sorted.csv')
     #print  rsyslog.nsmallest(4,'gap')
     
     ADDRESS_RANGE = [rsyslog.address.min()-1, rsyslog.address.max()+1]
@@ -65,10 +65,10 @@ def plot_out(dir_path, option):
     #STEP = pow(10,START_DIGITS)
     #END_ADDRESS = rsyslog.address.max()+PADDING
     
-    SECONDS = True
-    if rsyslog.timestamp.max() < (SEC_TO_USEC * 60) :
-        rsyslog['timestamp'] = rsyslog['timestamp'].astype(int).apply(lambda x:x*SEC_TO_USEC)
-        SECONDS = False
+    #SECONDS = True
+    #if rsyslog.timestamp.max() < 60 :
+    #    rsyslog['timestamp'] = rsyslog['timestamp'].astype(int).apply(lambda x:x*SEC_TO_USEC)
+    #    SECONDS = False
 
 
 
@@ -80,12 +80,16 @@ def plot_out(dir_path, option):
     
     def add_weight(x):
         weighted = None
-        if x > 0.3 :
-            weighted = int(x*70)
+        if x > 0.75 :
+            weighted = int(x*50)
+        elif x > 0.5 :
+            weighted = int(x*75)
+        elif x > 0.25:
+            weighted = int(x*125)
         elif x > 0.1:
-            weighted = int(x*150)
+            weighted = int(x*200)
         else: 
-            weighted = 4
+            weighted = 10
         return weighted
 
 
@@ -123,7 +127,10 @@ def plot_out(dir_path, option):
 
         REGION_START = min(region['address'])
         REGION_END =  max(region['address'])
+
+        #LINE =  140695150264336
         axes[converty].set_ylim(REGION_START-PADDING, REGION_END+PADDING)
+        #axes[converty].set_ylim(min(LINE, REGION_START-PADDING) , max(LINE, REGION_END+PADDING))
 
         if converty == 0:
             axes[converty].spines['top'].set_visible(True)
@@ -155,6 +162,8 @@ def plot_out(dir_path, option):
         axes[converty].set_yticks(ticks)
         ticklabels = map(lambda x: format(int(x), 'x'), ticks)
         axes[converty].set_yticklabels(ticklabels, fontsize='7')
+        #if 140695150264336 < REGION_START:
+        #    axes[converty].hlines(y=LINE, xmin=0, xmax=50, colors='red', linestyles='solid')
 
 
 
@@ -167,12 +176,12 @@ def plot_out(dir_path, option):
     fig.text(0.005,  0.5, 'Virtual Address', va='center', rotation='vertical')
 
     text_str  = 'virtual address : \n[{} ~ {}]\n'.format(format(int(ADDRESS_RANGE[0]), 'x'), format(int(ADDRESS_RANGE[1]), 'x'))
-    if SECONDS == True:
-        fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
-        text_str = '{}\ntime(sec) : {}'.format(text_str, (rsyslog.timestamp.max() - rsyslog.timestamp.min()))
-    else:
-        fig.text(0.5, 0.04, 'timestamp (usec) ', ha='center')
-        text_str = '{}\ntime(sec) : {}'.format(text_str, (rsyslog.timestamp.max() - rsyslog.timestamp.min())/SEC_TO_USEC)
+    #if SECONDS == True:
+    fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
+    text_str = '{}\nexecution time (sec) : \n{}'.format(text_str, rsyslog.timestamp.max())
+    #else:
+    #    fig.text(0.5, 0.04, 'timestamp (usec) ', ha='center')
+    #    text_str = '{}\ntime(sec) : {}'.format(text_str, (rsyslog.timestamp.max() - rsyslog.timestamp.min())/SEC_TO_USEC)
 
     fig.text(0.93, 0.5, text_str)
     plt.savefig("{}/result.png".format(dir_path),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)
