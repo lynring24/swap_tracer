@@ -16,29 +16,16 @@ zorders={'fault':5, 'map':10, 'out':0}
 markers = { 'map':'o', 'out':'x', 'fault' :'^'}
  
 #PADDING = 5*pow(10,5)
-PADDING = pow(10,3)
+PADDING = pow(10,5)
 
 SEC_TO_USEC = 1000000
 
 def plot_out(dir_path, option):            
-    #rsyslog['gap'] = rsyslog['address'].diff()
-    #rsyslog.to_csv(dir_path+"/gap.csv")
-
-    maps=pd.read_csv(dir_path+"/maps", sep='\s+',header=None, usecols=[0,5])
-    maps.columns = ['range', 'pathname']
-    #maps['range'] = maps['range'].apply(lambda x : map(lambda i : int(i,16), x.split('-')))
-    maps = maps.join(maps['range'].str.split('-', expand=True).add_prefix('range')) 
-    maps['range0'] = maps['range0'].apply(lambda x: int(x,16))
-    maps['range1'] = maps['range1'].apply(lambda x: int(x,16))
-    maps['gap'] = maps['range0'].diff()
-    #maps.to_csv(dir_path+"/gap.csv")
-
-    #print maps.nlargest(4, 'gap')
-
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     if len(rsyslog) < 2: 
         print "[Debug] swap not occured"
         exit(1)
+    #rsyslog = rsyslog[rsyslog['mode'] == 'out']
 
     rsyslog = rsyslog.sort_values('address', ascending =0)
     rsyslog['prev'] = rsyslog['address'].shift(1)
@@ -59,21 +46,6 @@ def plot_out(dir_path, option):
 
 
     print " > sample range"
-    #START_ADDRESS = rsyslog.address.min()-PADDING
-    #START_DIGITS = len(str(START_ADDRESS))-1
-    #STEP = 0.001*pow(10,START_DIGITS)
-    #STEP = pow(10,START_DIGITS)
-    #END_ADDRESS = rsyslog.address.max()+PADDING
-    
-    #SECONDS = True
-    #if rsyslog.timestamp.max() < 60 :
-    #    rsyslog['timestamp'] = rsyslog['timestamp'].astype(int).apply(lambda x:x*SEC_TO_USEC)
-    #    SECONDS = False
-
-
-
-    #subyranges = [ n for n in np.arange( START_ADDRESS, END_ADDRESS, STEP)] 
-    #subyranges.extend([1.8*pow(10,19), 1.9*pow(10,19)])
 
     rsyslog['axis'] = pd.cut(rsyslog['address'], bins=limits) 
     GRIDS = len(zip( limits[::2], limits[1::2]))
@@ -87,9 +59,9 @@ def plot_out(dir_path, option):
         elif x > 0.25:
             weighted = int(x*125)
         elif x > 0.1:
-            weighted = int(x*200)
+            weighted = int(x*150)
         else: 
-            weighted = 10
+            weighted = 5
         return weighted
 
 
@@ -101,7 +73,8 @@ def plot_out(dir_path, option):
     print " > generate plot [ {} x 1 ] ".format(GRIDS)
 
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, gridspec_kw={'height_ratios':height_ratios}, sharex=True)
-    plt.subplots_adjust(wspace=0, hspace=0)
+    #plt.subplots_adjust(wspace=0, hspace=0)
+    plt.subplots_adjust(wspace=0, hspace=0.15)
     
     axes = axes.flatten() if GRIDS > 1 else [axes]
 
@@ -128,9 +101,9 @@ def plot_out(dir_path, option):
         REGION_START = min(region['address'])
         REGION_END =  max(region['address'])
 
-        #LINE =  140695150264336
-        axes[converty].set_ylim(REGION_START-PADDING, REGION_END+PADDING)
+        #LINE = 94029789184064
         #axes[converty].set_ylim(min(LINE, REGION_START-PADDING) , max(LINE, REGION_END+PADDING))
+        axes[converty].set_ylim(REGION_START-PADDING, REGION_END+PADDING)
 
         if converty == 0:
             axes[converty].spines['top'].set_visible(True)
@@ -153,18 +126,20 @@ def plot_out(dir_path, option):
         if height_ratios[converty] > 50:
            ticks = map(lambda x: x.left, region['address'].value_counts(bins=3).sort_index().index.tolist())
            ticks.append(REGION_END)
+           #ticks.extend([REGION_START, REGION_END])
         elif height_ratios[converty] > 20:
            ticks = map(lambda x: x.left, region['address'].value_counts(bins=2).sort_index().index.tolist())
+           #ticks.extend([REGION_START, REGION_END])
            ticks.append(REGION_END)
         else:
             pass
 
+
         axes[converty].set_yticks(ticks)
         ticklabels = map(lambda x: format(int(x), 'x'), ticks)
         axes[converty].set_yticklabels(ticklabels, fontsize='7')
-        #if 140695150264336 < REGION_START:
-        #    axes[converty].hlines(y=LINE, xmin=0, xmax=50, colors='red', linestyles='solid')
-
+        #if converty == 0:
+        #axes[converty].hlines(y=LINE, xmin=0, xmax=50, colors='red', linestyles='solid')
 
 
     
@@ -173,7 +148,7 @@ def plot_out(dir_path, option):
 
     legend = axes[0].legend(handles = patches, bbox_to_anchor=(1.05, 1))
     plt.suptitle('Swap Trace [Address x timestamp]',fontsize=10)
-    fig.text(0.005,  0.5, 'Virtual Address', va='center', rotation='vertical')
+    #fig.text(0.005,  0.5, 'Virtual Address', va='center', rotation='vertical')
 
     text_str  = 'virtual address : \n[{} ~ {}]\n'.format(format(int(ADDRESS_RANGE[0]), 'x'), format(int(ADDRESS_RANGE[1]), 'x'))
     #if SECONDS == True:
