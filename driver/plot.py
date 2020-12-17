@@ -61,7 +61,7 @@ def plot_out(dir_path, option):
         elif x > 0.1:
             weighted = int(x*150)
         else: 
-            weighted = 5
+            weighted = 3
         return weighted
 
 
@@ -74,7 +74,7 @@ def plot_out(dir_path, option):
 
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, gridspec_kw={'height_ratios':height_ratios}, sharex=True)
     #plt.subplots_adjust(wspace=0, hspace=0)
-    plt.subplots_adjust(wspace=0, hspace=0.15)
+    plt.subplots_adjust(wspace=0, hspace=0.05)
     
     axes = axes.flatten() if GRIDS > 1 else [axes]
 
@@ -101,8 +101,10 @@ def plot_out(dir_path, option):
         REGION_START = min(region['address'])
         REGION_END =  max(region['address'])
 
-        #LINE = 94029789184064
-        #axes[converty].set_ylim(min(LINE, REGION_START-PADDING) , max(LINE, REGION_END+PADDING))
+        #LINE = int(0x7ffcfc2fab08)
+        #if converty == 2:
+        #    axes[converty].set_ylim(min(LINE, REGION_START-PADDING) , max(LINE, REGION_END+PADDING))
+        #else:    
         axes[converty].set_ylim(REGION_START-PADDING, REGION_END+PADDING)
 
         if converty == 0:
@@ -125,21 +127,22 @@ def plot_out(dir_path, option):
         ticks = []
         if height_ratios[converty] > 50:
            ticks = map(lambda x: x.left, region['address'].value_counts(bins=3).sort_index().index.tolist())
-           ticks.append(REGION_END)
+           #ticks.append(REGION_END)
            #ticks.extend([REGION_START, REGION_END])
         elif height_ratios[converty] > 20:
            ticks = map(lambda x: x.left, region['address'].value_counts(bins=2).sort_index().index.tolist())
            #ticks.extend([REGION_START, REGION_END])
-           ticks.append(REGION_END)
+           #ticks.append(REGION_END)
         else:
             pass
 
+        ticks.extend([REGION_START, REGION_END])
 
         axes[converty].set_yticks(ticks)
         ticklabels = map(lambda x: format(int(x), 'x'), ticks)
         axes[converty].set_yticklabels(ticklabels, fontsize='7')
-        #if converty == 0:
-        #axes[converty].hlines(y=LINE, xmin=0, xmax=50, colors='red', linestyles='solid')
+        #if converty == 2:
+        #    axes[converty].hlines(y=LINE, xmin=0, xmax=rsyslog.timestamp.max(), colors='red', linestyles='solid')
 
 
     

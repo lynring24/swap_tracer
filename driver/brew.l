@@ -45,7 +45,6 @@ vector<string> split(string str, char delimiter) {
 		string varname = split(vardef.substr(found+1), ' ').back();
 		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, &"<< varname << ", " << count << "*" << size << ");" << endl;
 	     }
-         cout << "\t//printf(\"swptracer\");" << endl; 
 	}
  }
 

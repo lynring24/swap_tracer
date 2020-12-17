@@ -129,7 +129,7 @@ index 000000000..ad3dd8db0
 +
 +
 diff --git a/mm/memory.c b/mm/memory.c
-index ab650c21b..b84d0ef0d 100644
+index ab650c21b..7d055ef72 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -81,6 +81,9 @@
@@ -162,8 +162,8 @@ index ab650c21b..b84d0ef0d 100644
 +        long *entry = arg;
 +	if (SWPTRACE)
 +		if (is_child(get_current()->pid))
-+			pr_info("swptrace %d %s map %lu %lu\n",
-+					get_current()->pid, get_current()->comm, *entry, addr);
++			pr_info("swptrace %s map %lu %lu\n",
++					get_current()->comm, *entry, addr);
 +	return true;	
 +}
 +
@@ -186,8 +186,8 @@ index ab650c21b..b84d0ef0d 100644
  
 +	if (SWPTRACE) {
 +		if (is_child(get_current()->pid)) 
-+			pr_info("swptrace %d %s fault %lu %lu\n",
-+				get_current()->pid, get_current()->comm, entry.val, vmf->address);
++			pr_info("swptrace %s fault %lu %lu\n",
++				get_current()->comm, entry.val, vmf->address);
 + 	}
  
  	delayacct_set_flag(DELAYACCT_PF_SWAPIN);
@@ -210,16 +210,16 @@ index ab650c21b..b84d0ef0d 100644
  	return ret;
  out_nomap:
  	mem_cgroup_cancel_charge(page, memcg, false);
-@@ -2887,6 +2921,8 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+@@ -2886,7 +2920,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ 	if (page != swapcache && swapcache) {
  		unlock_page(swapcache);
  		put_page(swapcache);
- 	}
-+	
-+	rmap_walk_swapanon(page, entry.val);
+-	}
++	}	
  	return ret;
  }
  
-@@ -3274,7 +3310,7 @@ vm_fault_t alloc_set_pte(struct vm_fault *vmf, struct mem_cgroup *memcg,
+@@ -3274,7 +3308,7 @@ vm_fault_t alloc_set_pte(struct vm_fault *vmf, struct mem_cgroup *memcg,
  
  	return 0;
  }
@@ -228,7 +228,7 @@ index ab650c21b..b84d0ef0d 100644
  
  /**
   * finish_fault - finish page fault once we have prepared the page to fault
-@@ -3946,7 +3982,8 @@ vm_fault_t handle_mm_fault(struct vm_area_struct *vma, unsigned long address,
+@@ -3946,7 +3980,8 @@ vm_fault_t handle_mm_fault(struct vm_area_struct *vma, unsigned long address,
  	vm_fault_t ret;
  
  	__set_current_state(TASK_RUNNING);
@@ -238,7 +238,7 @@ index ab650c21b..b84d0ef0d 100644
  	count_vm_event(PGFAULT);
  	count_memcg_event_mm(vma->vm_mm, PGFAULT);
  
-@@ -4394,7 +4431,7 @@ void __might_fault(const char *file, int line)
+@@ -4394,7 +4429,7 @@ void __might_fault(const char *file, int line)
  	/*
  	 * Some code (nfs/sunrpc) uses socket ops on kernel memory while
  	 * holding the mmap_sem, this is safe because kernel memory doesn't
@@ -291,7 +291,7 @@ index 0b39ec0c9..403886ee9 100644
  
  	if (need_lock)
 diff --git a/mm/page_io.c b/mm/page_io.c
-index 2e8019d0e..f27e8d4d2 100644
+index 2e8019d0e..31632dfc7 100644
 --- a/mm/page_io.c
 +++ b/mm/page_io.c
 @@ -26,6 +26,11 @@
@@ -327,8 +327,8 @@ index 2e8019d0e..f27e8d4d2 100644
 +				anon_vma_interval_tree_foreach(avc, &anon_vma->rb_root, pgoff_start, pgoff_end) { 
 +					struct vm_area_struct *vma = avc->vma;
 +					unsigned long address = vma_address(page, vma);
-+					pr_info("swptrace %d %s out %lu %lu\n", 
-+						get_current()->pid, get_current()->comm, page_private(page), address);
++					pr_info("swptrace %s out %lu %lu\n", 
++						get_current()->comm, page_private(page), address);
 +				}
 +			}
 +		}
@@ -337,12 +337,16 @@ index 2e8019d0e..f27e8d4d2 100644
  	VM_BUG_ON_PAGE(!PageSwapCache(page), page);
  	if (sis->flags & SWP_FS) {
  		struct kiocb kiocb;
-@@ -359,6 +388,9 @@ int swap_readpage(struct page *page, bool synchronous)
+@@ -359,6 +388,13 @@ int swap_readpage(struct page *page, bool synchronous)
  	VM_BUG_ON_PAGE(!PageSwapCache(page) && !synchronous, page);
  	VM_BUG_ON_PAGE(!PageLocked(page), page);
  	VM_BUG_ON_PAGE(PageUptodate(page), page);
 +
++
++//	if (SWPTRACE) { 
++//		if (is_child(get_current()->pid)) {	
 +//	pr_info("swptrace %s in %lu -1\n", get_current()->comm, page_private(page));
++
 +
  	if (frontswap_load(page) == 0) {
  		SetPageUptodate(page);

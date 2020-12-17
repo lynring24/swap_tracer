@@ -1,12 +1,11 @@
 import pandas as pd
 
 def hint():
-    objects = pd.read_csv('./su3imp.out', header=None)
+    objects = pd.read_csv('./candidate.csv', header=None)
     objects.columns = ['fname', 'function', 'varname', 'address', 'size']
     objects = objects.drop_duplicates(keep='first').sort_values('size', ascending = 0 )
-    #objects['count'] = objects.groupby('varname').transform('count')
 
-    print objects
+    print objects.head(5)
     objects.to_csv('./info.csv')
 
 
