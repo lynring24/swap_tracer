@@ -2,12 +2,19 @@ CC=g++
 LIBS="/usr/lib/libfl.a"
 
 
-all: brew 
+all: tint mlock
 
-brew: lex.yy.c 
-	$(CC) -o brew -std=c++11 lex.yy.c -I$(LIBS)
+tint: tint.yy.c 
+	$(CC) -o tint -std=c++11 tint.yy.c -I$(LIBS)
 
-lex.yy.c: brew.l
-	flex brew.l
+tint.yy.c: tint.l
+	flex -o tint.yy.c tint.l
+
+mlock: mlock.yy.c 
+	$(CC) -o mlock -std=c++11 mlock.yy.c -I$(LIBS)
+
+mlock.yy.c: mlock.l
+	flex -o mlock.yy.c mlock.l
+
 clean:
-	rm  brew  
+	rm  tint mlock 

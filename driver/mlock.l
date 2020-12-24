@@ -50,10 +50,10 @@ static inline std::string &rtrim(std::string &s) {
 	      varname = rtrim(varname);
 
 	      if (bracket != -1) { 
-		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, &"<< varname << ", " << size << ");"<< endl;
+		cout << "\tmlock( &" << varname << "," << size << ");"<< endl;
 	     }
 	      else {
-		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, "<< varname << ", " << size << ");" << endl;
+		cout << "\tmlock(" << varname << ", " << size << ");" << endl;
 	     }
 	}
  }
@@ -75,13 +75,13 @@ static inline std::string &rtrim(std::string &s) {
               string varname;
 	      
 	      varname = split(vardef.substr(pointer+1), ' ').back();
-              varname = rtrim(varname);
+	      varname = rtrim(varname);
 
 	      if (bracket != -1) { 
-		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, &"<< varname << ", (" << count << ")*(" << size << "));"<< endl;
+		cout << "\tmlock( &" << varname << "," << "(" << count << ")*(" << size << "));"<< endl;
 	      }
 	      else {
-		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, "<< varname << ", (" << count << ")*(" << size << "));" << endl;
+		cout << "\tmlock(" << varname << "," << "(" << count << ")*(" << size << "));" << endl;
 	     }
 	}
  }
@@ -102,13 +102,13 @@ static inline std::string &rtrim(std::string &s) {
               string varname;
 	      
 	      varname = split(vardef.substr(pointer+1), ' ').back();
-              varname = rtrim(varname);
+	      varname = rtrim(varname);
 
 	      if ( bracket != -1) {
-		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, &"<< varname << ", " << varsize << ");";
+		cout << "\tmlock(" << varname << "," << varsize << ");";
 	      }
 	      else {
-		cout << "\tprintf(\" %s, %s, " << varname << ", %p, %ld \\n\"," << "__FILE__, __FUNCTION__, "<< varname << ", " << varsize << ");" ;
+		cout << "\tmlock(" << varname << "," << varsize << ");" ;
 	     }
 	}
  }
