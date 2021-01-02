@@ -11,19 +11,17 @@ from keras.layers import LSTM
 from math import sqrt
 from matplotlib import pyplot
 import numpy
-
-# date-time parsing function for loading the dataset
-def parser(x):
-	return datetime.strptime('190'+x, '%Y-%m')
+import sys
 
 # frame a sequence as a supervised learning problem
 def timeseries_to_supervised(data, lag=1):
-	df = DataFrame(data)
-	columns = [df.shift(i) for i in range(1, lag+1)]
-	columns.append(df)
-	df = concat(columns, axis=1)
-	df.fillna(0, inplace=True)
-	return df
+    df = DataFrame(data)
+    columns = [df.shift(i) for i in range(1, lag+1)]
+    print (columns)
+    columns.append(df)
+    df = concat(columns, axis=1)
+    df.fillna(0, inplace=True)
+    return df
 
 # create a differenced series
 def difference(dataset, interval=1):
@@ -78,10 +76,13 @@ def forecast_lstm(model, batch_size, X):
 	return yhat[0,0]
 
 # load dataset
-series = read_csv('shampoo-sales.csv', header=0, parse_dates=[0], index_col=0, squeeze=True, date_parser=parser)
+series = read_csv(sys.argv[1] , header=0, index_col=0, squeeze=True, usecols=['timestamp', 'address', 'mode'])
+series = series[series['mode']=='map']
+series = series.drop('mode', axis=1)
 
 # transform data to be stationary
 raw_values = series.values
+print(raw_values.head(5))
 diff_values = difference(raw_values, 1)
 
 # transform data to be supervised learning
@@ -95,9 +96,9 @@ train, test = supervised_values[0:-12], supervised_values[-12:]
 scaler, train_scaled, test_scaled = scale(train, test)
 
 # repeat experiment
-repeats = 30
+epochs = 30
 error_scores = list()
-for r in range(repeats):
+for r in range(epochs):
 	# fit the model
 	lstm_model = fit_lstm(train_scaled, 1, 3000, 4)
 	# forecast the entire training dataset to build up state for forecasting

@@ -52,10 +52,8 @@ def plot_out(dir_path, option):
     
     def add_weight(x):
         weighted = None
-        if x > 0.75 :
-            weighted = int(x*50)
-        elif x > 0.5 :
-            weighted = int(x*75)
+        if x > 0.5 :
+            weighted = int(x*80)
         elif x > 0.25:
             weighted = int(x*125)
         elif x > 0.1:
@@ -101,10 +99,6 @@ def plot_out(dir_path, option):
         REGION_START = min(region['address'])
         REGION_END =  max(region['address'])
 
-        #LINE = int(0x7ffcfc2fab08)
-        #if converty == 2:
-        #    axes[converty].set_ylim(min(LINE, REGION_START-PADDING) , max(LINE, REGION_END+PADDING))
-        #else:    
         axes[converty].set_ylim(REGION_START-PADDING, REGION_END+PADDING)
 
         if converty == 0:
@@ -127,12 +121,8 @@ def plot_out(dir_path, option):
         ticks = []
         if height_ratios[converty] > 50:
            ticks = map(lambda x: x.left, region['address'].value_counts(bins=3).sort_index().index.tolist())
-           #ticks.append(REGION_END)
-           #ticks.extend([REGION_START, REGION_END])
         elif height_ratios[converty] > 20:
            ticks = map(lambda x: x.left, region['address'].value_counts(bins=2).sort_index().index.tolist())
-           #ticks.extend([REGION_START, REGION_END])
-           #ticks.append(REGION_END)
         else:
             pass
 
@@ -141,8 +131,6 @@ def plot_out(dir_path, option):
         axes[converty].set_yticks(ticks)
         ticklabels = map(lambda x: format(int(x), 'x'), ticks)
         axes[converty].set_yticklabels(ticklabels, fontsize='7')
-        #if converty == 2:
-        #    axes[converty].hlines(y=LINE, xmin=0, xmax=rsyslog.timestamp.max(), colors='red', linestyles='solid')
 
 
     
@@ -151,15 +139,10 @@ def plot_out(dir_path, option):
 
     legend = axes[0].legend(handles = patches, bbox_to_anchor=(1.05, 1))
     plt.suptitle('Swap Trace [Address x timestamp]',fontsize=10)
-    #fig.text(0.005,  0.5, 'Virtual Address', va='center', rotation='vertical')
 
     text_str  = 'virtual address : \n[{} ~ {}]\n'.format(format(int(ADDRESS_RANGE[0]), 'x'), format(int(ADDRESS_RANGE[1]), 'x'))
-    #if SECONDS == True:
     fig.text(0.5, 0.04, 'timestamp (sec) ', ha='center')
     text_str = '{}\nexecution time (sec) : \n{}'.format(text_str, rsyslog.timestamp.max())
-    #else:
-    #    fig.text(0.5, 0.04, 'timestamp (usec) ', ha='center')
-    #    text_str = '{}\ntime(sec) : {}'.format(text_str, (rsyslog.timestamp.max() - rsyslog.timestamp.min())/SEC_TO_USEC)
 
     fig.text(0.93, 0.5, text_str)
     plt.savefig("{}/result.png".format(dir_path),bbox_extra_artists=(legend,),bbox_inches='tight', format='png', dip=100)

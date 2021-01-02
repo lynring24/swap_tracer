@@ -131,7 +131,6 @@ if __name__ == '__main__':
    LOG_DIR = os.getcwd()+'/'+datetime_to_string(START_TIME)
    os.system('sudo mkdir -p {}'.format(LOG_DIR))
    # TODO: if file exists
-   
    MAPS = '{}/maps'.format(os.getcwd())
    if os.path.isfile(MAPS):
        os.system('mv {} {}'.format(MAPS, LOG_DIR))

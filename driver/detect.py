@@ -37,33 +37,16 @@ series = read_csv(sys.argv[1] , header=0, index_col=0, squeeze=True, usecols=['t
 series = series[series['mode']=='map']
 series = series.drop('mode', axis=1)
 
-# transform data to be stationary
-#raw_values = series.values
-#diff_values = difference(raw_values, 1)
-
-# transform data to be supervised learning
-#upervised = timeseries_to_supervised(diff_values, 1)
-
-# split data into train and test-sets
-#rain, test = supervised_values[0:-12], supervised_values[-12:]
-
 # calculate differences
-
 series['diff'] = series['address'].diff(periods=1).abs()
-
-#hist = series.groupby('diff').agg(['count'])
-
-#print(hist)
+#series['diff'] = series['address'].diff(periods=1)
 
 # create historgram by the abs(diff) 
 norm = series['diff'].value_counts(normalize=True).sort_values(ascending=False).to_frame()
 
 percentage_20 = int(len(norm) *  0.2)
-print(norm.head(5))
 sum_20 = norm.head(percentage_20)['diff'].sum()
-print(sum_20)
 
-# print(norm.query("index==4096.0"))
 norm.loc[4096.0, 'diff']
 
 
