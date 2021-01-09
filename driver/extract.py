@@ -38,13 +38,13 @@ def string_to_date(timestamp):
  
 
 def extract(FAULT):
-    print "$ extract ryslog log"
+    print("$ extract ryslog log")
     CURRENT = os.getcwd()
     def get_path(x):
         return os.path.join(CURRENT, x)
     configure["TIME"] = string_to_date(os.path.basename(CURRENT))
     if os.path.isfile(get_path('awk.csv')) == False:
-        print "[DEBUG] awk.csv not exist"
+        print("[DEBUG] awk.csv not exist")
         exit(1)
 
     columns = pd.read_csv(get_path('awk.csv'), header=None, delimiter=DELIMETER, nrows=1)
@@ -61,13 +61,13 @@ def extract(FAULT):
         rsyslog = rsyslog[rsyslog['mode']!='fault']
     #rsyslog['address'] = rsyslog['address'].apply(lambda x : x/4096)
 
-    print "$ generate extracted file [%s, %s] "%(rsyslog.shape[0], rsyslog.shape[1])
+    print("$ generate extracted file [{}, {}] ".format(rsyslog.shape[0], rsyslog.shape[1]))
     rsyslog[['timestamp', 'mode', 'address']].to_csv(get_path('rsyslog.csv'), index=False) 
-    print "\n[ Summary ]"
-    print "> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='map'].index))
-    print "> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index))
+    print("\n[ Summary ]")
+    print("> memory swap in# : {}".format(len(rsyslog[rsyslog['mode']=='map'].index)))
+    print("> memory page out # : {}".format(len(rsyslog[rsyslog['mode']=='out'].index)))
     if FAULT== True:
-        print "> memory page fault # : {}".format(len(rsyslog[rsyslog['mode']=='fault'].index))
+        print("> memory page fault # : {}".format(len(rsyslog[rsyslog['mode']=='fault'].index)))
 
 if __name__ == "__main__":
     extract(False)

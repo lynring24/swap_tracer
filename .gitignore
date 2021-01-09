@@ -9,3 +9,4 @@ driver/*.a
 driver/*.so
 driver/*.yy.c
 driver/brew
+driver/__pycache__

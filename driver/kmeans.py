@@ -15,7 +15,7 @@ def build(n_clusters, df):
 def cluster():
     
     rsyslog = pd.read_csv("./rsyslog.csv", usecols=['timestamp', 'address'])
-    print rsyslog.head(5)
+    print(rsyslog.head(5))
         
     inertias= []
     threshold = pow(2, 5)
@@ -27,13 +27,13 @@ def cluster():
         #   break;
 
     opt = inertias.index(min(inertias))+1 
-    print inertias
-    print opt
+    print(inertias)
+    print(opt)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         cluster()
     else:
-        print "Usage : python kmeans.py"
+        print("Usage : python kmeans.py")
 
-    print "\n[Finish]"
+    print("\n[Finish]")

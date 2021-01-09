@@ -5,7 +5,7 @@ def hint():
     objects.columns = ['fname', 'function', 'varname', 'address', 'size']
     objects = objects.drop_duplicates(keep='first').sort_values('size', ascending = 0 )
 
-    print objects.head(5)
+    print( objects.head(5))
     objects.to_csv('./info.csv')
 
 

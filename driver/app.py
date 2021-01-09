@@ -16,7 +16,6 @@ app = Flask(__name__)
 def read_csv(side):
     data=[]
     n_class = int(os.environ['CLASS'])
-    print n_class
     
     for idx in range (0, n_class*2):
         item = dict()
@@ -40,9 +39,9 @@ def read_csv(side):
 	     sec  = float(row[1])
 	     vpn = int(row[2])
              #text= '/'.join(str(elem) for elem in row[2:])
-             text = 'Addr : %s <br>'%row[2]
+             text = 'Addr : {} <br>'.format(row[2])
              if len(row) > 5:
-                text = text+"File : %s<br>Function : %s<br>Variable : %s"%(row[3],row[4],row[5])
+                text = text+"File :{}<br>Function : {}<br>Variable : {}".format(row[3],row[4],row[5])
              isSWP = int(row[-1])
              cnt=cnt+isSWP
              label = n_class * isSWP + label 
@@ -59,14 +58,13 @@ def get_path_of(loc):
 
 
 def get_cmd():
-    return 'Swap Timestamps of %s'%os.environ['SWPTRACE_CMD']
+    return 'Swap Timestamps of {}'.format(os.environ['SWPTRACE_CMD'])
 
 @app.route('/')
 def index():
-    print "$ flask run"
+    print("$ flask run")
     data, cnt = read_csv('labeled') 
     layout = dict(grid=dict(title='title', font=dict(size=18)), yaxis=dict(type='log'))
-    #layout = dict(grid=dict(title='title', font=dict(size=18)), yaxis=dict(type='log', autorange=True))
     head = dict(count = cnt, command=get_cmd())
     chart = dict(data=data, layout=layout)
     graphJSON = json.dumps(chart, cls=plotly.utils.PlotlyJSONEncoder)
@@ -76,18 +74,10 @@ def index():
     rendered = render_template('index.html', head=head, graphJSON=graphJSON)
     return rendered
 
-    #path = os.environ['SWPTRACE_LOG']
-    #pdf = pdfkit.from_url(rendered, path+'/plot.pdf')
-
-   # response = make_response(pdf)
-   # response.headers['Content-Type'] = 'application/pdf'
-   # response.headers['Content-Disposition'] = 'attachment; filename='+path+'/plot.pdf'
-   # return response
-
 
 if __name__ =='__main__':
    try:
      #app.index()
      app.run(debug=True)
    except socket.error as err:
-     print '[error] socket.error : [error %s]'%str(err.errno)
+     print( '[error] socket.error : [error {}]'.format(str(err.errno))

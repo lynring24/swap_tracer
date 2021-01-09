@@ -23,7 +23,7 @@ SEC_TO_USEC = 1000000
 def plot_out(dir_path, option):            
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     if len(rsyslog) < 2: 
-        print "[Debug] swap not occured"
+        print("[Debug] swap not occured")
         exit(1)
     #rsyslog = rsyslog[rsyslog['mode'] == 'out']
 
@@ -31,9 +31,6 @@ def plot_out(dir_path, option):
     rsyslog['prev'] = rsyslog['address'].shift(1)
     rsyslog['gap'] = rsyslog['address'].diff()
     rsyslog = rsyslog.sort_values('gap')
-    #print rsyslog.head(5)
-    #rsyslog.to_csv('sorted.csv')
-    #print  rsyslog.nsmallest(4,'gap')
     
     ADDRESS_RANGE = [rsyslog.address.min()-1, rsyslog.address.max()+1]
     limits = ADDRESS_RANGE
@@ -45,7 +42,7 @@ def plot_out(dir_path, option):
 
 
 
-    print " > sample range"
+    print(" > sample range")
 
     rsyslog['axis'] = pd.cut(rsyslog['address'], bins=limits) 
     GRIDS = len(zip( limits[::2], limits[1::2]))
@@ -63,12 +60,12 @@ def plot_out(dir_path, option):
         return weighted
 
 
-    print " > add range"
+    print(" > add range")
     height_ratios = map(lambda x : add_weight(x), rsyslog['axis'].value_counts(normalize=True).loc[lambda x: x > 0].sort_index(ascending=False).tolist())
 
     #print height_ratios
 
-    print " > generate plot [ {} x 1 ] ".format(GRIDS)
+    print(" > generate plot [ {} x 1 ] ".format(GRIDS))
 
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, gridspec_kw={'height_ratios':height_ratios}, sharex=True)
     #plt.subplots_adjust(wspace=0, hspace=0)
@@ -154,6 +151,6 @@ if __name__ == "__main__":
     if len (sys.argv) < 2: 
         plot_out(os.getcwd(), "mode")
     else:
-        print "Usage : python plot.py"
+        print("Usage : python plot.py")
     
-    print "\n[Finish]"
+    print("\n[Finish]")

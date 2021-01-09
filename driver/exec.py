@@ -31,23 +31,23 @@ def config_option():
           if arg.find('--fault') > NOTEXIST:
               USE_FAULT = True
           else:
-             print '[error] invalid option %s'%arg
-             print "usage : python $SWPTARCE/exec.py --fault \"COMMAND\""
+             print('[error] invalid option {}'.format(arg))
+             print("usage : python $SWPTARCE/exec.py --fault \"COMMAND\"")
              sys.exit(1)
 
        global COMMAND
        COMMAND = sys.argv[-1]
-    print "\n---------------------------------------------------------------"
-    print " * command   : %s "%COMMAND
-    print "---------------------------------------------------------------\n"
+    print("\n---------------------------------------------------------------")
+    print(" * command   : {} ".format(COMMAND))
+    print("---------------------------------------------------------------\n")
 
 
 def execute(command):
     rsyslog = open('/etc/rsyslog.conf').read()
     if "# $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat" in rsyslog:
-        print "rsyslog timestamping in RFC 3339 format"
+        print("rsyslog timestamping in RFC 3339 format")
     else:
-        print "rsyslog timestamp traditional file format "
+        print("rsyslog timestamp traditional file format ")
         os.system('cp /etc/rsyslog.conf /etc/rsyslog.conf.default')
         os.system('cp ./rsyslog.conf.rfc3339 /etc/rsyslog.conf')
 
@@ -66,17 +66,18 @@ def execute(command):
         target_pid = None
         target_process = subprocess.Popen('echo $(pgrep -P {})'.format(child_process.pid), stdout=subprocess.PIPE,shell=True)
         target_pid, err = target_process.communicate()
+        print(target_pid)
         target_pid = target_pid.strip() 
 
         if target_pid != "":
             os.system('cat /proc/{}/maps > maps'.format(target_pid))
         else:
-            print "\n[Debug] Skipped mmap"
+            print("\n[Debug] Skipped mmap")
         child_process.wait()
-        #print "[Exec] {} sec".format(time.time() - start_time)
+        #print("[Exec] {} sec".format(time.time() - start_time)
         os.system('$SWPTRACE/swptrace {} {}'.format(0, 0));
     except:
-        print "\n[Debug] Execution Abort"
+        print("\n[Debug] Execution Abort")
         os.system("python $SWPTRACE/off.py")
         return 
 
@@ -90,17 +91,17 @@ def awk_log(start_time):
             RSYSLOG = "/var/log/messages"
         
         awk_command = "cat %s | awk -v start=%s -F, '/swptrace/ {if($1>start) {print $0}}' > awk.csv"%(RSYSLOG, datetime_to_string(start_time))
-        print "$ %s\n"%awk_command
+        print("$ {}\n".format(awk_command))
         os.system(awk_command)
         if is_false_generated("./awk.csv"):
            raise IOError
     except IOError:
-        print "rsyslog miss message, try dmesg"
+        print("rsyslog miss message, try dmesg")
         awk_command = "dmesg --time-format iso | awk -v start=%s -F, '/swptrace/ {if($1>start) {print $0}}' > ./awk.csv"%datetime_to_string(start_time)
-        print "$ %s\n"%awk_command
+        print("$ {}\n".format(awk_command))
         os.system(awk_command)
         if is_false_generated("./awk.csv"):
-            print "[DEBUG] Swap trace not exists" 
+            print("[DEBUG] Swap trace not exists") 
             exit(1)
 
 
@@ -114,9 +115,9 @@ def is_false_generated(x, fname=None):
  
 
 def clean_up_and_exit(path):
-    print "[Error] clean up directory"
+    print("[Error] clean up directory")
     if os.path.exists(path): 
-       print "Drop %s"%path
+       print("Drop {}".format(path))
        if os.path.isfile(path):
           os.remove(path)
        else: 

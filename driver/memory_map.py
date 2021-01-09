@@ -61,14 +61,13 @@ def plot_out(dir_path, option):
 
     rsyslog = pd.read_csv(dir_path+"/rsyslog.csv")
     if len(rsyslog) < 2: 
-        print "[Debug] swap not occured"
+        print("[Debug] swap not occured")
         exit(1)
 
     rsyslog['timestamp'] = rsyslog['timestamp'].astype(int).apply(lambda x:x/SEC_TO_USEC)
     keys = list( zip(maps.range0, maps.range1)) 
     layout = pd.Series(maps.pathname.values, index=keys).to_dict()
 
-    print "labelize"
     def labelize(x):
         diff = None
         label = None 
@@ -118,7 +117,7 @@ def plot_out(dir_path, option):
 
     #print height_ratios
 
-    print "\n$ generate plot [ {} x 1 ] by {}".format(GRIDS, option)
+    print("\n$ generate plot [ {} x 1 ] by {}".format(GRIDS, option))
 
     fig, axes = plt.subplots(nrows=GRIDS, ncols = 1, gridspec_kw={'height_ratios':height_ratios}, sharex=True)
     plt.subplots_adjust(wspace=0, hspace=0)
@@ -143,7 +142,7 @@ def plot_out(dir_path, option):
 
     idy = -1  
     
-    print "$ building plot"
+    print("$ building plot")
     
     for name, region in rsyslog.groupby("axis"):
         if len(region) < 1:
@@ -218,6 +217,6 @@ if __name__ == "__main__":
     elif sys.argv[1] == '--mmap' or sys.argv[1] == '-m':
         plot_out(os.getcwd(), "mmap")
     else:
-        print "Usage : python plot.py <--mmap | -m>"
+        print("Usage : python plot.py <--mmap | -m>")
     
-    print "\n[Finish]"
+    print("\n[Finish]")

@@ -58,7 +58,7 @@ def draw_heatmap(dir_path):
     plt.tight_layout()
 
     # output
-    print "$ save plot"
+    print("$ save plot")
     plt.savefig(dir_path+"/heatmap.png", format='png')
     if os.environ.get('DISPLAY','') != '':
     	plt.show()

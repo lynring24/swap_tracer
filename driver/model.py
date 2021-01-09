@@ -118,7 +118,7 @@ for r in range(epochs):
 		predictions.append(yhat)
 	# report performance
 	rmse = sqrt(mean_squared_error(raw_values[-12:], predictions))
-	print('%d) Test RMSE: %.3f' % (r+1, rmse))
+	print('%d) Test RMSE: %{}'.format (r+1, rmse))
 	error_scores.append(rmse)
 
 # summarize results
