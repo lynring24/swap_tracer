@@ -66,7 +66,7 @@ def execute(command):
         target_pid = None
         target_process = subprocess.Popen('echo $(pgrep -P {})'.format(child_process.pid), stdout=subprocess.PIPE,shell=True)
         target_pid, err = target_process.communicate()
-        print(target_pid)
+        #print(target_pid)
         target_pid = target_pid.strip() 
 
         if target_pid != "":
