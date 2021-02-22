@@ -57,6 +57,7 @@ def extract(FAULT):
 
     rsyslog['timestamp'] = rsyslog['timestamp'].apply(lambda x: (string_to_date(x[:-7]) - configure["TIME"]).total_seconds())
     rsyslog = rsyslog[rsyslog.timestamp>= 0.0] 
+    rsyslog['address'] = rsyslog['address'].apply(lambda x: hex(x))
     if FAULT !=True:
         rsyslog = rsyslog[rsyslog['mode']!='fault']
     #rsyslog['address'] = rsyslog['address'].apply(lambda x : x/4096)

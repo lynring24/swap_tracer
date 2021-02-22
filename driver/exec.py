@@ -40,6 +40,9 @@ def config_option():
     print("\n---------------------------------------------------------------")
     print(" * command   : {} ".format(COMMAND))
     print("---------------------------------------------------------------\n")
+    with open('./tag', 'w') as tag:
+        tag.write(COMMAND)
+
 
 
 def execute(command):

@@ -27,6 +27,7 @@ def plot_out(dir_path, option):
         exit(1)
     #rsyslog = rsyslog[rsyslog['mode'] == 'out']
 
+    rsyslog['address'] = rsyslog['address'].apply(lambda x : int(x, 16))
     rsyslog = rsyslog.sort_values('address', ascending =0)
     rsyslog['prev'] = rsyslog['address'].shift(1)
     rsyslog['gap'] = rsyslog['address'].diff()
